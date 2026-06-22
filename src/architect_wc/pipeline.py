@@ -14,7 +14,7 @@ from typing import Any
 
 import yaml
 
-from architect_wc import artifact, ingest, ratings
+from architect_wc import artifact, ingest, model, ratings
 
 CONFIG_PATH = Path("config.yaml")
 
@@ -29,6 +29,12 @@ PLACEHOLDER_TEAMS = [
     "Germany",
     "Portugal",
     "Netherlands",
+]
+
+# Fixtures between strong teams, printed as an eyeball check on the goal model.
+SAMPLE_FIXTURES = [
+    ("Argentina", "France"),
+    ("Brazil", "Spain"),
 ]
 
 
@@ -48,15 +54,16 @@ def main() -> None:
 
     Real match data flows in through Layer 1, is frozen as an immutable
     snapshot, and is filtered by the leakage guard. Layer 2 computes Elo
-    ratings from those guarded matches. The win-probability simulation arrives
-    in a later phase, so the pipeline still emits equal-probability placeholder
-    predictions, while the run log records the data provenance and a ratings
-    summary so every run is traceable.
+    ratings and Layer 3 fits the Dixon-Coles goal model on those guarded
+    matches. Full tournament simulation is the next layer, so the pipeline
+    still emits equal-probability placeholder predictions, while the run log
+    records the data provenance and a ratings summary so every run is
+    traceable.
     """
     config = load_config()
     matches, provenance = ingest.load_matches(config)
-    team_ratings = ratings.compute_elo(matches, config)
 
+    team_ratings = ratings.compute_elo(matches, config)
     ratings_summary = {
         "n_teams": len(team_ratings),
         "top_teams": [
@@ -64,14 +71,6 @@ def main() -> None:
             for team, rating in team_ratings[:10]
         ],
     }
-
-    predictions = build_placeholder_predictions(PLACEHOLDER_TEAMS)
-    paths = artifact.write_artifact(
-        predictions,
-        config,
-        provenance=provenance,
-        ratings_summary=ratings_summary,
-    )
 
     print(
         f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
@@ -81,6 +80,28 @@ def main() -> None:
     print("Top 20 teams by Elo rating:")
     for rank, (team, rating) in enumerate(team_ratings[:20], start=1):
         print(f"{rank:>2}. {team:<24} {rating:8.1f}")
+
+    print("Fitting Dixon-Coles goal model on the guarded matches...")
+    goal_model = model.fit_model(matches, config)
+    print("Dixon-Coles outcome probabilities for sample fixtures:")
+    for home_team, away_team in SAMPLE_FIXTURES:
+        probs = model.match_probabilities(goal_model, home_team, away_team)
+        print(
+            f"  {home_team} vs {away_team}: "
+            f"home {probs['p_home_win']:.3f}, "
+            f"draw {probs['p_draw']:.3f}, "
+            f"away {probs['p_away_win']:.3f}"
+        )
+
+    # Full tournament simulation is the next layer. For now the artifact keeps
+    # the equal-probability placeholder predictions.
+    predictions = build_placeholder_predictions(PLACEHOLDER_TEAMS)
+    paths = artifact.write_artifact(
+        predictions,
+        config,
+        provenance=provenance,
+        ratings_summary=ratings_summary,
+    )
     print(f"Wrote predictions: {paths['predictions']}")
     print(f"Wrote run log: {paths['log']}")
 

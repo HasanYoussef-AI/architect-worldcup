@@ -20,6 +20,12 @@ elo:
   k_factor: 32
   home_advantage: 65
 
+# Dixon-Coles goal model parameters (Layer 3).
+dixon_coles:
+  # Time-decay rate xi. Larger xi makes older matches lose weight faster, so
+  # recent matches dominate. Tunable; 0.0018 follows the Dixon-Coles paper.
+  xi: 0.0018
+
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
   elo: true
