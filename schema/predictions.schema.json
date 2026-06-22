@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/predictions.schema.json",
+  "title": "Architect WorldCup predictions",
+  "description": "Output contract for a single prediction run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "generated_at",
+    "as_of_date",
+    "model_version",
+    "git_sha",
+    "predictions"
+  ],
+  "properties": {
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the run was generated."
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Leakage boundary; no data after this date enters the model."
+    },
+    "model_version": {
+      "type": "string",
+      "description": "Version of the model that produced these predictions."
+    },
+    "git_sha": {
+      "type": "string",
+      "description": "Git commit sha of the code that produced these predictions."
+    },
+    "predictions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Per-team tournament win probabilities.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["team", "p_win"],
+        "properties": {
+          "team": {
+            "type": "string",
+            "description": "Team name."
+          },
+          "p_win": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Probability the team wins the tournament."
+          }
+        }
+      }
+    }
+  }
+}

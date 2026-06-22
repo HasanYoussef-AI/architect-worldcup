@@ -1,0 +1,18 @@
+# Architect WorldCup run configuration.
+# as_of_date is the leakage boundary: no data after this date enters the model.
+as_of_date: "2026-06-22"
+
+# Monte Carlo simulation count.
+n_sims: 10000
+
+# Fixed seed for reproducibility. Same seed and data must produce same output.
+random_seed: 42
+
+# Time-decay weight for down-weighting older matches. Tuned in a later phase.
+time_decay: 0.0065
+
+# Ablation toggles. The harness flips these to isolate each layer.
+factors:
+  elo: true
+  dixon_coles: true
+  squad_value: true

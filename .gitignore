@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Editor and harness state
+.claude/
+
+# Byte-compiled and packaging artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Raw data snapshots and run outputs are not versioned, keep the dirs.
+data/raw/*
+!data/raw/.gitkeep
+outputs/predictions/*
+!outputs/predictions/.gitkeep
+outputs/logs/*
+!outputs/logs/.gitkeep
