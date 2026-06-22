@@ -15,7 +15,7 @@ from typing import Any
 
 import yaml
 
-from architect_wc import artifact, ingest, model, ratings, simulate, squad
+from architect_wc import artifact, calibrate, ingest, model, ratings, simulate, squad
 
 CONFIG_PATH = Path("config.yaml")
 
@@ -169,6 +169,46 @@ def main() -> None:
     )
     print(f"Wrote predictions: {paths['predictions']}")
     print(f"Wrote run log: {paths['log']}")
+
+
+def calibrate_main() -> None:
+    """Run the calibration backtest and write a calibration log.
+
+    A separate reporting path from the forecast: it scores the goal model out of
+    sample with the Ranked Probability Score against real results, compares it to
+    a naive base-rate baseline on the same matches under the same leakage
+    discipline, and prints and logs the model mean RPS, the baseline mean RPS, and
+    the number of matches scored. A lower score is better. If the model does not
+    beat the baseline that is a real finding, reported as is.
+    """
+    config = load_config()
+    matches, provenance = ingest.load_matches(config)
+
+    print(
+        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
+    )
+    print("Backtesting the goal model out of sample with RPS...")
+    results = calibrate.run_backtest(matches, config)
+
+    print(
+        f"Scored {results['n_matches']} matches in the holdout window "
+        f"{results['holdout_start']} to {results['holdout_end']}."
+    )
+    print(
+        f"Leakage check: model trained on data up to {results['train_max_date']}, "
+        f"strictly before the holdout start {results['holdout_start']}."
+    )
+    print(f"Model mean RPS:    {results['model_mean_rps']:.4f}  (lower is better)")
+    print(f"Baseline mean RPS: {results['baseline_mean_rps']:.4f}  (base rates)")
+    verdict = (
+        "Model beats the naive baseline."
+        if results["model_beats_baseline"]
+        else "Model does NOT beat the naive baseline. Reported as is."
+    )
+    print(verdict)
+
+    log_path = artifact.write_calibration_log(results, config, provenance=provenance)
+    print(f"Wrote calibration log: {log_path}")
 
 
 if __name__ == "__main__":

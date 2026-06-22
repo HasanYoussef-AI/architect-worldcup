@@ -45,6 +45,16 @@ squad:
 tournament:
   structure: "data/tournament/wc2026_groups_2026-06-10.csv"
 
+# Calibration backtest (Layer 6). Scores the model out of sample with the Ranked
+# Probability Score against real results, and compares it to a naive baseline.
+calibrate:
+  # Number of most recent matches to score. A single training cutoff is taken at
+  # the start of this window and the model is fit once on data strictly before
+  # it, then scored out of sample. Larger is more reliable but stretches the
+  # window further back, so the single fit is slightly staler for its most recent
+  # matches. The size trades cost against confidence and is tunable; widen later.
+  backtest_size: 150
+
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
   elo: true

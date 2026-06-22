@@ -90,3 +90,40 @@ def write_artifact(
     )
 
     return {"predictions": predictions_path, "log": log_path}
+
+
+def write_calibration_log(
+    results: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    provenance: dict[str, Any] | None = None,
+    model_version: str = MODEL_VERSION,
+    logs_dir: Path = LOGS_DIR,
+) -> Path:
+    """Write a calibration run log and return its path.
+
+    Calibration is a reporting path, not a forecast, so it writes only a run log,
+    not a predictions document. The same provenance pattern applies: the log
+    records the config, the random seed, the git sha, the UTC timestamp, the data
+    snapshot that fed the backtest, and the RPS results.
+    """
+    logs_dir = Path(logs_dir)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now(UTC)
+    stamp = now.strftime("%Y%m%dT%H%M%SZ")
+    calibration_log = {
+        "generated_at": now.isoformat(),
+        "as_of_date": str(config.get("as_of_date")),
+        "random_seed": config.get("random_seed"),
+        "git_sha": get_git_sha(),
+        "model_version": model_version,
+        "config": config,
+        "data_provenance": provenance,
+        "calibration": results,
+    }
+    log_path = logs_dir / f"calibration_{stamp}.json"
+    log_path.write_text(
+        json.dumps(calibration_log, indent=2, default=str) + "\n", encoding="utf-8"
+    )
+    return log_path
