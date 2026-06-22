@@ -24,3 +24,7 @@ Placeholder. To be written as the model layers are built.
 ## Calibration
 
 Placeholder. To be written once the calibration gate is in place.
+
+## License
+
+Proprietary, all rights reserved. This repository is public for evaluation and reference only. See LICENSE.

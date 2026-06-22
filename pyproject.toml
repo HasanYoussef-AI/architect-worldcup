@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "Live World Cup 2026 bracket re-simulator with a verification-first architecture."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "MIT" }
+license = { file = "LICENSE" }
 authors = [{ name = "Hasan Youssef" }]
 dependencies = [
     "penaltyblog",
