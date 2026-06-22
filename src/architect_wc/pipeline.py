@@ -14,7 +14,7 @@ from typing import Any
 
 import yaml
 
-from architect_wc import artifact
+from architect_wc import artifact, ingest
 
 CONFIG_PATH = Path("config.yaml")
 
@@ -44,10 +44,22 @@ def build_placeholder_predictions(teams: list[str]) -> list[dict[str, Any]]:
 
 
 def main() -> None:
-    """Run the dummy pipeline pass and write the artifact."""
+    """Run the pipeline pass and write the artifact.
+
+    Real match data now flows in through Layer 1, is frozen as an immutable
+    snapshot, and is filtered by the leakage guard. The filtered data is not
+    yet consumed: the real model arrives in the next phase. For now the
+    pipeline still emits equal-probability placeholder predictions, and the run
+    log records the data provenance so every run is traceable.
+    """
     config = load_config()
+    matches, provenance = ingest.load_matches(config)
     predictions = build_placeholder_predictions(PLACEHOLDER_TEAMS)
-    paths = artifact.write_artifact(predictions, config)
+    paths = artifact.write_artifact(predictions, config, provenance=provenance)
+    print(
+        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
+    )
+    print(f"Latest match date on or before the cutoff: {provenance['max_date']}")
     print(f"Wrote predictions: {paths['predictions']}")
     print(f"Wrote run log: {paths['log']}")
 

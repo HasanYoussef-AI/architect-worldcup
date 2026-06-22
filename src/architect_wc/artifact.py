@@ -38,6 +38,7 @@ def write_artifact(
     predictions: list[dict[str, Any]],
     config: dict[str, Any],
     *,
+    provenance: dict[str, Any] | None = None,
     model_version: str = MODEL_VERSION,
     predictions_dir: Path = PREDICTIONS_DIR,
     logs_dir: Path = LOGS_DIR,
@@ -46,7 +47,8 @@ def write_artifact(
 
     The predictions document is the single output contract that every
     downstream consumer reads. The run log records provenance so any run can be
-    reproduced from a fixed seed and dated data.
+    reproduced from a fixed seed and dated data. The optional provenance dict
+    records which data snapshot fed the run.
     """
     predictions_dir = Path(predictions_dir)
     logs_dir = Path(logs_dir)
@@ -76,6 +78,7 @@ def write_artifact(
         "git_sha": git_sha,
         "model_version": model_version,
         "config": config,
+        "data_provenance": provenance,
         "predictions_file": str(predictions_path),
     }
     log_path = logs_dir / f"run_{stamp}.json"
