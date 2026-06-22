@@ -39,6 +39,7 @@ def write_artifact(
     config: dict[str, Any],
     *,
     provenance: dict[str, Any] | None = None,
+    ratings_summary: dict[str, Any] | None = None,
     model_version: str = MODEL_VERSION,
     predictions_dir: Path = PREDICTIONS_DIR,
     logs_dir: Path = LOGS_DIR,
@@ -48,7 +49,8 @@ def write_artifact(
     The predictions document is the single output contract that every
     downstream consumer reads. The run log records provenance so any run can be
     reproduced from a fixed seed and dated data. The optional provenance dict
-    records which data snapshot fed the run.
+    records which data snapshot fed the run, and the optional ratings summary
+    records a short view of the Elo ratings used.
     """
     predictions_dir = Path(predictions_dir)
     logs_dir = Path(logs_dir)
@@ -79,6 +81,7 @@ def write_artifact(
         "model_version": model_version,
         "config": config,
         "data_provenance": provenance,
+        "ratings_summary": ratings_summary,
         "predictions_file": str(predictions_path),
     }
     log_path = logs_dir / f"run_{stamp}.json"

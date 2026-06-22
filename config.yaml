@@ -1,6 +1,9 @@
 # Architect WorldCup run configuration.
 # as_of_date is the leakage boundary: no data after this date enters the model.
-as_of_date: "2026-06-22"
+# 2026-06-10 is the pre-tournament baseline, the day before the World Cup
+# started, so no 2026 tournament matches enter the ratings. This is the frozen
+# baseline we score against reality later.
+as_of_date: "2026-06-10"
 
 # Monte Carlo simulation count.
 n_sims: 10000
@@ -10,6 +13,12 @@ random_seed: 42
 
 # Time-decay weight for down-weighting older matches. Tuned in a later phase.
 time_decay: 0.0065
+
+# Elo rating parameters (Layer 2), all configurable.
+elo:
+  base_rating: 1500
+  k_factor: 32
+  home_advantage: 65
 
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:

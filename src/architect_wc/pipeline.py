@@ -14,7 +14,7 @@ from typing import Any
 
 import yaml
 
-from architect_wc import artifact, ingest
+from architect_wc import artifact, ingest, ratings
 
 CONFIG_PATH = Path("config.yaml")
 
@@ -46,20 +46,41 @@ def build_placeholder_predictions(teams: list[str]) -> list[dict[str, Any]]:
 def main() -> None:
     """Run the pipeline pass and write the artifact.
 
-    Real match data now flows in through Layer 1, is frozen as an immutable
-    snapshot, and is filtered by the leakage guard. The filtered data is not
-    yet consumed: the real model arrives in the next phase. For now the
-    pipeline still emits equal-probability placeholder predictions, and the run
-    log records the data provenance so every run is traceable.
+    Real match data flows in through Layer 1, is frozen as an immutable
+    snapshot, and is filtered by the leakage guard. Layer 2 computes Elo
+    ratings from those guarded matches. The win-probability simulation arrives
+    in a later phase, so the pipeline still emits equal-probability placeholder
+    predictions, while the run log records the data provenance and a ratings
+    summary so every run is traceable.
     """
     config = load_config()
     matches, provenance = ingest.load_matches(config)
+    team_ratings = ratings.compute_elo(matches, config)
+
+    ratings_summary = {
+        "n_teams": len(team_ratings),
+        "top_teams": [
+            {"team": team, "rating": round(rating, 1)}
+            for team, rating in team_ratings[:10]
+        ],
+    }
+
     predictions = build_placeholder_predictions(PLACEHOLDER_TEAMS)
-    paths = artifact.write_artifact(predictions, config, provenance=provenance)
+    paths = artifact.write_artifact(
+        predictions,
+        config,
+        provenance=provenance,
+        ratings_summary=ratings_summary,
+    )
+
     print(
         f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
     )
     print(f"Latest match date on or before the cutoff: {provenance['max_date']}")
+    print(f"Computed Elo ratings for {len(team_ratings)} teams.")
+    print("Top 20 teams by Elo rating:")
+    for rank, (team, rating) in enumerate(team_ratings[:20], start=1):
+        print(f"{rank:>2}. {team:<24} {rating:8.1f}")
     print(f"Wrote predictions: {paths['predictions']}")
     print(f"Wrote run log: {paths['log']}")
 
