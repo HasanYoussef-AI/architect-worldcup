@@ -34,11 +34,11 @@ squad:
   snapshot: "data/squad_values/squad_values_2026-06-10.csv"
   # Rating points one standard deviation of squad value is worth. Tunable, and a
   # natural ablation factor later.
-  weight: 40
+  weight: 30
   # Cap in rating points on the absolute nudge for any single team, so the
   # adjustment tempers Elo rather than overriding it. Tunable, and a natural
   # ablation factor later.
-  max_adjustment: 75
+  max_adjustment: 120
 
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
