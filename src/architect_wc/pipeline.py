@@ -14,7 +14,7 @@ from typing import Any
 
 import yaml
 
-from architect_wc import artifact, ingest, model, ratings
+from architect_wc import artifact, ingest, model, ratings, squad
 
 CONFIG_PATH = Path("config.yaml")
 
@@ -54,20 +54,33 @@ def main() -> None:
 
     Real match data flows in through Layer 1, is frozen as an immutable
     snapshot, and is filtered by the leakage guard. Layer 2 computes Elo
-    ratings and Layer 3 fits the Dixon-Coles goal model on those guarded
-    matches. Full tournament simulation is the next layer, so the pipeline
-    still emits equal-probability placeholder predictions, while the run log
-    records the data provenance and a ratings summary so every run is
-    traceable.
+    ratings, Layer 4 nudges those ratings by current squad value, and Layer 3
+    fits the Dixon-Coles goal model on the guarded matches. The order is compute
+    Elo, then apply the squad adjustment, then fit the goal model. Full
+    tournament simulation is the next layer, so the pipeline still emits
+    equal-probability placeholder predictions, while the run log records the data
+    provenance and a ratings summary so every run is traceable.
     """
     config = load_config()
     matches, provenance = ingest.load_matches(config)
 
     team_ratings = ratings.compute_elo(matches, config)
+
+    squad_config = config.get("squad", {}) or {}
+    squad_values = squad.load_squad_values(squad_config["snapshot"])
+    adjusted_ratings = squad.adjust_ratings(team_ratings, squad_values, config)
+    adjusted_by_team = dict(adjusted_ratings)
+
     ratings_summary = {
         "n_teams": len(team_ratings),
+        "n_squad_values": len(squad_values),
         "top_teams": [
-            {"team": team, "rating": round(rating, 1)}
+            {
+                "team": team,
+                "elo": round(rating, 1),
+                "squad_nudge": round(adjusted_by_team[team] - rating, 1),
+                "adjusted": round(adjusted_by_team[team], 1),
+            }
             for team, rating in team_ratings[:10]
         ],
     }
@@ -77,9 +90,15 @@ def main() -> None:
     )
     print(f"Latest match date on or before the cutoff: {provenance['max_date']}")
     print(f"Computed Elo ratings for {len(team_ratings)} teams.")
-    print("Top 20 teams by Elo rating:")
+    print(f"Loaded squad values for {len(squad_values)} teams.")
+    print("Squad-value adjustment, top 20 teams by Elo (Elo, nudge, adjusted):")
+    print(f"    {'team':<24} {'elo':>8} {'nudge':>8} {'adjusted':>9}")
     for rank, (team, rating) in enumerate(team_ratings[:20], start=1):
-        print(f"{rank:>2}. {team:<24} {rating:8.1f}")
+        nudge = adjusted_by_team[team] - rating
+        print(
+            f"{rank:>2}. {team:<24} {rating:8.1f} {nudge:+8.1f} "
+            f"{adjusted_by_team[team]:9.1f}"
+        )
 
     print("Fitting Dixon-Coles goal model on the guarded matches...")
     goal_model = model.fit_model(matches, config)

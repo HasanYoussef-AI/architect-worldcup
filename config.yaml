@@ -26,6 +26,20 @@ dixon_coles:
   # recent matches dominate. Tunable; 0.0018 follows the Dixon-Coles paper.
   xi: 0.0018
 
+# Squad value adjustment parameters (Layer 4). Elo is the backbone; this layer
+# nudges each team by how its current squad market value compares to the field.
+squad:
+  # Snapshot of national-team squad market values. A committed, dated, controlled
+  # input, not a live scrape. The date aligns with as_of_date.
+  snapshot: "data/squad_values/squad_values_2026-06-10.csv"
+  # Rating points one standard deviation of squad value is worth. Tunable, and a
+  # natural ablation factor later.
+  weight: 40
+  # Cap in rating points on the absolute nudge for any single team, so the
+  # adjustment tempers Elo rather than overriding it. Tunable, and a natural
+  # ablation factor later.
+  max_adjustment: 75
+
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
   elo: true
