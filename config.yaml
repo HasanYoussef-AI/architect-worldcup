@@ -40,6 +40,11 @@ squad:
   # ablation factor later.
   max_adjustment: 120
 
+# Tournament structure (Layer 5). Dated, committed snapshot of the World Cup
+# 2026 format and group draw. A controlled input, not a live scrape.
+tournament:
+  structure: "data/tournament/wc2026_groups_2026-06-10.csv"
+
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
   elo: true

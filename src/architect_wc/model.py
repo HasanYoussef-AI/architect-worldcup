@@ -57,14 +57,20 @@ def fit_model(matches: pd.DataFrame, config: dict[str, Any]) -> DixonColesGoalMo
 
 
 def match_probabilities(
-    model: DixonColesGoalModel, home_team: str, away_team: str
+    model: DixonColesGoalModel,
+    home_team: str,
+    away_team: str,
+    neutral: bool = False,
 ) -> dict[str, float]:
     """Return outcome probabilities for a fixture from the scoreline grid.
 
     The dict has p_home_win, p_draw, and p_away_win, each a valid probability
-    derived from the model's scoreline probability grid.
+    derived from the model's scoreline probability grid. When neutral is True the
+    home advantage is excluded, so the home_team and away_team labels only set
+    which side of the dict each probability lands on. This is the hook the
+    simulator uses to keep World Cup venues neutral except for host nations.
     """
-    grid = model.predict(home_team, away_team)
+    grid = model.predict(home_team, away_team, neutral_venue=neutral)
     return {
         "p_home_win": float(grid.home_win),
         "p_draw": float(grid.draw),

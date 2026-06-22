@@ -1,0 +1,57 @@
+# World Cup 2026 tournament structure, pre-tournament snapshot as of 2026-06-10.
+# Official WC 2026 format: 48 teams, 12 groups of four. The top two of each
+# group plus the eight best third-placed teams advance to a round of 32, then
+# single elimination through to the final. The group assignments below are the
+# project's dated, controlled draw, seeded by pot strength and consistent with
+# the committed squad snapshot. They are a modelling input, not a scrape of the
+# official FIFA draw. See README.md in this folder. Team names match the match
+# dataset used by Layer 1.
+group,team
+A,Mexico
+A,Italy
+A,Nigeria
+A,Ghana
+B,Canada
+B,Croatia
+B,Norway
+B,DR Congo
+C,Argentina
+C,Colombia
+C,Ukraine
+C,Qatar
+D,United States
+D,Uruguay
+D,South Korea
+D,Saudi Arabia
+E,Spain
+E,Morocco
+E,Australia
+E,Costa Rica
+F,France
+F,Switzerland
+F,Egypt
+F,Panama
+G,Brazil
+G,Japan
+G,Ivory Coast
+G,Jamaica
+H,England
+H,Senegal
+H,Cameroon
+H,Uzbekistan
+I,Portugal
+I,Denmark
+I,Algeria
+I,Iraq
+J,Netherlands
+J,Ecuador
+J,Iran
+J,Tunisia
+K,Germany
+K,Austria
+K,Poland
+K,New Zealand
+L,Belgium
+L,Turkey
+L,Paraguay
+L,Bolivia
