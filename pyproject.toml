@@ -39,3 +39,6 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Import the package from src directly so the verification gate does not depend
+# on the editable install state.
+pythonpath = ["src"]
