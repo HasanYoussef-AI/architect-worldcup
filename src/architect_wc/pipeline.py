@@ -18,6 +18,7 @@ import yaml
 from architect_wc import (
     ablation,
     artifact,
+    audit,
     calibrate,
     ingest,
     model,
@@ -269,6 +270,26 @@ def walk_backtest_main() -> None:
 
     log_path = artifact.write_walk_forward_log(report, config, provenance=provenance)
     print(f"Wrote walk-forward log: {log_path}")
+
+
+def audit_main() -> None:
+    """Run the leakage and calibration audit and print its findings.
+
+    A read-only diagnostic that mirrors the other commands. It checks the
+    training data for duplicate fixtures and inspects the probabilities the model
+    emits for the most recent walk-forward window, the calibration anchor, for
+    overconfidence and validity. It refits only that one window, changes no model,
+    and leaves wc-calibrate, the 0.1611, and the walk-forward 0.1575 untouched.
+    """
+    config = load_config()
+    matches, provenance = ingest.load_matches(config)
+
+    print(
+        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
+    )
+    print("Running the leakage and calibration audit (one window fit)...")
+    report = audit.run_audit(matches, config)
+    print(audit.format_audit(report))
 
 
 if __name__ == "__main__":

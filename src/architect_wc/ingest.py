@@ -110,3 +110,17 @@ def load_matches(config: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, Any]]:
         "max_date": max_date,
     }
     return filtered, provenance
+
+
+DUPLICATE_KEYS = ["date", "home_team", "away_team"]
+
+
+def duplicate_matches(df: pd.DataFrame) -> pd.DataFrame:
+    """Return the rows that duplicate another on date, home team, and away team.
+
+    A real fixture is a single row. Two rows sharing the same date, home team, and
+    away team are the same match stored twice, which would let the model train on
+    a result it is also scored against. keep=False returns every row in any
+    duplicate group, so they can be inspected rather than silently dropped.
+    """
+    return df[df.duplicated(subset=DUPLICATE_KEYS, keep=False)]

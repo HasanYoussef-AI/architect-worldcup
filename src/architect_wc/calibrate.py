@@ -19,6 +19,7 @@ a single training cutoff and treats any overlap as a failure.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import Any, NamedTuple
 
 import numpy as np
@@ -209,9 +210,24 @@ def score_window(
     training base rates, and those base rates. Shared by the single-window
     backtest and the walk-forward harness so both score a window the identical
     way, which is what lets the walk-forward anchor reproduce the calibration RPS.
-    The fit is anchored as of the window cutoff so the time decay reference is
-    correct, and the baseline is computed from training only, so it is leakage
-    safe.
+    The baseline is computed from training only, so it is leakage safe.
+    """
+    model_probs, outcomes = window_predictions(window, config)
+    rates = base_rates(window.training)
+    baseline_probs = [list(rates)] * len(outcomes)
+    return mean_rps(model_probs, outcomes), mean_rps(baseline_probs, outcomes), rates
+
+
+def window_predictions(
+    window: BacktestWindow, config: dict[str, Any]
+) -> tuple[list[list[float]], list[int]]:
+    """Fit Dixon-Coles on the window training and return its holdout predictions.
+
+    Returns the raw per-match probability vectors the model emits for the holdout,
+    each (p_home_win, p_draw, p_away_win), and the actual outcome index for each.
+    This is the shared core under score_window, and the audit reuses it to inspect
+    the same probabilities the backtest scores, with no second fit path. The fit
+    is anchored as of the window cutoff so the time decay reference is correct.
     """
     from architect_wc import model
 
@@ -227,10 +243,7 @@ def score_window(
         )
         model_probs.append([probs["p_home_win"], probs["p_draw"], probs["p_away_win"]])
         outcomes.append(match.outcome)
-
-    rates = base_rates(window.training)
-    baseline_probs = [list(rates)] * len(outcomes)
-    return mean_rps(model_probs, outcomes), mean_rps(baseline_probs, outcomes), rates
+    return model_probs, outcomes
 
 
 def run_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
@@ -263,6 +276,41 @@ def run_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any
     }
 
 
+def walk_forward_windows(
+    matches: pd.DataFrame, config: dict[str, Any]
+) -> Iterator[BacktestWindow]:
+    """Yield the non-overlapping walk-forward windows, most recent first.
+
+    Each window is built by prepare_backtest and guarded by assert_no_leakage,
+    stepping backward by setting the next as_of to this window's train_max_date so
+    the holdouts are contiguous and share no matches. Shared by run_walk_forward
+    and by the leakage gate, so the gate checks the very windows the harness
+    scores, not a re-derived copy. Stops when the data can no longer form a full
+    window rather than padding.
+    """
+    calibrate_config = config.get("calibrate", {}) or {}
+    n_windows = int(calibrate_config.get("walk_windows", DEFAULT_WALK_WINDOWS))
+
+    current_as_of = str(config["as_of_date"])
+    for _ in range(n_windows):
+        window_config = dict(config)
+        window_config["as_of_date"] = current_as_of
+        try:
+            window = prepare_backtest(matches, window_config)
+        except ValueError:
+            return
+
+        # The leakage guard already fired inside prepare_backtest. Assert again so
+        # the guarantee is explicit for every walk-forward window, not just the
+        # anchor.
+        assert_no_leakage(
+            pd.Timestamp(window.train_max_date), pd.Timestamp(window.holdout_start)
+        )
+        yield window
+        # Step backward to the next, older, non-overlapping window.
+        current_as_of = window.train_max_date
+
+
 def run_walk_forward(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
     """Walk-forward backtest: non-overlapping holdouts stepping backward.
 
@@ -286,24 +334,7 @@ def run_walk_forward(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str,
     window_size = int(calibrate_config.get("backtest_size", DEFAULT_BACKTEST_SIZE))
 
     windows: list[dict[str, Any]] = []
-    current_as_of = str(config["as_of_date"])
-    for _ in range(n_windows):
-        window_config = dict(config)
-        window_config["as_of_date"] = current_as_of
-        try:
-            window = prepare_backtest(matches, window_config)
-        except ValueError:
-            # Ran out of data to form another full window. Stop honestly here and
-            # report the real number of windows reached rather than padding.
-            break
-
-        # The leakage guard already fired inside prepare_backtest. Assert again so
-        # the guarantee is explicit for every walk-forward window, not just the
-        # anchor.
-        assert_no_leakage(
-            pd.Timestamp(window.train_max_date), pd.Timestamp(window.holdout_start)
-        )
-
+    for window in walk_forward_windows(matches, config):
         model_mean, baseline_mean, _rates = score_window(window, config)
         windows.append(
             {
@@ -326,8 +357,6 @@ def run_walk_forward(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str,
                 ],
             }
         )
-        # Step backward to the next, older, non-overlapping window.
-        current_as_of = window.train_max_date
 
     if not windows:
         raise ValueError("Could not form any walk-forward window from the data.")
