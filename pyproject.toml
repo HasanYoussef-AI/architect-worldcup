@@ -12,6 +12,7 @@ dependencies = [
     "numpy",
     "pyyaml",
     "jsonschema",
+    "scikit-learn>=1.9.0",
 ]
 
 [project.scripts]
@@ -20,6 +21,7 @@ wc-calibrate = "architect_wc.pipeline:calibrate_main"
 wc-ablate = "architect_wc.pipeline:ablation_main"
 wc-walk-backtest = "architect_wc.pipeline:walk_backtest_main"
 wc-audit = "architect_wc.pipeline:audit_main"
+wc-ensemble = "architect_wc.pipeline:ensemble_main"
 
 [dependency-groups]
 dev = [

@@ -205,3 +205,40 @@ def write_walk_forward_log(
         json.dumps(walk_forward_log, indent=2, default=str) + "\n", encoding="utf-8"
     )
     return log_path
+
+
+def write_ensemble_log(
+    report: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    provenance: dict[str, Any] | None = None,
+    model_version: str = MODEL_VERSION,
+    logs_dir: Path = LOGS_DIR,
+) -> Path:
+    """Write a versioned ensemble artifact with provenance and return its path.
+
+    Carries the per-window ensemble RPS against Dixon-Coles and the baseline, the
+    aggregate mean and standard deviation, the feature importances, the fixed run
+    parameters, and the leakage cutoff dates, wrapped in the same provenance the
+    rest of the project uses. Presentation and the README read this file.
+    """
+    logs_dir = Path(logs_dir)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now(UTC)
+    stamp = now.strftime("%Y%m%dT%H%M%SZ")
+    ensemble_log = {
+        "generated_at": now.isoformat(),
+        "as_of_date": str(config.get("as_of_date")),
+        "random_seed": config.get("random_seed"),
+        "git_sha": get_git_sha(),
+        "model_version": model_version,
+        "config": config,
+        "data_provenance": provenance,
+        "ensemble": report,
+    }
+    log_path = logs_dir / f"ensemble_{stamp}.json"
+    log_path.write_text(
+        json.dumps(ensemble_log, indent=2, default=str) + "\n", encoding="utf-8"
+    )
+    return log_path

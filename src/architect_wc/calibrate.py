@@ -120,6 +120,10 @@ class BacktestWindow(NamedTuple):
     train_max_date: str
     holdout_start: str
     holdout_end: str
+    # Original dataframe index of each scorable holdout match, in the same order
+    # as matches. Lets a consumer align per-match features to the exact holdout
+    # rows by index, unambiguous even for the two known duplicate triples.
+    holdout_index: list[int]
 
 
 def assert_no_leakage(train_max: pd.Timestamp, holdout_min: pd.Timestamp) -> None:
@@ -198,6 +202,7 @@ def prepare_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> BacktestW
         train_max_date=train_max.date().isoformat(),
         holdout_start=holdout_min.date().isoformat(),
         holdout_end=holdout["date"].max().date().isoformat(),
+        holdout_index=list(scorable.index),
     )
 
 

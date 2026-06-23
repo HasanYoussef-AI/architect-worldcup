@@ -20,6 +20,7 @@ from architect_wc import (
     artifact,
     audit,
     calibrate,
+    ensemble,
     ingest,
     model,
     ratings,
@@ -290,6 +291,30 @@ def audit_main() -> None:
     print("Running the leakage and calibration audit (one window fit)...")
     report = audit.run_audit(matches, config)
     print(audit.format_audit(report))
+
+
+def ensemble_main() -> None:
+    """Run the hybrid ensemble on the walk-forward splits and write an artifact.
+
+    Mirrors the other commands. It builds the point-in-time features once, then
+    trains and scores the gradient boosting ensemble on the exact Phase 7.6
+    walk-forward windows, reporting it against Dixon-Coles and the baseline with
+    the feature importances. It does not alter the Dixon-Coles results, which are
+    recomputed here only as the comparison columns.
+    """
+    config = load_config()
+    matches, provenance = ingest.load_matches(config)
+
+    print(
+        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
+    )
+    print("Building point-in-time features and scoring the ensemble per window...")
+    report = ensemble.run_ensemble(matches, config)
+
+    print(ensemble.format_ensemble(report))
+
+    log_path = artifact.write_ensemble_log(report, config, provenance=provenance)
+    print(f"Wrote ensemble log: {log_path}")
 
 
 if __name__ == "__main__":

@@ -66,6 +66,23 @@ calibrate:
   # 1872, so even the earliest window still trains on tens of thousands of matches.
   walk_windows: 8
 
+# Hybrid ensemble (ability estimates plus covariates into a tree ensemble).
+# A separate per-match model evaluated on the walk-forward splits, not the
+# simulator engine. The point-in-time Dixon-Coles ability feature is built from a
+# grid of refits, each on data strictly before its grid date.
+ensemble:
+  # Days between point-in-time ability refits. Smaller is fresher but slower.
+  grid_cadence_days: 120
+  # Rolling lookback per refit. Beyond about eight years the xi time decay is tiny.
+  grid_lookback_days: 2920
+  # How far back the ability grid extends. Older matches get an unknown ability.
+  grid_years: 12
+  # Minimum matches in a refit slice; thinner slices are skipped.
+  min_fit_matches: 200
+  # Gradient boosting hyperparameters, fixed for reproducibility.
+  max_iter: 300
+  learning_rate: 0.05
+
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
   elo: true
