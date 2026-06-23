@@ -50,6 +50,9 @@ squad:
 # 2026 format and group draw. A controlled input, not a live scrape.
 tournament:
   structure: "data/tournament/wc2026_groups_2026-06-10.csv"
+  # Official FIFA Annex C table mapping each of the 495 third-place qualifying
+  # combinations to round-of-32 slots, parsed from the published schedule.
+  r32_assignment: "data/tournament/r32_thirdplace_assignment_2026.csv"
 
 # Calibration backtest (Layer 6). Scores the model out of sample with the Ranked
 # Probability Score against real results, and compares it to a naive baseline.

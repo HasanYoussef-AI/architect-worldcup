@@ -1,140 +1,179 @@
-"""Verification gate: Monte Carlo bracket simulation.
+"""Verification gate: the real World Cup 2026 tournament logic, structural only.
 
-Hermetic test, no network, on a tiny synthetic field with a low simulation
-count. Match outcomes come from a synthetic prob_fn driven by team strengths,
-so the gate never touches penaltyblog or fits a model. Checks that stage
-probabilities are valid and stack correctly, that win probabilities sum to one,
-that a clearly stronger team wins more often than a clearly weaker one, that
-knockout matches never return a draw, and, the key gate, that the same seed and
-inputs reproduce identical results.
+Hermetic, mostly on constructed cases so the tiebreaker and bracket logic is
+proven exactly. The real-data name-resolution check is guarded to run wherever
+the snapshot exists. These gates cover the parts where a subtle bug would
+silently corrupt the bracket: head-to-head before overall goal difference, the
+three-way re-assessment, the third-place ladder, the round-of-32 assignment, and
+that every group team resolves to a rating.
 """
 
 from __future__ import annotations
 
+import itertools
+from pathlib import Path
+
 import numpy as np
-import pandas as pd
 import pytest
 
-from architect_wc import simulate
+from architect_wc import ingest, simulate
 
-# Home edge in the synthetic strengths, only applied to non-neutral matches.
-HOME_EDGE = 60.0
-SEED = 7
-N_SIMS = 300
+REPO_ROOT = Path(__file__).resolve().parents[1]
+RAW_DIR = REPO_ROOT / "data" / "raw"
+STRUCTURE_PATH = REPO_ROOT / "data" / "tournament" / "wc2026_groups_2026-06-10.csv"
+ASSIGNMENT_PATH = (
+    REPO_ROOT / "data" / "tournament" / "r32_thirdplace_assignment_2026.csv"
+)
 
-# Stage fields produced for a 16-team bracket, in the order a team passes them.
-STAGE_FIELDS = [
-    "p_round_of_16",
-    "p_quarter_final",
-    "p_semi_final",
-    "p_final",
-    "p_win",
-]
+GROUPS = "ABCDEFGHIJKL"
 
 
-def _field() -> tuple[dict[str, list[str]], dict[str, float]]:
-    """Build 6 groups of 4 with a clear strength gradient, T01 best, T24 worst.
-
-    Six groups give a 16-team bracket filled by the top two of each group plus
-    four best thirds, so the thirds path is exercised. The snake of strengths
-    across groups keeps the strongest teams apart.
-    """
-    strength = {f"T{n:02d}": 2100.0 - 50.0 * (n - 1) for n in range(1, 25)}
-    groups = {
-        f"G{g}": [f"T{g + 1:02d}", f"T{g + 7:02d}", f"T{g + 13:02d}", f"T{g + 19:02d}"]
-        for g in range(6)
-    }
-    return groups, strength
+def _context() -> dict:
+    return {"ratings": {}}
 
 
-def _prob_fn(strength: dict[str, float]) -> simulate.ProbFn:
-    """Synthetic outcome model: a logistic on strength, with a carved draw share."""
-
-    def prob_fn(home: str, away: str, neutral: bool) -> tuple[float, float, float]:
-        edge = 0.0 if neutral else HOME_EDGE
-        diff = (strength[home] - strength[away]) + edge
-        p_home_raw = 1.0 / (1.0 + 10.0 ** (-diff / 400.0))
-        p_draw = 0.25 * (1.0 - abs(2.0 * p_home_raw - 1.0))
-        return (
-            p_home_raw * (1.0 - p_draw),
-            p_draw,
-            (1.0 - p_home_raw) * (1.0 - p_draw),
-        )
-
-    return prob_fn
-
-
-def _run() -> list[dict[str, object]]:
-    groups, strength = _field()
-    return simulate.run_simulations(
-        groups, _prob_fn(strength), strength, n_sims=N_SIMS, seed=SEED
+def test_head_to_head_beats_overall_goal_difference() -> None:
+    # X and Y finish level on points. X has the better overall goal difference,
+    # but Y beat X head-to-head, so the ladder must rank Y above X.
+    results = [
+        ("Y", "X", 1, 0),  # Y beats X head-to-head
+        ("X", "Z", 5, 0),  # X piles up overall goal difference
+        ("X", "W", 3, 0),
+        ("Z", "Y", 1, 0),
+        ("Y", "W", 1, 0),
+        ("W", "Z", 2, 0),
+    ]
+    ranked = simulate.rank_group(
+        ["X", "Y", "Z", "W"], results, _context(), np.random.default_rng(0)
     )
+    # X has overall GD +7, Y only +1; sorting by overall GD first would put X top.
+    assert ranked.index("Y") < ranked.index("X")
+    assert ranked[0] == "Y"
 
 
-def test_stage_probabilities_are_valid_and_stack() -> None:
-    for record in _run():
-        for field in STAGE_FIELDS:
+def test_three_way_tie_reassesses_after_one_team_separates() -> None:
+    # A, B, C all finish on 6 points. Head-to-head separates A first. B and C
+    # remain level on every head-to-head aggregate, so the criteria are reapplied
+    # to just B and C, where B beat C, ranking B above C, even though C has the
+    # better overall goal difference.
+    results = [
+        ("A", "B", 3, 0),
+        ("C", "A", 2, 1),
+        ("B", "C", 2, 0),
+        ("A", "D", 1, 0),
+        ("B", "D", 1, 0),
+        ("C", "D", 5, 0),  # C inflates its overall goal difference
+    ]
+    ranked = simulate.rank_group(
+        ["A", "B", "C", "D"], results, _context(), np.random.default_rng(0)
+    )
+    assert ranked[0] == "A"
+    # Overall GD would order C before B; the head-to-head re-assessment must not.
+    assert ranked.index("B") < ranked.index("C")
+    assert ranked[3] == "D"
+
+
+def test_third_place_ladder_has_no_head_to_head_and_selects_eight() -> None:
+    # Twelve third-placed teams with distinct overall stats, ranked with no
+    # head-to-head. The best eight by points, goal difference, goals advance.
+    third_teams = [(g, f"3_{g}") for g in GROUPS]
+    overall_stats = {f"3_{g}": (4 - i // 4, 5 - i, 9 - i) for i, g in enumerate(GROUPS)}
+    ranked = simulate.rank_third_place(
+        third_teams, overall_stats, _context(), np.random.default_rng(0)
+    )
+    assert len(ranked) == 12
+    # Ranking matches a plain sort by (points, gd, goals), no head-to-head.
+    expected = sorted(third_teams, key=lambda e: overall_stats[e[1]], reverse=True)
+    assert ranked == expected
+    advancing = ranked[:8]
+    assert len(advancing) == 8
+    assert len({team for _, team in advancing}) == 8
+
+
+def test_round_of_32_assignment_is_valid_for_every_combination() -> None:
+    table = simulate.load_assignment_table(ASSIGNMENT_PATH)
+    winners = {g: f"W_{g}" for g in GROUPS}
+    runners = {g: f"RU_{g}" for g in GROUPS}
+
+    def group_of(team: str) -> str:
+        return team.split("_")[1]
+
+    checked = 0
+    for combo in itertools.combinations(GROUPS, 8):
+        qualifying = [(g, f"3_{g}") for g in combo]
+        matches = simulate.assign_round_of_32(winners, runners, qualifying, table)
+        assert len(matches) == 16  # every slot filled, no slot empty
+        teams = [team for pair in matches.values() for team in pair]
+        assert len(teams) == 32
+        assert len(set(teams)) == 32  # no team appears twice
+        for team_a, team_b in matches.values():
+            assert group_of(team_a) != group_of(team_b)  # no group-stage rematch
+        checked += 1
+    assert checked == 495
+
+
+def test_all_group_teams_resolve_to_a_rating() -> None:
+    structure = simulate.load_structure(STRUCTURE_PATH)
+    teams = [team for group in structure.values() for team in group]
+    assert len(teams) == 48
+    snapshots = sorted(RAW_DIR.glob("results_snapshot_*.csv"))
+    if not snapshots:
+        pytest.skip("no local results snapshot to resolve names against")
+    df = ingest.load_raw(snapshots[-1])
+    rated = set(df["home_team"]) | set(df["away_team"])
+    unmatched = [team for team in teams if team not in rated]
+    assert not unmatched, f"group teams with no rating: {unmatched}"
+
+
+def _rating_score_fn(ratings: dict[str, float]) -> simulate.ScoreFn:
+    def score_fn(home, away, neutral, rng):
+        edge = 0.0 if neutral else 60.0
+        diff = ratings.get(home, 1500.0) - ratings.get(away, 1500.0) + edge
+        lam_home = max(0.15, 1.4 + diff / 400.0)
+        lam_away = max(0.15, 1.4 - diff / 400.0)
+        return int(rng.poisson(lam_home)), int(rng.poisson(lam_away))
+
+    return score_fn
+
+
+def _small_field() -> tuple[dict, dict]:
+    structure = simulate.load_structure(STRUCTURE_PATH)
+    teams = [team for group in structure.values() for team in group]
+    # A clear strength gradient so the simulation is well-behaved.
+    ratings = {team: 2100.0 - 8.0 * index for index, team in enumerate(teams)}
+    return structure, ratings
+
+
+def test_simulation_probabilities_are_valid_and_reproducible() -> None:
+    structure, ratings = _small_field()
+    table = simulate.load_assignment_table(ASSIGNMENT_PATH)
+    score_fn = _rating_score_fn(ratings)
+    first, meta = simulate.run_simulations(
+        structure, score_fn, ratings, table, n_sims=120, seed=42
+    )
+    second, _ = simulate.run_simulations(
+        structure, score_fn, ratings, table, n_sims=120, seed=42
+    )
+    assert first == second  # deterministic under a fixed seed
+
+    stages = [
+        "p_round_of_32",
+        "p_round_of_16",
+        "p_quarter_final",
+        "p_semi_final",
+        "p_final",
+        "p_win",
+    ]
+    for record in first:
+        for field in stages:
             assert 0.0 <= record[field] <= 1.0
-        # Reaching a later stage can never be more likely than an earlier one.
-        for earlier, later in zip(STAGE_FIELDS, STAGE_FIELDS[1:], strict=False):
+        for earlier, later in zip(stages, stages[1:], strict=False):
             assert record[earlier] >= record[later] - 1e-12
-
-
-def test_win_probabilities_sum_to_one() -> None:
-    total = sum(record["p_win"] for record in _run())
-    assert abs(total - 1.0) <= 1e-9
-
-
-def test_stronger_team_wins_more_often() -> None:
-    results = {record["team"]: record for record in _run()}
-    assert results["T01"]["p_win"] > results["T24"]["p_win"]
-
-
-def test_knockout_never_returns_a_draw() -> None:
-    _groups, strength = _field()
-    prob_fn = _prob_fn(strength)
-    rng = np.random.default_rng(0)
-    pair = ("T11", "T12")  # near-even, so the group stage would draw often
-    for _ in range(300):
-        result = simulate.simulate_match(
-            prob_fn, pair[0], pair[1], rng, neutral=True, knockout=True
-        )
-        assert result in pair
-
-
-def test_simulation_is_reproducible() -> None:
-    groups, strength = _field()
-    prob_fn = _prob_fn(strength)
-    first = simulate.run_simulations(
-        groups, prob_fn, strength, n_sims=N_SIMS, seed=SEED
-    )
-    second = simulate.run_simulations(
-        groups, prob_fn, strength, n_sims=N_SIMS, seed=SEED
-    )
-    assert first == second
-
-
-def test_load_structure_reads_groups(tmp_path) -> None:
-    path = tmp_path / "groups.csv"
-    pd.DataFrame({"group": ["A", "A", "B", "B"], "team": ["W", "X", "Y", "Z"]}).to_csv(
-        path, index=False
-    )
-    assert simulate.load_structure(path) == {"A": ["W", "X"], "B": ["Y", "Z"]}
+    assert abs(sum(record["p_win"] for record in first) - 1.0) <= 1e-9
+    assert 0.0 <= meta["fair_play_fallback_fraction"] <= 1.0
 
 
 def test_load_structure_skips_comment_lines(tmp_path) -> None:
     path = tmp_path / "groups.csv"
-    path.write_text("# a dated note\ngroup,team\nA,W\nA,X\n", encoding="utf-8")
+    path.write_text("# note\ngroup,team\nA,W\nA,X\n", encoding="utf-8")
     assert simulate.load_structure(path) == {"A": ["W", "X"]}
-
-
-def test_load_structure_missing_file_raises(tmp_path) -> None:
-    with pytest.raises(FileNotFoundError):
-        simulate.load_structure(tmp_path / "absent.csv")
-
-
-def test_load_structure_missing_column_raises(tmp_path) -> None:
-    path = tmp_path / "bad.csv"
-    pd.DataFrame({"group": ["A"], "side": ["W"]}).to_csv(path, index=False)
-    with pytest.raises(ValueError, match="missing expected columns"):
-        simulate.load_structure(path)

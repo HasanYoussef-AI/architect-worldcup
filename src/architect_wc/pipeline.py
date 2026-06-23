@@ -63,25 +63,36 @@ def build_placeholder_predictions(teams: list[str]) -> list[dict[str, Any]]:
     return [{"team": team, "p_win": p_win} for team in teams]
 
 
-def _build_prob_fn(goal_model: Any) -> simulate.ProbFn:
-    """Wrap the goal model in a cached prob_fn for the simulator.
+def build_score_fn(goal_model: Any) -> simulate.ScoreFn:
+    """Wrap the goal model in a cached scoreline sampler for the simulator.
 
-    Outcome probabilities for a given ordered fixture and venue are
-    deterministic, so they are computed once per unique matchup and reused. That
-    keeps thousands of simulated tournaments from re-querying the same fixtures.
+    The simulator needs goals, not just outcomes, for the group tiebreakers, so
+    this samples a scoreline from the Dixon-Coles joint goal matrix. The matrix
+    for a given fixture and venue is deterministic, so it is computed once per
+    unique matchup and reused as a cumulative distribution that the random draw
+    indexes into.
     """
-    cache: dict[tuple[str, str, bool], tuple[float, float, float]] = {}
+    import numpy as np
 
-    def prob_fn(home: str, away: str, neutral: bool) -> tuple[float, float, float]:
+    cache: dict[tuple[str, str, bool], tuple[int, np.ndarray]] = {}
+
+    def score_fn(home: str, away: str, neutral: bool, rng: Any) -> tuple[int, int]:
         key = (home, away, neutral)
         cached = cache.get(key)
         if cached is None:
-            probs = model.match_probabilities(goal_model, home, away, neutral=neutral)
-            cached = (probs["p_home_win"], probs["p_draw"], probs["p_away_win"])
-            cache[key] = cached
-        return cached
+            grid = goal_model.predict(home, away, neutral_venue=neutral)
+            matrix = np.asarray(grid.goal_matrix, dtype=np.float64)
+            flat = matrix.ravel()
+            flat = flat / flat.sum()
+            cache[key] = (matrix.shape[1], np.cumsum(flat))
+            cached = cache[key]
+        n_columns, cumulative = cached
+        index = int(np.searchsorted(cumulative, rng.random()))
+        index = min(index, cumulative.size - 1)
+        home_goals, away_goals = divmod(index, n_columns)
+        return int(home_goals), int(away_goals)
 
-    return prob_fn
+    return score_fn
 
 
 def main() -> None:
@@ -147,16 +158,25 @@ def main() -> None:
             f"away {probs['p_away_win']:.3f}"
         )
 
-    structure = simulate.load_structure(config["tournament"]["structure"])
+    tournament_config = config.get("tournament", {}) or {}
+    structure = simulate.load_structure(tournament_config["structure"])
+    assignment_table = simulate.load_assignment_table(
+        tournament_config["r32_assignment"]
+    )
     n_sims = int(config.get("n_sims", 10000))
     seed = int(config.get("random_seed", 42))
     print(
-        f"Simulating {n_sims} tournaments over {len(structure)} groups, "
-        f"neutral venues except hosts, seed {seed}..."
+        f"Simulating {n_sims} tournaments over {len(structure)} groups on the real "
+        f"2026 bracket, hosts at home in the group stage, seed {seed}..."
     )
-    prob_fn = _build_prob_fn(goal_model)
-    predictions = simulate.run_simulations(
-        structure, prob_fn, adjusted_by_team, n_sims=n_sims, seed=seed
+    score_fn = build_score_fn(goal_model)
+    predictions, sim_meta = simulate.run_simulations(
+        structure,
+        score_fn,
+        adjusted_by_team,
+        assignment_table,
+        n_sims=n_sims,
+        seed=seed,
     )
 
     ranked = sorted(predictions, key=lambda record: record["p_win"], reverse=True)
@@ -171,6 +191,10 @@ def main() -> None:
             f"{record['p_final']:7.3f} "
             f"{record['p_win']:7.3f}"
         )
+    print(
+        f"Fair-play fallback was reached in "
+        f"{sim_meta['fair_play_fallback_fraction'] * 100:.2f} percent of simulations."
+    )
 
     paths = artifact.write_artifact(
         predictions,
