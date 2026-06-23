@@ -25,6 +25,12 @@ dixon_coles:
   # Time-decay rate xi. Larger xi makes older matches lose weight faster, so
   # recent matches dominate. Tunable; 0.0018 follows the Dixon-Coles paper.
   xi: 0.0018
+  # Match-importance downweight for friendlies, applied only when the
+  # factors.friendly_downweight toggle is on. Friendlies are low-stakes and often
+  # played with experimental lineups, so they carry weaker signal. This weight
+  # multiplies onto the xi time decay, it does not replace it. 1.0 means no
+  # downweight; 0.5 counts a friendly as half a competitive match.
+  friendly_weight: 0.5
 
 # Squad value adjustment parameters (Layer 4). Elo is the backbone; this layer
 # nudges each team by how its current squad market value compares to the field.
@@ -60,3 +66,7 @@ factors:
   elo: true
   dixon_coles: true
   squad_value: true
+  # Off by default so the deployed forecast and the recorded 0.1611 calibration
+  # stay unchanged. The ablation flips this on to measure what the friendly
+  # downweight is worth before we decide whether it becomes the default.
+  friendly_downweight: false

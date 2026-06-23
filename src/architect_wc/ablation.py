@@ -49,23 +49,50 @@ DECOUPLING_NOTE = (
 )
 
 # Each configuration is a name, the layer flags it runs under, and a description.
-# The flags are the config factors: elo, dixon_coles, squad_value. dc_model runs
-# Dixon-Coles, so its elo and squad flags do not touch its probabilities, which
-# is the decoupling stated above.
+# The flags are the config factors: elo, dixon_coles, squad_value, and
+# friendly_downweight. dc_model runs Dixon-Coles, so its elo and squad flags do
+# not touch its probabilities, which is the decoupling stated above. The
+# friendly_downweight flag does move the Dixon-Coles fit, so it is toggled on a
+# second Dixon-Coles configuration to measure what the downweight is worth.
 CONFIGS = [
     {
         "name": "dc_model",
-        "flags": {"elo": True, "dixon_coles": True, "squad_value": True},
+        "flags": {
+            "elo": True,
+            "dixon_coles": True,
+            "squad_value": True,
+            "friendly_downweight": False,
+        },
         "description": "Dixon-Coles goal model, reference",
     },
     {
+        "name": "dc_model_friendly_downweight",
+        "flags": {
+            "elo": True,
+            "dixon_coles": True,
+            "squad_value": True,
+            "friendly_downweight": True,
+        },
+        "description": "Dixon-Coles with friendlies downweighted",
+    },
+    {
         "name": "elo_model",
-        "flags": {"elo": True, "dixon_coles": False, "squad_value": True},
+        "flags": {
+            "elo": True,
+            "dixon_coles": False,
+            "squad_value": True,
+            "friendly_downweight": False,
+        },
         "description": "Elo win, draw, loss generator, squad value on",
     },
     {
         "name": "elo_model_minus_squad",
-        "flags": {"elo": True, "dixon_coles": False, "squad_value": False},
+        "flags": {
+            "elo": True,
+            "dixon_coles": False,
+            "squad_value": False,
+            "friendly_downweight": False,
+        },
         "description": "Elo generator, squad value off",
     },
 ]
@@ -155,11 +182,20 @@ def run_ablation(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any
 
     scored: dict[str, float] = {}
     for entry in CONFIGS:
-        # The leakage guard fires for every configuration, not just the first.
+        # The leakage guard fires for every configuration, not just the first,
+        # including the friendly-downweighted Dixon-Coles fit.
         calibrate.assert_no_leakage(train_max, holdout_start)
         flags = entry["flags"]
         if flags["dixon_coles"]:
-            probs = _dixon_coles_probs(window, fit_config)
+            # Thread the friendly-downweight factor into this fit only. The shared
+            # fit_config is left untouched so the dc_model reference stays the
+            # unweighted path that reproduces the calibration RPS.
+            dc_fit_config = dict(fit_config)
+            dc_fit_config["factors"] = {
+                **(config.get("factors") or {}),
+                "friendly_downweight": flags["friendly_downweight"],
+            }
+            probs = _dixon_coles_probs(window, dc_fit_config)
         else:
             probs = _elo_probs(window, flags, config, squad_values, base_ratings)
         scored[entry["name"]] = calibrate.mean_rps(probs, outcomes)
@@ -195,6 +231,15 @@ def run_ablation(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any
         "was not adding measured value on this window."
     )
 
+    # Lower RPS is better, so a negative delta means the downweight helped.
+    downweight_delta = scored["dc_model_friendly_downweight"] - scored["dc_model"]
+    downweight_interpretation = (
+        "Downweighting friendlies lowered the Dixon-Coles RPS, so it helped."
+        if downweight_delta < 0
+        else "Downweighting friendlies did not lower the Dixon-Coles RPS on this "
+        "window, so it did not help."
+    )
+
     return {
         "as_of_date": str(config.get("as_of_date")),
         "random_seed": config.get("random_seed"),
@@ -212,6 +257,10 @@ def run_ablation(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any
             "delta_rps": squad_delta,
             "interpretation": squad_interpretation,
         },
+        "friendly_downweight_within_dc": {
+            "delta_rps": downweight_delta,
+            "interpretation": downweight_interpretation,
+        },
     }
 
 
@@ -226,14 +275,15 @@ def format_report(report: dict[str, Any]) -> str:
         ),
         f"Convention: {report['convention']}",
         "",
-        f"  {'config':<24} {'mean_rps':>9} {'delta_vs_dc':>12}   description",
+        f"  {'config':<30} {'mean_rps':>9} {'delta_vs_dc':>12}   description",
     ]
     for row in report["configs"]:
         lines.append(
-            f"  {row['name']:<24} {row['mean_rps']:9.4f} {row['delta_vs_dc']:+12.4f}"
+            f"  {row['name']:<30} {row['mean_rps']:9.4f} {row['delta_vs_dc']:+12.4f}"
             f"   {row['description']}"
         )
     squad = report["squad_value_within_elo"]
+    downweight = report["friendly_downweight_within_dc"]
     lines.extend(
         [
             "",
@@ -242,6 +292,12 @@ def format_report(report: dict[str, Any]) -> str:
                 f"{squad['delta_rps']:+.4f}."
             ),
             squad["interpretation"],
+            "",
+            (
+                "Friendly downweight inside Dixon-Coles: turning it on changes RPS "
+                f"by {downweight['delta_rps']:+.4f}."
+            ),
+            downweight["interpretation"],
             "",
             f"Decoupling note: {report['decoupling_note']}",
         ]

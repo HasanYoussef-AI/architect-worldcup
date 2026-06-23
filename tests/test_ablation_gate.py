@@ -13,7 +13,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from architect_wc import ablation, calibrate
+from architect_wc import ablation, calibrate, model
 
 COLUMNS = [
     "date",
@@ -143,3 +143,37 @@ def test_dc_model_beats_baseline(synthetic) -> None:
     # Soft sanity only, on the goal model versus the base-rate floor. The
     # elo-versus-dc ordering and the squad sign are findings, so not asserted.
     assert _config_rps(report, "dc_model") < _config_rps(report, "baseline")
+
+
+def test_importance_weights_off_is_uniform() -> None:
+    tournaments = pd.Series(["Friendly", "FIFA World Cup", "Friendly"])
+    config = {
+        "dixon_coles": {"friendly_weight": 0.5},
+        "factors": {"friendly_downweight": False},
+    }
+    # Off means every match keeps full weight, which is what makes the unweighted
+    # dc_model reproduce the calibration RPS exactly.
+    assert list(model.importance_weights(tournaments, config)) == [1.0, 1.0, 1.0]
+
+
+def test_importance_weights_downweights_only_friendlies() -> None:
+    tournaments = pd.Series(["Friendly", "FIFA World Cup", "Friendly"])
+    config = {
+        "dixon_coles": {"friendly_weight": 0.5},
+        "factors": {"friendly_downweight": True},
+    }
+    # Friendlies drop to friendly_weight; competitive matches stay at 1.0.
+    assert list(model.importance_weights(tournaments, config)) == [0.5, 1.0, 0.5]
+
+
+def test_weighted_fit_preserves_no_leakage(synthetic) -> None:
+    matches, config = synthetic
+    weighted = dict(config)
+    weighted["factors"] = {"friendly_downweight": True}
+    weighted["dixon_coles"] = {**config["dixon_coles"], "friendly_weight": 0.5}
+    # The friendly-downweighted fit goes through the same leakage-guarded window,
+    # so training still ends strictly before the holdout starts.
+    result = calibrate.run_backtest(matches, weighted)
+    train_max = pd.Timestamp(result["train_max_date"])
+    holdout_start = pd.Timestamp(result["holdout_start"])
+    assert train_max < holdout_start
