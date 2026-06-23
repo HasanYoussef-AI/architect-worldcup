@@ -60,6 +60,11 @@ calibrate:
   # window further back, so the single fit is slightly staler for its most recent
   # matches. The size trades cost against confidence and is tunable; widen later.
   backtest_size: 150
+  # Number of non-overlapping windows for the walk-forward backtest, each of
+  # backtest_size matches, stepping backward from as_of_date. More windows give a
+  # tighter spread estimate but reach further into the past. The data runs back to
+  # 1872, so even the earliest window still trains on tens of thousands of matches.
+  walk_windows: 8
 
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:

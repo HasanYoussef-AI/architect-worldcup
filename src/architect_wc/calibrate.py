@@ -31,6 +31,7 @@ DRAW = 1
 AWAY_WIN = 2
 
 DEFAULT_BACKTEST_SIZE = 150
+DEFAULT_WALK_WINDOWS = 8
 
 
 def outcome_index(home_score: Any, away_score: Any) -> int:
@@ -89,8 +90,14 @@ def _is_neutral(value: Any) -> bool:
 
 
 class ScorableMatch(NamedTuple):
-    """One holdout match to be scored: the teams, its venue, and its result."""
+    """One holdout match to be scored: its date, teams, venue, and result.
 
+    The date and teams together identify the match, so a walk-forward window can
+    record exactly which matches it scored and a later phase can reuse the
+    identical split without regenerating it by guesswork.
+    """
+
+    date: str
     home_team: str
     away_team: str
     neutral: bool
@@ -173,6 +180,7 @@ def prepare_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> BacktestW
 
     scorable_matches = [
         ScorableMatch(
+            date=pd.Timestamp(row.date).date().isoformat(),
             home_team=row.home_team,
             away_team=row.away_team,
             neutral=_is_neutral(row.neutral),
@@ -192,20 +200,21 @@ def prepare_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> BacktestW
     )
 
 
-def run_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
-    """Backtest the goal model out of sample and compare it to a naive baseline.
+def score_window(
+    window: BacktestWindow, config: dict[str, Any]
+) -> tuple[float, float, tuple[float, float, float]]:
+    """Fit Dixon-Coles on a window's training and score its holdout with RPS.
 
-    Prepares the shared leakage-enforced window, fits the Dixon-Coles goal model
-    once on training, scores each holdout match with RPS honouring its venue, and
-    compares it to the historical base-rate baseline on the exact same matches.
-    Returns the model mean RPS, the baseline mean RPS, the number of matches
-    scored, and the cutoff dates that prove no leakage.
+    Returns the model mean RPS, the baseline mean RPS from the window's own
+    training base rates, and those base rates. Shared by the single-window
+    backtest and the walk-forward harness so both score a window the identical
+    way, which is what lets the walk-forward anchor reproduce the calibration RPS.
+    The fit is anchored as of the window cutoff so the time decay reference is
+    correct, and the baseline is computed from training only, so it is leakage
+    safe.
     """
     from architect_wc import model
 
-    window = prepare_backtest(matches, config)
-
-    # Fit once, anchored as of the cutoff so the time decay reference is correct.
     fit_config = dict(config)
     fit_config["as_of_date"] = window.cutoff_date
     fitted = model.fit_model(window.training, fit_config)
@@ -219,16 +228,25 @@ def run_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any
         model_probs.append([probs["p_home_win"], probs["p_draw"], probs["p_away_win"]])
         outcomes.append(match.outcome)
 
-    # Naive baseline: training base rates as a constant prediction on every scored
-    # match. Computed from training only, so both sides are leakage-safe.
     rates = base_rates(window.training)
     baseline_probs = [list(rates)] * len(outcomes)
+    return mean_rps(model_probs, outcomes), mean_rps(baseline_probs, outcomes), rates
 
-    model_mean = mean_rps(model_probs, outcomes)
-    baseline_mean = mean_rps(baseline_probs, outcomes)
+
+def run_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
+    """Backtest the goal model out of sample and compare it to a naive baseline.
+
+    Prepares the shared leakage-enforced window, fits the Dixon-Coles goal model
+    once on training, scores each holdout match with RPS honouring its venue, and
+    compares it to the historical base-rate baseline on the exact same matches.
+    Returns the model mean RPS, the baseline mean RPS, the number of matches
+    scored, and the cutoff dates that prove no leakage.
+    """
+    window = prepare_backtest(matches, config)
+    model_mean, baseline_mean, rates = score_window(window, config)
 
     return {
-        "n_matches": len(outcomes),
+        "n_matches": len(window.matches),
         "backtest_size": window.backtest_size,
         "cutoff_date": window.cutoff_date,
         "train_max_date": window.train_max_date,
@@ -243,3 +261,141 @@ def run_backtest(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any
         },
         "model_beats_baseline": model_mean < baseline_mean,
     }
+
+
+def run_walk_forward(matches: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
+    """Walk-forward backtest: non-overlapping holdouts stepping backward.
+
+    Anchors the most recent window on the calibration window exactly, then steps
+    backward in consecutive holdouts of the same size, each trained on everything
+    strictly before its own holdout start. The step is simple: the next window
+    ends the day this window's training ends, so the holdouts are contiguous and
+    do not share matches. Every window is built by the same prepare_backtest and
+    guarded by the same assert_no_leakage, so the windowing and the leakage rule
+    are the trusted single-window machinery, looped, not a parallel copy.
+
+    Returns the per-window results, the explicit window definitions including the
+    holdout match identifiers so a later phase can reuse the identical splits, and
+    the aggregate statistics whose standard deviation across windows is the noise
+    floor for judging later changes. Non-overlapping windows are deliberate:
+    overlapping holdouts share matches and would fake a tighter spread than the
+    data supports.
+    """
+    calibrate_config = config.get("calibrate", {}) or {}
+    n_windows = int(calibrate_config.get("walk_windows", DEFAULT_WALK_WINDOWS))
+    window_size = int(calibrate_config.get("backtest_size", DEFAULT_BACKTEST_SIZE))
+
+    windows: list[dict[str, Any]] = []
+    current_as_of = str(config["as_of_date"])
+    for _ in range(n_windows):
+        window_config = dict(config)
+        window_config["as_of_date"] = current_as_of
+        try:
+            window = prepare_backtest(matches, window_config)
+        except ValueError:
+            # Ran out of data to form another full window. Stop honestly here and
+            # report the real number of windows reached rather than padding.
+            break
+
+        # The leakage guard already fired inside prepare_backtest. Assert again so
+        # the guarantee is explicit for every walk-forward window, not just the
+        # anchor.
+        assert_no_leakage(
+            pd.Timestamp(window.train_max_date), pd.Timestamp(window.holdout_start)
+        )
+
+        model_mean, baseline_mean, _rates = score_window(window, config)
+        windows.append(
+            {
+                "index": len(windows) + 1,
+                "cutoff_date": window.cutoff_date,
+                "train_max_date": window.train_max_date,
+                "holdout_start": window.holdout_start,
+                "holdout_end": window.holdout_end,
+                "n_matches": len(window.matches),
+                "train_size": len(window.training),
+                "model_mean_rps": model_mean,
+                "baseline_mean_rps": baseline_mean,
+                "holdout_matches": [
+                    {
+                        "date": match.date,
+                        "home_team": match.home_team,
+                        "away_team": match.away_team,
+                    }
+                    for match in window.matches
+                ],
+            }
+        )
+        # Step backward to the next, older, non-overlapping window.
+        current_as_of = window.train_max_date
+
+    if not windows:
+        raise ValueError("Could not form any walk-forward window from the data.")
+
+    model_rps = np.array([w["model_mean_rps"] for w in windows], dtype=np.float64)
+    baseline_rps = np.array([w["baseline_mean_rps"] for w in windows], dtype=np.float64)
+    n = len(windows)
+    # Sample standard deviation across windows, the window-to-window spread. Zero
+    # when only one window could be formed.
+    std = float(np.std(model_rps, ddof=1)) if n > 1 else 0.0
+
+    aggregate = {
+        "n_windows": n,
+        "mean_rps": float(np.mean(model_rps)),
+        "std_rps": std,
+        "min_rps": float(np.min(model_rps)),
+        "max_rps": float(np.max(model_rps)),
+        "mean_baseline_rps": float(np.mean(baseline_rps)),
+        "earliest_holdout_start": windows[-1]["holdout_start"],
+        "earliest_train_size": windows[-1]["train_size"],
+    }
+
+    return {
+        "as_of_date": str(config.get("as_of_date")),
+        "random_seed": config.get("random_seed"),
+        "window_size": window_size,
+        "requested_windows": n_windows,
+        "windows": windows,
+        "aggregate": aggregate,
+        "noise_floor_rule": (
+            "The standard deviation across windows is the noise floor. No future "
+            "change counts as real unless it moves the aggregate mean RPS by more "
+            f"than this spread ({std:.4f})."
+        ),
+    }
+
+
+def format_walk_forward(report: dict[str, Any]) -> str:
+    """Render the walk-forward report as a clean stdout table with aggregates."""
+    aggregate = report["aggregate"]
+    lines = [
+        "World Cup walk-forward backtest",
+        (
+            f"Window size {report['window_size']} matches, seed "
+            f"{report['random_seed']}, {aggregate['n_windows']} non-overlapping "
+            "windows stepping backward."
+        ),
+        "",
+        f"  {'win':>3} {'holdout start':>13} {'holdout end':>13} {'trained to':>11}"
+        f" {'n':>4} {'model_rps':>10} {'base_rps':>9}",
+    ]
+    for w in report["windows"]:
+        lines.append(
+            f"  {w['index']:>3} {w['holdout_start']:>13} {w['holdout_end']:>13}"
+            f" {w['train_max_date']:>11} {w['n_matches']:>4}"
+            f" {w['model_mean_rps']:10.4f} {w['baseline_mean_rps']:9.4f}"
+        )
+    lines.extend(
+        [
+            "",
+            f"Aggregate over {aggregate['n_windows']} windows:",
+            f"  mean model RPS   {aggregate['mean_rps']:.4f}",
+            f"  std (noise floor){aggregate['std_rps']:>8.4f}",
+            f"  min model RPS    {aggregate['min_rps']:.4f}",
+            f"  max model RPS    {aggregate['max_rps']:.4f}",
+            f"  mean baseline    {aggregate['mean_baseline_rps']:.4f}",
+            "",
+            report["noise_floor_rule"],
+        ]
+    )
+    return "\n".join(lines)

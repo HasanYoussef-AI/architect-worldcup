@@ -246,5 +246,30 @@ def ablation_main() -> None:
     print(f"Wrote ablation log: {log_path}")
 
 
+def walk_backtest_main() -> None:
+    """Run the walk-forward backtest and write a versioned artifact.
+
+    A separate reporting path that mirrors wc-calibrate and wc-ablate. It replaces
+    the single 150-match holdout with a rolling-origin evaluation: non-overlapping
+    windows stepping backward, each scored by the same leakage-enforced machinery,
+    so the result is a mean RPS with a real spread rather than one fragile point.
+    The most recent window reproduces the frozen calibration RPS. wc-calibrate and
+    its single-window 0.1611 are untouched; this is an additional command.
+    """
+    config = load_config()
+    matches, provenance = ingest.load_matches(config)
+
+    print(
+        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
+    )
+    print("Running the walk-forward backtest (one Dixon-Coles fit per window)...")
+    report = calibrate.run_walk_forward(matches, config)
+
+    print(calibrate.format_walk_forward(report))
+
+    log_path = artifact.write_walk_forward_log(report, config, provenance=provenance)
+    print(f"Wrote walk-forward log: {log_path}")
+
+
 if __name__ == "__main__":
     main()
