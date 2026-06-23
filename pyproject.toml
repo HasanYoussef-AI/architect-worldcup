@@ -17,6 +17,7 @@ dependencies = [
 [project.scripts]
 wc-predict = "architect_wc.pipeline:main"
 wc-calibrate = "architect_wc.pipeline:calibrate_main"
+wc-ablate = "architect_wc.pipeline:ablation_main"
 
 [dependency-groups]
 dev = [

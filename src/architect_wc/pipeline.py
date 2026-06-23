@@ -15,7 +15,16 @@ from typing import Any
 
 import yaml
 
-from architect_wc import artifact, calibrate, ingest, model, ratings, simulate, squad
+from architect_wc import (
+    ablation,
+    artifact,
+    calibrate,
+    ingest,
+    model,
+    ratings,
+    simulate,
+    squad,
+)
 
 CONFIG_PATH = Path("config.yaml")
 
@@ -209,6 +218,32 @@ def calibrate_main() -> None:
 
     log_path = artifact.write_calibration_log(results, config, provenance=provenance)
     print(f"Wrote calibration log: {log_path}")
+
+
+def ablation_main() -> None:
+    """Run the ablation harness and write a versioned ablation artifact.
+
+    A separate reporting path that mirrors wc-calibrate. It scores the
+    Dixon-Coles goal model against a transparent Elo win, draw, loss generator,
+    and ablates squad value inside that Elo generator, all on the one shared
+    leakage-enforced backtest window so every delta is attributable to a single
+    toggled layer. The forecast and calibration paths are untouched. The full
+    Dixon-Coles configuration reproduces the Phase 6 calibration RPS, which is
+    what makes every delta trustworthy.
+    """
+    config = load_config()
+    matches, provenance = ingest.load_matches(config)
+
+    print(
+        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
+    )
+    print("Running the ablation on the shared backtest window...")
+    report = ablation.run_ablation(matches, config)
+
+    print(ablation.format_report(report))
+
+    log_path = artifact.write_ablation_log(report, config, provenance=provenance)
+    print(f"Wrote ablation log: {log_path}")
 
 
 if __name__ == "__main__":

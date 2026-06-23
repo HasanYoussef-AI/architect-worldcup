@@ -127,3 +127,42 @@ def write_calibration_log(
         json.dumps(calibration_log, indent=2, default=str) + "\n", encoding="utf-8"
     )
     return log_path
+
+
+def write_ablation_log(
+    report: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    provenance: dict[str, Any] | None = None,
+    model_version: str = MODEL_VERSION,
+    logs_dir: Path = LOGS_DIR,
+) -> Path:
+    """Write a versioned ablation artifact with provenance and return its path.
+
+    The ablation is a reporting path, so it writes a single self-describing JSON,
+    not a predictions document. It carries the per-config RPS, the deltas, the
+    fixed run parameters, and the leakage cutoff dates inside the report, wrapped
+    in the same provenance the rest of the project uses: the config, the random
+    seed, the git sha, the UTC timestamp, and the data snapshot that fed the
+    backtest. Presentation and the README read this file, they do not recompute.
+    """
+    logs_dir = Path(logs_dir)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now(UTC)
+    stamp = now.strftime("%Y%m%dT%H%M%SZ")
+    ablation_log = {
+        "generated_at": now.isoformat(),
+        "as_of_date": str(config.get("as_of_date")),
+        "random_seed": config.get("random_seed"),
+        "git_sha": get_git_sha(),
+        "model_version": model_version,
+        "config": config,
+        "data_provenance": provenance,
+        "ablation": report,
+    }
+    log_path = logs_dir / f"ablation_{stamp}.json"
+    log_path.write_text(
+        json.dumps(ablation_log, indent=2, default=str) + "\n", encoding="utf-8"
+    )
+    return log_path

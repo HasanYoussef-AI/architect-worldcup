@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 BASE_RATING = 1500.0
@@ -90,3 +91,68 @@ def compute_elo(
         ratings[away] = rating_away - delta
 
     return sorted(ratings.items(), key=lambda item: item[1], reverse=True)
+
+
+def elo_win_draw_loss(
+    rating_home: float, rating_away: float, home_advantage: float, nu: float
+) -> tuple[float, float, float]:
+    """Davidson (1970) ternary extension of the Elo paired comparison.
+
+    Turns an Elo rating gap into home win, draw, away win probabilities with a
+    single tie parameter nu. Davidson is the standard documented way to add draws
+    to a Bradley-Terry or Elo logistic, and at nu = 0 it collapses exactly to the
+    Elo expected score, so it stays as transparent as the Elo it is built on.
+    Pure function with no I/O. Returns three probabilities that sum to 1.
+    """
+    # r is the square-root strength ratio on the Elo 400-point log10 scale, so
+    # r squared over (r squared plus 1) is the usual Elo expectation.
+    r = 10.0 ** ((rating_home + home_advantage - rating_away) / 800.0)
+    denominator = r + (1.0 / r) + nu
+    return (r / denominator, nu / denominator, (1.0 / r) / denominator)
+
+
+def fit_draw_parameter(
+    matches: pd.DataFrame, rating_map: dict[str, float], config: dict[str, Any]
+) -> float:
+    """Fit the Davidson tie parameter nu by moment matching on the training set.
+
+    Picks the single nu whose mean predicted draw probability over the training
+    matches equals their empirical draw rate. The mean draw probability is
+    monotonic in nu, so a bisection converges. Uses training data only, so it
+    carries no leakage into the holdout. Pure given its inputs.
+    """
+    elo_config = config.get("elo", {}) or {}
+    home_advantage = float(elo_config.get("home_advantage", HOME_ADVANTAGE))
+    base_rating = float(elo_config.get("base_rating", BASE_RATING))
+
+    played = matches.dropna(subset=["home_score", "away_score"])
+    if played.empty:
+        raise ValueError("Cannot fit the draw parameter from zero played matches.")
+
+    diffs = np.array(
+        [
+            rating_map.get(row.home_team, base_rating)
+            + (0.0 if _is_neutral(row.neutral) else home_advantage)
+            - rating_map.get(row.away_team, base_rating)
+            for row in played.itertuples(index=False)
+        ],
+        dtype=np.float64,
+    )
+    draw_rate = float((played["home_score"] == played["away_score"]).mean())
+
+    # Each draw term is nu / (r + 1/r + nu), increasing in nu, so the mean is too.
+    base_term = 10.0 ** (diffs / 800.0) + 10.0 ** (-diffs / 800.0)
+
+    def mean_draw(nu: float) -> float:
+        return float(np.mean(nu / (base_term + nu)))
+
+    low, high = 0.0, 1.0
+    while mean_draw(high) < draw_rate and high < 1.0e6:
+        high *= 2.0
+    for _ in range(60):
+        mid = (low + high) / 2.0
+        if mean_draw(mid) < draw_rate:
+            low = mid
+        else:
+            high = mid
+    return (low + high) / 2.0
