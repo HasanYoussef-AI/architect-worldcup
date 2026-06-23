@@ -40,17 +40,20 @@ def write_artifact(
     *,
     provenance: dict[str, Any] | None = None,
     ratings_summary: dict[str, Any] | None = None,
+    forecast_summary: dict[str, Any] | None = None,
     model_version: str = MODEL_VERSION,
     predictions_dir: Path = PREDICTIONS_DIR,
     logs_dir: Path = LOGS_DIR,
 ) -> dict[str, Path]:
     """Write the predictions JSON and run log, returning both paths.
 
-    The predictions document is the single output contract that every
-    downstream consumer reads. The run log records provenance so any run can be
-    reproduced from a fixed seed and dated data. The optional provenance dict
-    records which data snapshot fed the run, and the optional ratings summary
-    records a short view of the Elo ratings used.
+    The predictions document is the single output contract that every downstream
+    consumer reads. The run log records provenance so any run can be reproduced
+    from a fixed seed and dated data. The optional provenance dict records which
+    data snapshot fed the run, the ratings summary a short view of the ratings,
+    and the forecast summary the cutoff, the leakage proof, and the current
+    standings for a live dated forecast. The filename carries the as_of date so a
+    dated forecast is a separate, identifiable frozen artifact.
     """
     predictions_dir = Path(predictions_dir)
     logs_dir = Path(logs_dir)
@@ -62,15 +65,17 @@ def write_artifact(
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
     as_of_date = str(config.get("as_of_date"))
     git_sha = get_git_sha()
+    tag = f"asof{as_of_date}_{stamp}"
 
     document = {
         "generated_at": generated_at,
         "as_of_date": as_of_date,
         "model_version": model_version,
         "git_sha": git_sha,
+        "forecast_summary": forecast_summary,
         "predictions": predictions,
     }
-    predictions_path = predictions_dir / f"predictions_{stamp}.json"
+    predictions_path = predictions_dir / f"predictions_{tag}.json"
     predictions_path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
 
     run_log = {
@@ -82,9 +87,10 @@ def write_artifact(
         "config": config,
         "data_provenance": provenance,
         "ratings_summary": ratings_summary,
+        "forecast_summary": forecast_summary,
         "predictions_file": str(predictions_path),
     }
-    log_path = logs_dir / f"run_{stamp}.json"
+    log_path = logs_dir / f"run_{tag}.json"
     log_path.write_text(
         json.dumps(run_log, indent=2, default=str) + "\n", encoding="utf-8"
     )

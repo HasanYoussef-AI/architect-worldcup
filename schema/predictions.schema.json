@@ -31,6 +31,10 @@
       "type": "string",
       "description": "Git commit sha of the code that produced these predictions."
     },
+    "forecast_summary": {
+      "type": ["object", "null"],
+      "description": "For a live dated forecast: the cutoff, the leakage proof, the data snapshot, and the current real group standings. Null for a plain run."
+    },
     "predictions": {
       "type": "array",
       "minItems": 1,

@@ -173,6 +173,43 @@ def test_simulation_probabilities_are_valid_and_reproducible() -> None:
     assert 0.0 <= meta["fair_play_fallback_fraction"] <= 1.0
 
 
+def test_play_group_anchors_on_known_results() -> None:
+    # A known result is used verbatim and never simulated; unknown fixtures fall
+    # to the score_fn. A score_fn that raises proves the known fixtures bypass it.
+    teams = ["P", "Q", "R", "S"]
+    known = {frozenset(("P", "Q")): ("P", "Q", 3, 0)}
+
+    def exploding_score_fn(home, away, neutral, rng):
+        raise AssertionError("known fixtures must not be simulated")
+
+    # All six fixtures known, so the exploding score_fn is never called.
+    all_known = {
+        frozenset((a, b)): (a, b, 1, 0) for a, b in itertools.combinations(teams, 2)
+    }
+    results = simulate.play_group(
+        teams, exploding_score_fn, np.random.default_rng(0), known_results=all_known
+    )
+    assert len(results) == 6
+    assert ("P", "Q", 3, 0) in simulate.play_group(
+        ["P", "Q"], exploding_score_fn, np.random.default_rng(0), known_results=known
+    )
+
+
+def test_current_standings_reflect_real_results() -> None:
+    structure = {"A": ["P", "Q", "R", "S"]}
+    known = {
+        frozenset(("P", "Q")): ("P", "Q", 2, 0),
+        frozenset(("R", "S")): ("R", "S", 1, 1),
+    }
+    standings = simulate.current_standings(structure, known)["A"]
+    by_team = {row[0]: row for row in standings}
+    # P won, so it leads on points; R and S drew; Q lost.
+    assert by_team["P"][2] == 3  # points
+    assert by_team["P"][1] == 1  # played
+    assert by_team["R"][2] == 1 and by_team["S"][2] == 1
+    assert standings[0][0] == "P"
+
+
 def test_load_structure_skips_comment_lines(tmp_path) -> None:
     path = tmp_path / "groups.csv"
     path.write_text("# note\ngroup,team\nA,W\nA,X\n", encoding="utf-8")

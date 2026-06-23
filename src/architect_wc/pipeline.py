@@ -30,6 +30,10 @@ from architect_wc import (
 
 CONFIG_PATH = Path("config.yaml")
 
+# Cutoff for the live dated forecast, end of 2026-06-22, kept separate from the
+# frozen pre-tournament cutoff in config so the calibration numbers do not move.
+LIVE_AS_OF_DATE = "2026-06-22"
+
 # Retained only as a hermetic fixture for the schema gate: when no real artifact
 # exists yet, the schema test builds an equal-probability placeholder so it can
 # validate the output contract without the network. The live pipeline below uses
@@ -44,13 +48,6 @@ PLACEHOLDER_TEAMS = [
     "Portugal",
     "Netherlands",
 ]
-
-# Fixtures between strong teams, printed as an eyeball check on the goal model.
-SAMPLE_FIXTURES = [
-    ("Argentina", "France"),
-    ("Brazil", "Spain"),
-]
-
 
 def load_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
     """Load the run configuration from YAML."""
@@ -95,81 +92,58 @@ def build_score_fn(goal_model: Any) -> simulate.ScoreFn:
     return score_fn
 
 
-def main() -> None:
-    """Run the full pipeline and write the artifact.
+def run_forecast(config: dict[str, Any]) -> list[dict[str, Any]]:
+    """Run the forecast at the config cutoff and write a dated frozen artifact.
 
-    Match data flows in through Layer 1, frozen as an immutable snapshot and
-    filtered by the leakage guard. Layer 2 computes Elo, Layer 4 nudges those
-    ratings by current squad value, and Layer 3 fits the Dixon-Coles goal model.
-    Layer 5 then simulates the tournament many times on the squad-adjusted
-    strengths and the goal model, with neutral venues except for host nations,
-    and aggregates each team's stage and win probabilities. Those real
-    predictions are the artifact, and the run log records provenance and a
-    ratings summary so every run is traceable.
+    Loads and leakage-guards the data at config.as_of_date, computes the
+    squad-adjusted ratings, fits the goal model, anchors on the real World Cup
+    matches already played at the cutoff, and simulates the remaining matches and
+    the knockout bracket. Writes a dated artifact carrying the cutoff, the leakage
+    proof, the snapshot, and the current standings. Returns the predictions so a
+    caller can compare two dated forecasts. With no played matches at the cutoff
+    this is the pre-tournament forecast.
     """
-    config = load_config()
+    import pandas as pd
+
     matches, provenance = ingest.load_matches(config)
 
+    as_of = pd.Timestamp(config["as_of_date"])
+    boundary = as_of + pd.Timedelta(days=1)
+    training_max = pd.to_datetime(matches["date"]).max()
+    # Same hard leakage assertion as always: nothing at or after the cutoff
+    # boundary entered training, so the forecast covers only the future.
+    if training_max >= boundary:
+        raise ValueError(
+            f"Leakage at forecast cutoff: training max date {training_max.date()} "
+            f"is not before the cutoff boundary {boundary.date()}."
+        )
+
     team_ratings = ratings.compute_elo(matches, config)
-
-    squad_config = config.get("squad", {}) or {}
-    squad_values = squad.load_squad_values(squad_config["snapshot"])
-    adjusted_ratings = squad.adjust_ratings(team_ratings, squad_values, config)
-    adjusted_by_team = dict(adjusted_ratings)
-
+    squad_values = squad.load_squad_values(config["squad"]["snapshot"])
+    adjusted_by_team = dict(squad.adjust_ratings(team_ratings, squad_values, config))
     ratings_summary = {
         "n_teams": len(team_ratings),
         "n_squad_values": len(squad_values),
-        "top_teams": [
-            {
-                "team": team,
-                "elo": round(rating, 1),
-                "squad_nudge": round(adjusted_by_team[team] - rating, 1),
-                "adjusted": round(adjusted_by_team[team], 1),
-            }
-            for team, rating in team_ratings[:10]
-        ],
     }
 
-    print(
-        f"Loaded {provenance['n_matches']} matches from {provenance['snapshot_path']}"
-    )
-    print(f"Latest match date on or before the cutoff: {provenance['max_date']}")
-    print(f"Computed Elo ratings for {len(team_ratings)} teams.")
-    print(f"Loaded squad values for {len(squad_values)} teams.")
-    print("Squad-value adjustment, top 20 teams by Elo (Elo, nudge, adjusted):")
-    print(f"    {'team':<24} {'elo':>8} {'nudge':>8} {'adjusted':>9}")
-    for rank, (team, rating) in enumerate(team_ratings[:20], start=1):
-        nudge = adjusted_by_team[team] - rating
-        print(
-            f"{rank:>2}. {team:<24} {rating:8.1f} {nudge:+8.1f} "
-            f"{adjusted_by_team[team]:9.1f}"
-        )
-
-    print("Fitting Dixon-Coles goal model on the guarded matches...")
     goal_model = model.fit_model(matches, config)
-    print("Dixon-Coles outcome probabilities for sample fixtures:")
-    for home_team, away_team in SAMPLE_FIXTURES:
-        probs = model.match_probabilities(goal_model, home_team, away_team)
-        print(
-            f"  {home_team} vs {away_team}: "
-            f"home {probs['p_home_win']:.3f}, "
-            f"draw {probs['p_draw']:.3f}, "
-            f"away {probs['p_away_win']:.3f}"
-        )
+    score_fn = build_score_fn(goal_model)
 
     tournament_config = config.get("tournament", {}) or {}
     structure = simulate.load_structure(tournament_config["structure"])
     assignment_table = simulate.load_assignment_table(
         tournament_config["r32_assignment"]
     )
+    known_results = simulate.build_known_results(matches, structure)
+    standings = simulate.current_standings(structure, known_results)
+
     n_sims = int(config.get("n_sims", 10000))
     seed = int(config.get("random_seed", 42))
     print(
-        f"Simulating {n_sims} tournaments over {len(structure)} groups on the real "
-        f"2026 bracket, hosts at home in the group stage, seed {seed}..."
+        f"Forecast as_of {config['as_of_date']}: trained on {provenance['n_matches']} "
+        f"matches up to {provenance['max_date']}, {len(known_results)} real group "
+        f"results anchored, simulating {n_sims} tournaments, seed {seed}..."
     )
-    score_fn = build_score_fn(goal_model)
     predictions, sim_meta = simulate.run_simulations(
         structure,
         score_fn,
@@ -177,22 +151,38 @@ def main() -> None:
         assignment_table,
         n_sims=n_sims,
         seed=seed,
+        known_results=known_results,
     )
 
+    forecast_summary = {
+        "as_of_date": config["as_of_date"],
+        "cutoff_boundary": boundary.date().isoformat(),
+        "training_max_date": training_max.date().isoformat(),
+        "leakage_ok": bool(training_max < boundary),
+        "snapshot_path": provenance["snapshot_path"],
+        "n_real_group_results": len(known_results),
+        "n_sims": n_sims,
+        "seed": seed,
+        "fair_play_fallback_fraction": sim_meta["fair_play_fallback_fraction"],
+        "current_standings": {
+            group: [
+                {"team": t, "played": pl, "points": p, "gd": gd, "gf": gf}
+                for t, pl, p, gd, gf in rows
+            ]
+            for group, rows in standings.items()
+        },
+    }
+
     ranked = sorted(predictions, key=lambda record: record["p_win"], reverse=True)
-    print("Tournament forecast, top 10 by win probability:")
-    print(f"    {'team':<24} {'R16':>7} {'QF':>7} {'SF':>7} {'final':>7} {'win':>7}")
+    print("Top 10 by title probability:")
     for rank, record in enumerate(ranked[:10], start=1):
-        print(
-            f"{rank:>2}. {record['team']:<24} "
-            f"{record['p_round_of_16']:7.3f} "
-            f"{record['p_quarter_final']:7.3f} "
-            f"{record['p_semi_final']:7.3f} "
-            f"{record['p_final']:7.3f} "
-            f"{record['p_win']:7.3f}"
-        )
+        print(f"{rank:>2}. {record['team']:<24} win {record['p_win']:.3f}")
     print(
-        f"Fair-play fallback was reached in "
+        f"Leakage proof: trained up to {training_max.date()}, "
+        f"strictly before the cutoff boundary {boundary.date()}."
+    )
+    print(
+        f"Fair-play fallback reached in "
         f"{sim_meta['fair_play_fallback_fraction'] * 100:.2f} percent of simulations."
     )
 
@@ -201,9 +191,30 @@ def main() -> None:
         config,
         provenance=provenance,
         ratings_summary=ratings_summary,
+        forecast_summary=forecast_summary,
     )
     print(f"Wrote predictions: {paths['predictions']}")
     print(f"Wrote run log: {paths['log']}")
+    return predictions
+
+
+def main() -> None:
+    """Run the forecast at the config cutoff, the pre-tournament dated forecast."""
+    run_forecast(load_config())
+
+
+def live_forecast_main() -> None:
+    """Run the live dated forecast at as_of 2026-06-22 on the real structure.
+
+    A separate command from wc-predict. It overrides the cutoff to the end of
+    2026-06-22 so every real match played through that date is training data and
+    is anchored as a known result, and the forecast covers the remaining group
+    matches and the knockout bracket. The pre-tournament forecast and its frozen
+    numbers are untouched; this writes its own dated artifact.
+    """
+    config = load_config()
+    config["as_of_date"] = LIVE_AS_OF_DATE
+    run_forecast(config)
 
 
 def calibrate_main() -> None:

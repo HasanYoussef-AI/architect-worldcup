@@ -190,15 +190,89 @@ def _match_venue(
 
 
 def play_group(
-    teams: list[str], score_fn: ScoreFn, rng: Rng, hosts: tuple[str, ...] = HOSTS
+    teams: list[str],
+    score_fn: ScoreFn,
+    rng: Rng,
+    hosts: tuple[str, ...] = HOSTS,
+    known_results: dict[frozenset, tuple[str, str, int, int]] | None = None,
 ) -> list[tuple[str, str, int, int]]:
-    """Play a group round robin and return the match results as scorelines."""
+    """Play a group round robin and return the match results as scorelines.
+
+    A fixture already played in reality, keyed in known_results by the two teams,
+    keeps its real result, so a live forecast is anchored to the matches that have
+    happened. Every unplayed fixture is simulated. With no known results this is a
+    full pre-tournament simulation.
+    """
+    known_results = known_results or {}
     results = []
     for team_a, team_b in itertools.combinations(teams, 2):
+        known = known_results.get(frozenset((team_a, team_b)))
+        if known is not None:
+            results.append(known)
+            continue
         home, away, neutral = _match_venue(team_a, team_b, hosts)
         home_goals, away_goals = score_fn(home, away, neutral, rng)
         results.append((home, away, int(home_goals), int(away_goals)))
     return results
+
+
+def build_known_results(
+    matches: pd.DataFrame, structure: dict[str, list[str]]
+) -> dict[frozenset, tuple[str, str, int, int]]:
+    """Extract the real, played World Cup 2026 group results from the data.
+
+    Returns a lookup keyed by the two teams to the real scoreline, for matches in
+    the 2026 finals between two teams in the same group. These anchor the live
+    forecast. Empty before the tournament, since no match has been played.
+    """
+    team_to_group = {
+        team: group for group, teams in structure.items() for team in teams
+    }
+    played = matches.dropna(subset=["home_score", "away_score"]).copy()
+    dates = pd.to_datetime(played["date"])
+    finals = played[
+        (played["tournament"] == "FIFA World Cup")
+        & (dates >= pd.Timestamp("2026-06-01"))
+    ]
+    known: dict[frozenset, tuple[str, str, int, int]] = {}
+    for row in finals.itertuples(index=False):
+        home, away = row.home_team, row.away_team
+        group_home = team_to_group.get(home)
+        if group_home is not None and group_home == team_to_group.get(away):
+            known[frozenset((home, away))] = (
+                home,
+                away,
+                int(row.home_score),
+                int(row.away_score),
+            )
+    return known
+
+
+def current_standings(
+    structure: dict[str, list[str]],
+    known_results: dict[frozenset, tuple[str, str, int, int]],
+) -> dict[str, list[tuple[str, int, int, int, int]]]:
+    """Group standings from the real results so far: team, played, points, GD, GF.
+
+    A snapshot of where the groups actually stand at the cutoff, ranked by points,
+    goal difference, and goals over the matches played. Partial, since not every
+    fixture has been played.
+    """
+    standings: dict[str, list[tuple[str, int, int, int, int]]] = {}
+    for group, teams in structure.items():
+        results = [
+            known_results[frozenset((team_a, team_b))]
+            for team_a, team_b in itertools.combinations(teams, 2)
+            if frozenset((team_a, team_b)) in known_results
+        ]
+        ranked = sorted(teams, key=lambda t: team_stats(t, results), reverse=True)
+        rows = []
+        for team in ranked:
+            played = sum(1 for result in results if team in (result[0], result[1]))
+            points, goal_difference, goals_for = team_stats(team, results)
+            rows.append((team, played, points, goal_difference, goals_for))
+        standings[group] = rows
+    return standings
 
 
 def team_stats(
@@ -432,13 +506,14 @@ def simulate_tournament(
     team's furthest round, and whether the fair-play fallback was reached.
     """
     context["fair_play_reached"] = False
+    known_results = context.get("known_results") or {}
 
     standings: dict[str, list[str]] = {}
     overall_stats: dict[str, tuple[int, int, int]] = {}
     third_teams: list[tuple[str, str]] = []
     for group in sorted(structure):
         teams = structure[group]
-        results = play_group(teams, score_fn, rng, hosts)
+        results = play_group(teams, score_fn, rng, hosts, known_results)
         for team in teams:
             overall_stats[team] = team_stats(team, results)
         ranked = rank_group(teams, results, context, rng)
@@ -496,17 +571,24 @@ def run_simulations(
     seed: int = 42,
     hosts: tuple[str, ...] = HOSTS,
     fairplay: dict[str, float] | None = None,
+    known_results: dict[frozenset, tuple[str, str, int, int]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Run n_sims tournaments and aggregate per-team stage probabilities.
 
-    Returns the per-team probability records and a meta dict that includes how
-    often a simulation reached the fair-play fallback, so we know how rarely it
-    matters. Deterministic given the seed, score_fn, and inputs.
+    known_results anchors the simulation to the real matches already played, so
+    the live forecast simulates only the remaining matches. Returns the per-team
+    probability records and a meta dict that includes how often a simulation
+    reached the fair-play fallback, so we know how rarely it matters. Deterministic
+    given the seed, score_fn, and inputs.
     """
     import numpy as np
 
     rng = np.random.default_rng(seed)
-    context = {"ratings": ratings, "fairplay": fairplay}
+    context = {
+        "ratings": ratings,
+        "fairplay": fairplay,
+        "known_results": known_results or {},
+    }
     teams = [team for group in sorted(structure) for team in structure[group]]
     round_sizes = list(STAGE_FIELDS)
 

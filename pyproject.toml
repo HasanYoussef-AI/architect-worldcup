@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 wc-predict = "architect_wc.pipeline:main"
+wc-forecast-live = "architect_wc.pipeline:live_forecast_main"
 wc-calibrate = "architect_wc.pipeline:calibrate_main"
 wc-ablate = "architect_wc.pipeline:ablation_main"
 wc-walk-backtest = "architect_wc.pipeline:walk_backtest_main"
