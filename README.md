@@ -235,13 +235,13 @@ supports.
 
 ```mermaid
 flowchart TB
-    TL["Played international matches, 1872 to 2026-06-10"]:::accent
-    W1["Window 1, holdout 2026-03-31 to 2026-06-10<br/>anchor, reproduces the frozen 0.1611"]:::layer
-    W2["Window 2, holdout 2025-12-24 to 2026-03-30"]:::layer
-    W3["Window 3, holdout 2025-11-15 to 2025-12-23"]:::layer
-    DOTS["windows 4 to 7, stepping backward"]:::layer
-    W8["Window 8, holdout 2024-12-26 to 2025-03-24<br/>still trains on 48,082 matches"]:::layer
-    AGG["Aggregate over 8 windows<br/>mean RPS 0.1575, std 0.0140 (the noise floor)"]:::out
+    TL["Played international<br/>matches<br/>1872 to 2026-06-10"]:::accent
+    W1["Window 1 holdout<br/>2026-03-31 to 2026-06-10<br/>anchor, reproduces<br/>the frozen 0.1611"]:::layer
+    W2["Window 2 holdout<br/>2025-12-24 to 2026-03-30"]:::layer
+    W3["Window 3 holdout<br/>2025-11-15 to 2025-12-23"]:::layer
+    DOTS["windows 4 to 7<br/>stepping backward"]:::layer
+    W8["Window 8 holdout<br/>2024-12-26 to 2025-03-24<br/>still trains on<br/>48,082 matches"]:::layer
+    AGG["Aggregate over 8 windows<br/>mean RPS 0.1575<br/>std 0.0140<br/>(the noise floor)"]:::out
 
     TL --> W1 --> W2 --> W3 --> DOTS --> W8 --> AGG
 
