@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/llm_dossier.schema.json",
+  "title": "Architect WorldCup LLM research dossier",
+  "description": "Frozen, committed research dossier for one knockout round. Phase 1 (web search enabled) writes it; Phase 2 (no tools) reads only this. Its commit, before the round's first kickoff, is the leakage proof, and it is the reproducibility anchor for Predictions B and C, which are not bit-reproducible.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["round", "as_of_date", "git_sha", "model_version", "factors"],
+  "properties": {
+    "round": {
+      "type": "string",
+      "enum": ["R32", "R16", "QF", "SF", "F"],
+      "description": "Target knockout round this dossier informs."
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Cutoff: the dossier holds nothing dated after this, the day before the round kicks off."
+    },
+    "committed_at": {
+      "type": ["string", "null"],
+      "description": "Git commit time of the dossier, the before-kickoff leakage proof. Null until committed."
+    },
+    "git_sha": {
+      "type": "string",
+      "description": "Git commit sha of the code that produced the dossier."
+    },
+    "model_version": {
+      "type": "string",
+      "description": "Version tag of the LLM analyst layer."
+    },
+    "provenance": {
+      "type": ["object", "null"],
+      "description": "Research-call provenance: model, effort, web search tool version, allow-list, max_uses, retrieved_at."
+    },
+    "factors": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Findings organised into the fixed factor taxonomy, each entry carrying its source tier.",
+      "required": [
+        "squad_availability",
+        "recent_form",
+        "tactical_matchup",
+        "coaching_staff",
+        "strategic_incentives",
+        "psychological_momentum",
+        "historical_head_to_head"
+      ],
+      "properties": {
+        "squad_availability": {"$ref": "#/$defs/factorEntries"},
+        "recent_form": {"$ref": "#/$defs/factorEntries"},
+        "tactical_matchup": {"$ref": "#/$defs/factorEntries"},
+        "coaching_staff": {"$ref": "#/$defs/factorEntries"},
+        "strategic_incentives": {"$ref": "#/$defs/factorEntries"},
+        "psychological_momentum": {"$ref": "#/$defs/factorEntries"},
+        "historical_head_to_head": {"$ref": "#/$defs/factorEntries"}
+      }
+    }
+  },
+  "$defs": {
+    "factorEntries": {
+      "type": "array",
+      "description": "Retrieved facts for one factor. May be empty, which forces that factor to score zero as insufficient evidence.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "source", "source_tier"],
+        "properties": {
+          "claim": {
+            "type": "string",
+            "description": "The retrieved fact, in plain language."
+          },
+          "source": {
+            "type": "string",
+            "description": "Where the fact came from: an outlet or URL. No betting or prediction-market sources by design."
+          },
+          "source_tier": {
+            "type": "integer",
+            "enum": [1, 2, 3],
+            "description": "Source reputability tier: 1 most reputable, 3 least, anonymous and open-edit excluded entirely."
+          },
+          "team": {
+            "type": ["string", "null"],
+            "description": "Team the fact concerns, if specific to one side."
+          },
+          "meeting_date": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "For a historical head-to-head fact, the date the two teams met. The quarantine gate preserves a head-to-head between the fixture teams only if this is strictly before the cutoff; a missing or on-or-after-cutoff date is a leak and fails the gate."
+          },
+          "retrieved_at": {
+            "type": ["string", "null"],
+            "description": "When the fact was retrieved, for provenance."
+          }
+        }
+      }
+    }
+  }
+}

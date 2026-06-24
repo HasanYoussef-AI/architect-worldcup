@@ -472,6 +472,19 @@ def assign_round_of_32(
     return matches
 
 
+def shootout_lean(rating_home: float, rating_away: float) -> float:
+    """Probability the nominal home side advances after a 90-minute knockout draw.
+
+    Extra time then penalties are modelled as a single strength-weighted coin
+    flip: the Elo expected score of the nominal home side at a neutral venue. This
+    is the exact value the knockout simulator uses to resolve a drawn tie, lifted
+    into a named pure function so a single-tie consumer, such as the math model's
+    per-tie three-way for the LLM comparison, reuses the identical math rather than
+    a second copy. Returns a probability in the open interval (0, 1). No I/O.
+    """
+    return 1.0 / (1.0 + 10.0 ** ((rating_away - rating_home) / 400.0))
+
+
 def _knockout_winner(
     team_a: str, team_b: str, score_fn: ScoreFn, rng: Rng, context: dict[str, Any]
 ) -> str:
@@ -483,9 +496,7 @@ def _knockout_winner(
         return team_b
     # Extra time then penalties, modelled as one strength-weighted coin flip.
     ratings = context.get("ratings", {})
-    rating_a = ratings.get(team_a, 0.0)
-    rating_b = ratings.get(team_b, 0.0)
-    p_a = 1.0 / (1.0 + 10.0 ** ((rating_b - rating_a) / 400.0))
+    p_a = shootout_lean(ratings.get(team_a, 0.0), ratings.get(team_b, 0.0))
     return team_a if rng.random() < p_a else team_b
 
 

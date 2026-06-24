@@ -86,6 +86,39 @@ ensemble:
   max_iter: 300
   learning_rate: 0.05
 
+# LLM analyst layer (Phase 8, the math versus LLM comparison). The math model
+# produces Prediction A and freezes it; an LLM produces Prediction B blind to A;
+# a third pass produces Prediction C reading A and B. All three are scored with
+# the same RPS. See src/architect_wc/llm.
+llm:
+  # Model and tooling. Claude Opus 4.8 via the Anthropic API, key read from the
+  # ANTHROPIC_API_KEY environment variable. Temperature is not set: it is removed
+  # on Opus 4.8, so determinism is best effort and the frozen committed dossier is
+  # the real reproducibility anchor. Prediction A is bit-reproducible because it is
+  # analytic. Adaptive thinking is used, with effort high as the floor on both
+  # phases and xhigh on the Phase 2 prediction call only.
+  model: "claude-opus-4-8"
+  effort_floor: "high"
+  effort_prediction: "xhigh"
+  # Server-side web search tool, research call only. Pinned and verified against
+  # the live Anthropic docs before wiring rather than assumed.
+  web_search_tool: "web_search_20260209"
+  # Maximum web searches per research call.
+  max_search_uses: 12
+  # Any departure of the emitted lean from the anchor-implied lean beyond this
+  # tolerance must be justified in writing in the prediction log.
+  anchor_tolerance: 0.10
+  # Frozen, pre-registered factor weights. Never fitted on outcomes. One review
+  # pass allowed before the Round of 32, then an ablation surface. They sum to 1.
+  weights:
+    squad_availability: 0.22
+    recent_form: 0.20
+    tactical_matchup: 0.18
+    coaching_staff: 0.15
+    strategic_incentives: 0.12
+    psychological_momentum: 0.07
+    historical_head_to_head: 0.06
+
 # Ablation toggles. The harness flips these to isolate each layer.
 factors:
   elo: true

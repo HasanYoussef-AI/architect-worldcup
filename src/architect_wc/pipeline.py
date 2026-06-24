@@ -49,6 +49,7 @@ PLACEHOLDER_TEAMS = [
     "Netherlands",
 ]
 
+
 def load_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
     """Load the run configuration from YAML."""
     return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
@@ -350,6 +351,30 @@ def ensemble_main() -> None:
 
     log_path = artifact.write_ensemble_log(report, config, provenance=provenance)
     print(f"Wrote ensemble log: {log_path}")
+
+
+def llm_smoke_main() -> None:
+    """Run the offline LLM plumbing smoke test and print a report.
+
+    Proves the Phase 8 plumbing with no API call: the quarantine gate catches a
+    planted target-round result, Predictions A, B, and C validate against their
+    schemas, and the RPS scorer reproduces a hand-checked value. Exits nonzero if
+    any check fails. The same checks run as offline pytest gates in the suite.
+    """
+    import sys
+
+    from architect_wc.llm import smoke
+
+    report = smoke.run_smoke()
+    print("LLM phase offline smoke test")
+    for check in report["checks"]:
+        mark = "PASS" if check["passed"] else "FAIL"
+        print(f"  [{mark}] {check['name']}: {check['detail']}")
+    if report["all_passed"]:
+        print("All plumbing checks passed.")
+    else:
+        print("Plumbing checks FAILED.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
