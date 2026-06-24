@@ -97,7 +97,7 @@ flowchart TD
     L3["Layer 3 model.py<br/>Dixon-Coles goal model"]:::layer
     L5["Layer 5 simulate.py<br/>Monte Carlo bracket"]:::layer
     ART["artifact.py<br/>versioned JSON + provenance"]:::out
-    CON["Consumers: verification gates,<br/>comparison, this README, future LLM layer"]:::out
+    CON["Consumers read the JSON, never recompute:<br/>calibration, comparison, the future LLM layer"]:::out
 
     D1 --> L1
     L1 -->|guarded matches| L2 --> L4
