@@ -423,6 +423,8 @@ def produce_dossier(
     client: Any = None,
     git_sha: str | None = None,
     model_version: str | None = None,
+    use_prompt_cache: bool = False,
+    max_search_uses: int | None = None,
 ) -> dict[str, Any]:
     """Run the research call and build the dossier and meta, WITHOUT gating.
 
@@ -430,8 +432,9 @@ def produce_dossier(
     tool bounded to that allow-list and the per-match budget, parses the dossier,
     fills its envelope, provenance, and cost, and rebuilds the coverage manifest.
     Returns {"dossier", "meta", "domain_tiers"}; the gates are deliberately not
-    run here. The client is injected so the pure path is testable; in normal use it
-    is anthropic.Anthropic().
+    run here. use_prompt_cache and max_search_uses are exposed so the cost probe can
+    measure caching off versus on and at smaller search budgets. The client is
+    injected so the pure path is testable; in normal use it is anthropic.Anthropic().
     """
     from datetime import UTC, datetime
 
@@ -446,7 +449,11 @@ def produce_dossier(
     model = llm.get("model", "claude-opus-4-8")
     effort = llm.get("effort_floor", "high")
     tool_type = llm.get("web_search_tool", "web_search_20260209")
-    max_uses = int(llm.get("max_search_uses", 14))
+    max_uses = int(
+        max_search_uses
+        if max_search_uses is not None
+        else llm.get("max_search_uses", 14)
+    )
 
     allowed_domains, domain_tiers = build_allowed_domains(config, home, away)
     user_prompt = build_research_prompt(
@@ -467,19 +474,44 @@ def produce_dossier(
         }
     ]
 
+    # Prompt caching: the tools and system render before the messages, so a
+    # breakpoint on the system block caches both; a breakpoint on the per-fixture
+    # user prompt caches the schema and query template; and top-level auto-caching
+    # caches the growing message history across the tool loop, so re-read content is
+    # billed as cache reads rather than full input. Default off until the off-versus-
+    # on cost probe confirms it composes with web search and actually moves input to
+    # cache reads; the probe was blocked on the API credit balance.
+    if use_prompt_cache:
+        system_param: Any = [
+            {"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}
+        ]
+        user_content: Any = [
+            {
+                "type": "text",
+                "text": user_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ]
+    else:
+        system_param = _SYSTEM
+        user_content = user_prompt
+
     usage_total: dict[str, int] = {}
-    messages: list[dict[str, Any]] = [{"role": "user", "content": user_prompt}]
+    messages: list[dict[str, Any]] = [{"role": "user", "content": user_content}]
     response = None
     for _ in range(12):  # bound the server-tool pause_turn loop.
-        response = client.messages.create(
-            model=model,
-            max_tokens=16000,
-            system=_SYSTEM,
-            thinking={"type": "adaptive"},
-            output_config={"effort": effort},
-            tools=tools,
-            messages=messages,
-        )
+        create_kwargs: dict[str, Any] = {
+            "model": model,
+            "max_tokens": 16000,
+            "system": system_param,
+            "thinking": {"type": "adaptive"},
+            "output_config": {"effort": effort},
+            "tools": tools,
+            "messages": messages,
+        }
+        if use_prompt_cache:
+            create_kwargs["cache_control"] = {"type": "ephemeral"}
+        response = client.messages.create(**create_kwargs)
         _accumulate_usage(usage_total, response.usage)
         if response.stop_reason == "pause_turn":
             messages.append({"role": "assistant", "content": response.content})
@@ -511,6 +543,7 @@ def produce_dossier(
         "effort": effort,
         "web_search_tool": tool_type,
         "max_search_uses": max_uses,
+        "prompt_cache": use_prompt_cache,
         "allowed_domains": allowed_domains,
         "retrieved_at": datetime.now(UTC).isoformat(),
         "usage": usage_total,
@@ -547,6 +580,8 @@ def research_fixture(
     client: Any = None,
     git_sha: str | None = None,
     model_version: str | None = None,
+    use_prompt_cache: bool = False,
+    max_search_uses: int | None = None,
 ) -> dict[str, Any]:
     """Produce the dossier for one fixture and gate it, fail-loud.
 
@@ -563,6 +598,8 @@ def research_fixture(
         client=client,
         git_sha=git_sha,
         model_version=model_version,
+        use_prompt_cache=use_prompt_cache,
+        max_search_uses=max_search_uses,
     )
     gate_dossier(
         produced["dossier"], fixture, round_code, as_of_date, produced["domain_tiers"]
