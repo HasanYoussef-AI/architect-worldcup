@@ -13,6 +13,7 @@ dependencies = [
     "pyyaml",
     "jsonschema",
     "scikit-learn>=1.9.0",
+    "anthropic",
 ]
 
 [project.scripts]

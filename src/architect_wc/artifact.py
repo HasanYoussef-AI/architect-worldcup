@@ -17,6 +17,7 @@ from typing import Any
 
 PREDICTIONS_DIR = Path("outputs/predictions")
 LOGS_DIR = Path("outputs/logs")
+DOSSIERS_DIR = Path("outputs/llm")
 MODEL_VERSION = "0.0.0"
 
 
@@ -96,6 +97,33 @@ def write_artifact(
     )
 
     return {"predictions": predictions_path, "log": log_path}
+
+
+def write_dossier(
+    dossier: dict[str, Any],
+    *,
+    meta: dict[str, Any] | None = None,
+    dossiers_dir: Path = DOSSIERS_DIR,
+) -> Path:
+    """Write a per-match research dossier and return its path.
+
+    The committed dossier is the leakage anchor for Predictions B and C and is
+    written before the fixture's kickoff. The filename carries the round, match,
+    and cutoff so each dossier is a separate, identifiable frozen artifact. meta,
+    when given, records the run's usage and cost estimate alongside the dossier.
+    """
+    dossiers_dir = Path(dossiers_dir)
+    dossiers_dir.mkdir(parents=True, exist_ok=True)
+
+    round_code = str(dossier.get("round", "round"))
+    match = dossier.get("match", "match")
+    as_of = str(dossier.get("as_of_date", "unknown"))
+    document = {"dossier": dossier, "meta": meta}
+    path = dossiers_dir / f"dossier_{round_code}_match{match}_asof{as_of}.json"
+    path.write_text(
+        json.dumps(document, indent=2, default=str) + "\n", encoding="utf-8"
+    )
+    return path
 
 
 def write_calibration_log(

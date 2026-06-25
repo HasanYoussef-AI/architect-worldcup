@@ -38,6 +38,14 @@ _ROUND_PATTERNS = {
     "SF": re.compile(r"semi[\s-]*finals?|last 4|\bsf\b"),
 }
 _COMPOUND_FINAL = re.compile(r"quarter[\s-]*finals?|semi[\s-]*finals?")
+# "final" is also the ordinary adjective "last": "final group game", "final
+# matchday", "final round of group games". These are group-stage references, not
+# the World Cup Final, so they are stripped before the final check, the same way the
+# quarter-final and semi-final compounds are.
+_FINAL_ADJECTIVE = re.compile(
+    r"final\s+(?:group|game|match(?:day)?|day|fixture|round of group|stretch|"
+    r"whistle|standings?|table|spot|push|stages?|third|positions?)"
+)
 _FINAL_PATTERN = re.compile(
     r"\bfinals?\b|\bchampions?\b|won the (?:world )?cup|"
     r"lift(?:ed)? the (?:world cup|trophy)"
@@ -95,6 +103,38 @@ _MARKET_PATTERN = re.compile(
     r"odds of\b|to win outright|prediction market"
 )
 
+# Markers that place a final, championship, advancement, or result claim outside the
+# current 2026 World Cup: another competition, or a year that is not 2026. Such a
+# claim is a historical or other-competition fact, legitimate analyst content like a
+# coach's pedigree or a team's past honours, not a leak of a 2026 result. Detection
+# stays conservative on the current tournament: a 2026 reference keeps a claim in
+# scope, and a forward reference with no historical or other-competition marker is
+# treated as current and flagged.
+_OTHER_COMPETITION = re.compile(
+    r"\beuros?\b|european championship|nations league|copa am[eé]rica|"
+    r"champions league|europa league|confederations cup|olympics?|"
+    r"friendl(?:y|ies)|qualif\w*|gold cup|asian cup|africa cup|afcon"
+)
+_YEAR = re.compile(r"\b(?:19|20)\d{2}\b")
+
+
+def _is_historical_or_other(text: str) -> bool:
+    """True if a round, final, or result claim is clearly not about the 2026 World Cup.
+
+    Tournament and date scoped, mirroring the date-bounding the rest of the gate
+    uses. A reference to 2026 keeps the claim in scope, so it is treated as out of
+    scope only when it names another competition or a non-2026 year and does not
+    mention 2026. An ambiguous forward reference with no marker stays in scope and is
+    flagged, because over-flagging an ambiguous 2026 forward reference is the safe
+    error, while flagging an unambiguous historical fact is not.
+    """
+    if "2026" in text:
+        return False
+    if _OTHER_COMPETITION.search(text):
+        return True
+    years = {match.group() for match in _YEAR.finditer(text)}
+    return bool(years)
+
 
 class Violation(NamedTuple):
     """One quarantine hit: where it was found and why it is forbidden."""
@@ -121,7 +161,10 @@ class LeakageError(Exception):
 def _mentioned_rounds(text: str) -> set[str]:
     """Return the set of knockout rounds named in the text."""
     found = {code for code, pattern in _ROUND_PATTERNS.items() if pattern.search(text)}
-    stripped = _COMPOUND_FINAL.sub(" ", text)
+    # Strip the quarter-final and semi-final compounds and the "final group game"
+    # style adjective uses before testing for the World Cup Final, so neither a
+    # compound nor a last-group-match phrase falsely registers as the final.
+    stripped = _FINAL_ADJECTIVE.sub(" ", _COMPOUND_FINAL.sub(" ", text))
     if _FINAL_PATTERN.search(stripped):
         found.add("F")
     return found
@@ -141,25 +184,43 @@ def _fixture_pairs(fixtures: list[dict[str, Any]] | None) -> list[tuple[str, str
 
 
 def _entry_violation(
-    text: str,
+    claim: str,
+    source: str,
+    team: str,
     factor: str,
     target_round: str,
     fixture_pairs: list[tuple[str, str]],
     meeting_date: Any,
     cutoff: Any,
 ) -> str | None:
-    """Return a reason if the entry is forbidden for the target round, else None."""
-    lowered = text.lower()
+    """Return a reason if the entry is forbidden for the target round, else None.
 
-    if _MARKET_PATTERN.search(lowered):
+    Market content is judged on the claim, the source, and the team together, so a
+    betting URL is caught. Every other rule, result and round and fixture-pair
+    detection, is judged on the claim and the structured team field only: a source
+    URL slug is metadata, not content, so an opponent name appearing in a citation
+    URL must never make a legitimate form fact read as the tie's own result.
+    """
+    market_text = " ".join(part for part in (claim, source, team) if part).lower()
+    if _MARKET_PATTERN.search(market_text):
         return "betting or prediction-market content"
 
-    mentioned = _mentioned_rounds(lowered)
-    has_result = bool(_SCORELINE.search(lowered) or _RESULT_VERBS.search(lowered))
-    has_advance = bool(_ADVANCE_VERBS.search(lowered))
+    content = " ".join(part for part in (claim, team) if part).lower()
 
-    # A result statement that names the target round or a later one.
-    for code in mentioned:
+    # Historical and other-competition facts are legitimate analyst content, not a
+    # leak of a 2026 result, so the round, final, and result rules do not apply.
+    if _is_historical_or_other(content):
+        return None
+
+    mentioned = _mentioned_rounds(content)
+    has_result = bool(_SCORELINE.search(content) or _RESULT_VERBS.search(content))
+    has_advance = bool(_ADVANCE_VERBS.search(content))
+
+    # A result statement that names the target round or a later one. Iterate the
+    # mentioned rounds in progression order so the reported reason is
+    # deterministic when a claim names more than one round (the target round, if
+    # present, is reported before any later round it also mentions).
+    for code in sorted(mentioned, key=lambda c: rounds.ROUND_INDEX[c]):
         if rounds.is_target_or_later(code, target_round) and has_result:
             return f"result for {code}, the target round or later"
         # Advancing to a strictly later round reveals an intervening result.
@@ -170,7 +231,7 @@ def _entry_violation(
     # fixture, even without a round word, is leakage of that fixture's outcome.
     if (has_result or has_advance) and fixture_pairs:
         names_fixture = any(
-            home in lowered and away in lowered for home, away in fixture_pairs
+            home in content and away in content for home, away in fixture_pairs
         )
         if names_fixture:
             if factor in _FIXTURE_PAIR_EXEMPT_FACTORS:
@@ -209,13 +270,10 @@ def find_violations(
     violations: list[Violation] = []
     for factor, entries in factors.items():
         for index, entry in enumerate(entries or []):
-            text = " ".join(
-                str(entry.get(field, ""))
-                for field in ("claim", "source", "team")
-                if entry.get(field)
-            )
             reason = _entry_violation(
-                text,
+                str(entry.get("claim", "")),
+                str(entry.get("source", "")),
+                str(entry.get("team") or ""),
                 factor,
                 target_round,
                 fixture_pairs,

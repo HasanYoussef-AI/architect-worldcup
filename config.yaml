@@ -103,8 +103,66 @@ llm:
   # Server-side web search tool, research call only. Pinned and verified against
   # the live Anthropic docs before wiring rather than assumed.
   web_search_tool: "web_search_20260209"
-  # Maximum web searches per research call.
-  max_search_uses: 12
+  # Per-match web search budget, sized by coverage: seven factors across the two
+  # teams of one tie, about two searches per factor. The cap, not a target; the
+  # model spends fewer when a cell settles quickly.
+  max_search_uses: 14
+  # Allowed-domains allow-list for the research web search. A three-tier static
+  # core plus a per-round expansion: once a round's field is known, each
+  # participating team's national federation and one or two reputable national
+  # sports outlets are added from the national-sources snapshot, so a non-European
+  # side is sourced as well as a European one and thin sourcing does not turn into
+  # a false insufficient-evidence neutral. Every domain is verified before it is
+  # added. Wikipedia, forums, and all betting and tipster sites are excluded by
+  # design, keeping the forecast independent of open-edit sources and the market.
+  sources:
+    core:
+      # Tier 1: governing bodies, confederations, and top international wires.
+      tier1:
+        - fifa.com
+        - uefa.com
+        - conmebol.com
+        - concacaf.com
+        - cafonline.com
+        - the-afc.com
+        - oceaniafootball.com
+        - reuters.com
+        - apnews.com
+      # Tier 2: established international sports desks.
+      tier2:
+        - bbc.com
+        - espn.com
+        - theguardian.com
+        - nytimes.com
+    # Per-team national federations and outlets, added per round once the field
+    # is known. A committed, dated snapshot, verified domain by domain, extended
+    # as later rounds are researched.
+    national_snapshot: "data/llm/national_sources_2026-06-25.csv"
+    # Never allow-listed, recorded so each exclusion is explicit and auditable.
+    # Betting, odds, and tipster sites are excluded as a class by the allow-list
+    # itself, since only listed domains are ever searched.
+    excluded:
+      - wikipedia.org    # open-edit
+      - fandom.com       # open-edit wikis
+      - reddit.com       # forum
+      - bbc-sport.com    # lookalike, not the real BBC
+      - ovacion.net      # redirect brand domain; use elpais.com.uy instead
+    # Verified reputable, but the Anthropic web-search crawler cannot access them
+    # (the tool rejects them outright), so build_allowed_domains filters these out
+    # of the live allow-list before the call. Kept on record so the verification is
+    # not lost and they can be restored if access changes. Most premium wires are
+    # here, so the working core leans on the governing bodies and ESPN; replacing
+    # the blocked national dailies with verified, crawler-accessible outlets is a
+    # follow-up before the knockout rounds.
+    crawler_blocked:
+      - reuters.com
+      - apnews.com
+      - bbc.com
+      - theguardian.com
+      - nytimes.com
+      - marca.com
+      - as.com
+      - elpais.com.uy
   # Any departure of the emitted lean from the anchor-implied lean beyond this
   # tolerance must be justified in writing in the prediction log.
   anchor_tolerance: 0.10

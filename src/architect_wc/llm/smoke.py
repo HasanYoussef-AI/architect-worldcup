@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Any
 
 from architect_wc import calibrate
-from architect_wc.llm import quarantine, schemas, score_llm, validity
+from architect_wc.llm import coverage, quarantine, schemas, score_llm, validity
 
 TARGET_ROUND = "R32"
 
@@ -39,6 +39,9 @@ FIXTURES: list[dict[str, Any]] = [
 # head-to-head between the two fixture teams (allowed, the head-to-head factor).
 CLEAN_DOSSIER: dict[str, Any] = {
     "round": TARGET_ROUND,
+    "match": 73,
+    "home_team": "Spain",
+    "away_team": "Portugal",
     "as_of_date": "2026-06-26",
     "committed_at": None,
     "git_sha": "smoke",
@@ -50,18 +53,17 @@ CLEAN_DOSSIER: dict[str, Any] = {
                     "Spain midfielder Rodri returned to full training this "
                     "week after a minor knock."
                 ),
-                "source": "Marca",
-                "source_tier": 1,
+                "source": "marca.com",
+                "source_tier": 2,
                 "team": "Spain",
             },
             {
                 "claim": (
-                    "Norway striker Haaland is fit and started their third "
-                    "group-stage match."
+                    "Portugal forward Goncalo Ramos trained fully and is available."
                 ),
-                "source": "NRK",
-                "source_tier": 1,
-                "team": "Norway",
+                "source": "espn.com",
+                "source_tier": 2,
+                "team": "Portugal",
             },
         ],
         "recent_form": [
@@ -70,24 +72,24 @@ CLEAN_DOSSIER: dict[str, Any] = {
                     "Spain won all three Group H matches, including a 2-0 win "
                     "over Uruguay in the group stage."
                 ),
-                "source": "UEFA match centre",
+                "source": "uefa.com",
                 "source_tier": 1,
                 "team": "Spain",
             },
             {
-                "claim": "Argentina topped Group J with three wins from three.",
-                "source": "AFA",
+                "claim": "Portugal took four points from their first two group games.",
+                "source": "uefa.com",
                 "source_tier": 1,
-                "team": "Argentina",
+                "team": "Portugal",
             },
         ],
         "tactical_matchup": [
             {
                 "claim": (
-                    "Argentina favour a high press while Norway often sit "
-                    "deeper and counter."
+                    "Spain dominate possession while Portugal are most "
+                    "dangerous in transition."
                 ),
-                "source": "The Athletic",
+                "source": "espn.com",
                 "source_tier": 2,
                 "team": None,
             }
@@ -97,43 +99,90 @@ CLEAN_DOSSIER: dict[str, Any] = {
                 "claim": (
                     "Spain's head coach has kept a settled backroom staff through 2026."
                 ),
-                "source": "El Pais",
+                "source": "as.com",
                 "source_tier": 2,
                 "team": "Spain",
             }
         ],
-        "strategic_incentives": [
-            {
-                "claim": (
-                    "Spain rotated heavily in their last group game, "
-                    "prioritising freshness."
-                ),
-                "source": "El Pais",
-                "source_tier": 2,
-                "team": "Spain",
-            }
-        ],
-        "psychological_momentum": [
-            {
-                "claim": "Norway are on a five-match unbeaten run across 2026.",
-                "source": "NRK",
-                "source_tier": 2,
-                "team": "Norway",
-            }
-        ],
+        # Searched and nothing came back: a clean neutral, insufficient evidence
+        # may be marked here.
+        "strategic_incentives": [],
+        # Raw hits came back but all were filtered: NOT a clean neutral, so
+        # insufficient evidence may not be marked here.
+        "psychological_momentum": [],
         "historical_head_to_head": [
             {
                 "claim": (
                     "Spain and Portugal last met in 2022, a 1-1 draw in the "
                     "Nations League."
                 ),
-                "source": "UEFA",
+                "source": "uefa.com",
                 "source_tier": 1,
                 "team": None,
                 "meeting_date": "2022-09-27",
             }
         ],
     },
+    "coverage": [
+        {
+            "factor": "squad_availability",
+            "n_raw_hits": 3,
+            "n_admissible_findings": 2,
+            "researchable": True,
+            "status": "has_findings",
+            "note": None,
+        },
+        {
+            "factor": "recent_form",
+            "n_raw_hits": 3,
+            "n_admissible_findings": 2,
+            "researchable": True,
+            "status": "has_findings",
+            "note": None,
+        },
+        {
+            "factor": "tactical_matchup",
+            "n_raw_hits": 1,
+            "n_admissible_findings": 1,
+            "researchable": True,
+            "status": "has_findings",
+            "note": None,
+        },
+        {
+            "factor": "coaching_staff",
+            "n_raw_hits": 2,
+            "n_admissible_findings": 1,
+            "researchable": True,
+            "status": "has_findings",
+            "note": None,
+        },
+        {
+            "factor": "strategic_incentives",
+            "n_raw_hits": 0,
+            "n_admissible_findings": 0,
+            "researchable": True,
+            "status": "queried_no_findings",
+            "note": "Searched the allow-list; no incentive or rotation news surfaced.",
+        },
+        {
+            "factor": "psychological_momentum",
+            "n_raw_hits": 2,
+            "n_admissible_findings": 0,
+            "researchable": True,
+            "status": "quarantined_or_filtered",
+            "note": (
+                "Two hits framed momentum via a forbidden later-round result; filtered."
+            ),
+        },
+        {
+            "factor": "historical_head_to_head",
+            "n_raw_hits": 1,
+            "n_admissible_findings": 1,
+            "researchable": True,
+            "status": "has_findings",
+            "note": None,
+        },
+    ],
 }
 
 # The poisoned dossier is the clean one plus one planted target-round result. The
@@ -411,6 +460,16 @@ def run_smoke() -> dict[str, Any]:
         record("schema_dossier_validates", True, "valid against schema")
     except Exception as error:  # noqa: BLE001
         record("schema_dossier_validates", False, str(error))
+
+    try:
+        coverage.assert_coverage_complete(CLEAN_DOSSIER)
+        record(
+            "coverage_manifest_complete",
+            True,
+            "coverage manifest complete and consistent with the factor arrays",
+        )
+    except coverage.CoverageError as error:
+        record("coverage_manifest_complete", False, str(error))
 
     valid_dists = True
     for kind, document in (("A", FIXTURE_A), ("B", FIXTURE_B), ("C", FIXTURE_C)):

@@ -2,20 +2,31 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/llm_dossier.schema.json",
   "title": "Architect WorldCup LLM research dossier",
-  "description": "Frozen, committed research dossier for one knockout round. Phase 1 (web search enabled) writes it; Phase 2 (no tools) reads only this. Its commit, before the round's first kickoff, is the leakage proof, and it is the reproducibility anchor for Predictions B and C, which are not bit-reproducible.",
+  "description": "Frozen, committed per-match research dossier for one fixture. Phase 1 (web search enabled) writes it; Phase 2 (no tools) reads only this. Its commit, before the fixture's kickoff, is the leakage proof, and it is the reproducibility anchor for Predictions B and C, which are not bit-reproducible. The coverage manifest records, per factor cell, how many raw search hits came back and how many survived the quarantine and tier filter, so a cell that was researched and quarantined is never mistaken for a clean neutral.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["round", "as_of_date", "git_sha", "model_version", "factors"],
+  "required": ["round", "match", "home_team", "away_team", "as_of_date", "git_sha", "model_version", "factors", "coverage"],
   "properties": {
     "round": {
       "type": "string",
-      "enum": ["R32", "R16", "QF", "SF", "F"],
-      "description": "Target knockout round this dossier informs."
+      "enum": ["GROUP", "R32", "R16", "QF", "SF", "F"],
+      "description": "Target round this dossier informs. GROUP for a group-stage fixture, otherwise the knockout round."
+    },
+    "match": {
+      "type": "integer",
+      "description": "Fixture identifier for the tie this dossier covers."
+    },
+    "home_team": {
+      "type": "string",
+      "description": "Nominal home: the first-listed team in the official fixture. A labelling convention only, since the venue is neutral for knockout ties."
+    },
+    "away_team": {
+      "type": "string"
     },
     "as_of_date": {
       "type": "string",
       "format": "date",
-      "description": "Cutoff: the dossier holds nothing dated after this, the day before the round kicks off."
+      "description": "Cutoff: the dossier holds nothing dated after this, the day before the fixture kicks off."
     },
     "committed_at": {
       "type": ["string", "null"],
@@ -31,12 +42,12 @@
     },
     "provenance": {
       "type": ["object", "null"],
-      "description": "Research-call provenance: model, effort, web search tool version, allow-list, max_uses, retrieved_at."
+      "description": "Research-call provenance: model, effort, web search tool version, allow-list, max_uses, retrieved_at, usage, cost."
     },
     "factors": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Findings organised into the fixed factor taxonomy, each entry carrying its source tier.",
+      "description": "Admissible findings organised into the fixed factor taxonomy, each entry carrying its source tier. A factor array holds only findings that survived the quarantine gate and the tier filter; the coverage manifest records what was filtered out.",
       "required": [
         "squad_availability",
         "recent_form",
@@ -55,12 +66,60 @@
         "psychological_momentum": {"$ref": "#/$defs/factorEntries"},
         "historical_head_to_head": {"$ref": "#/$defs/factorEntries"}
       }
+    },
+    "coverage": {
+      "type": "array",
+      "description": "One cell per factor, the research coverage manifest. Raw hits are recorded separately from admissible findings so a cell that returned content the quarantine gate or tier filter then removed shows n_raw_hits greater than zero with n_admissible_findings zero, and is never silently treated as a clean neutral. Prediction time may mark a factor insufficient_evidence only when its cell status is queried_no_findings or unresearchable.",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["factor", "n_raw_hits", "n_admissible_findings", "status", "researchable"],
+        "properties": {
+          "factor": {
+            "type": "string",
+            "enum": [
+              "squad_availability",
+              "recent_form",
+              "tactical_matchup",
+              "coaching_staff",
+              "strategic_incentives",
+              "psychological_momentum",
+              "historical_head_to_head"
+            ]
+          },
+          "n_raw_hits": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Count of raw search results that addressed this factor, before the quarantine gate and tier filter."
+          },
+          "n_admissible_findings": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Count of findings that survived the quarantine gate and tier filter, equal to the length of this factor's array in factors."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["has_findings", "queried_no_findings", "quarantined_or_filtered", "unresearchable"],
+            "description": "has_findings: admissible findings exist. queried_no_findings: the cell was searched and nothing came back. quarantined_or_filtered: raw content came back but the quarantine gate or tier filter removed all of it, so this is NOT a clean neutral. unresearchable: the cell could not be researched (no admissible source covered it), a stated blind spot that prediction time must surface in the rationale."
+          },
+          "researchable": {
+            "type": "boolean",
+            "description": "False only for an unresearchable cell, where no admissible source covered the factor for this fixture."
+          },
+          "note": {
+            "type": ["string", "null"],
+            "description": "Optional detail: why the cell is unresearchable, or what raw content was quarantined or tier-filtered out."
+          }
+        }
+      }
     }
   },
   "$defs": {
     "factorEntries": {
       "type": "array",
-      "description": "Retrieved facts for one factor. May be empty, which forces that factor to score zero as insufficient evidence.",
+      "description": "Admissible findings for one factor, those that passed the quarantine gate and the tier filter. May be empty, in which case the coverage manifest cell distinguishes queried_no_findings, quarantined_or_filtered, and unresearchable. Prediction time may mark this factor insufficient_evidence only for the first and last of those.",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -72,12 +131,12 @@
           },
           "source": {
             "type": "string",
-            "description": "Where the fact came from: an outlet or URL. No betting or prediction-market sources by design."
+            "description": "Where the fact came from: an allow-listed outlet domain or URL. No betting or prediction-market sources, no open-edit or anonymous sources, by design."
           },
           "source_tier": {
             "type": "integer",
             "enum": [1, 2, 3],
-            "description": "Source reputability tier: 1 most reputable, 3 least, anonymous and open-edit excluded entirely."
+            "description": "Source reputability tier: 1 official federations, confederations, and top international wires; 2 reputable national sports press; 3 weaker but still named and reputable. Anonymous, open-edit, forum, and betting sources are excluded entirely, not tiered."
           },
           "team": {
             "type": ["string", "null"],

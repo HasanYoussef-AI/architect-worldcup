@@ -140,3 +140,106 @@ def test_a_later_target_round_allows_earlier_round_results() -> None:
     # But a quarter-final result is forbidden for a quarter-final prediction.
     qf_leak = _dossier("recent_form", "Spain won the quarter-final 1-0.")
     assert quarantine.find_violations(qf_leak, "QF")
+
+
+# --- GROUP target: a group-stage fixture is a valid research target. -------------
+
+_GROUP_FIXTURES = [{"match": 64, "home_team": "Uruguay", "away_team": "Spain"}]
+
+
+def test_group_target_preserves_other_pre_cutoff_group_form() -> None:
+    # Predicting a group match, an earlier group result for a different pairing is
+    # legitimate form, not leakage.
+    dossier = _dossier("recent_form", "Spain beat Cape Verde 3-0 in their opener.")
+    assert (
+        quarantine.find_violations(
+            dossier, "GROUP", _GROUP_FIXTURES, cutoff="2026-06-25"
+        )
+        == []
+    )
+
+
+def test_group_target_catches_the_fixtures_own_result() -> None:
+    # The target group match's own result is leakage, caught by the fixture pair.
+    dossier = _dossier("recent_form", "Uruguay beat Spain 1-0.")
+    violations = quarantine.find_violations(
+        dossier, "GROUP", _GROUP_FIXTURES, cutoff="2026-06-25"
+    )
+    assert violations
+
+
+def test_group_target_catches_any_knockout_result() -> None:
+    # Every knockout round is strictly later than the group stage, so a knockout
+    # result or advancement reveals a future outcome and is caught.
+    leak = _dossier("psychological_momentum", "Spain reached the round of 16.")
+    violations = quarantine.find_violations(leak, "GROUP")
+    assert violations and "later round" in violations[0].reason
+
+
+# --- Tournament and date scoping, plus the source-attribution fix. ---------------
+
+
+def test_historical_titles_and_other_competitions_are_preserved() -> None:
+    # A coach's pedigree across other competitions and past years is legitimate
+    # analyst content, not a 2026 result, even though it names finals and titles.
+    dossier = _dossier(
+        "coaching_staff",
+        "De la Fuente led Spain to the 2023 Nations League and EURO 2024 titles "
+        "before a penalty-shootout defeat in the 2025 Nations League final.",
+    )
+    assert (
+        quarantine.find_violations(
+            dossier, "GROUP", _GROUP_FIXTURES, cutoff="2026-06-25"
+        )
+        == []
+    )
+
+
+def test_final_group_game_phrase_is_not_the_world_cup_final() -> None:
+    # "final group game" is the last group match, not the World Cup Final, and a
+    # group win in it is legitimate pre-cutoff form.
+    dossier = _dossier(
+        "strategic_incentives",
+        "Spain entered the final group game having taken four points from a win "
+        "over Saudi Arabia and a draw with Cabo Verde.",
+    )
+    assert (
+        quarantine.find_violations(
+            dossier, "GROUP", _GROUP_FIXTURES, cutoff="2026-06-25"
+        )
+        == []
+    )
+
+
+def test_group_result_with_opponent_in_source_url_is_preserved() -> None:
+    # The source-attribution bug: a Uruguay group result cited from an ESPN URL
+    # whose slug contains "spain" must not read as the Uruguay-Spain tie's result.
+    dossier = _dossier(
+        "recent_form",
+        "Uruguay drew 1-1 with Saudi Arabia in their opening Group H match.",
+        source="https://www.espn.com/soccer/team/_/id/164/spain",
+        team="Uruguay",
+    )
+    assert (
+        quarantine.find_violations(
+            dossier, "GROUP", _GROUP_FIXTURES, cutoff="2026-06-25"
+        )
+        == []
+    )
+
+
+def test_2026_world_cup_final_reference_is_still_caught() -> None:
+    # The real leak the scoping must preserve: a current-tournament final reference.
+    reached = _dossier(
+        "psychological_momentum", "Spain reached the 2026 World Cup final."
+    )
+    assert quarantine.find_violations(reached, "GROUP")
+    result = _dossier("recent_form", "Spain won the 2026 World Cup final 2-1.")
+    assert quarantine.find_violations(result, "GROUP")
+
+
+def test_ambiguous_current_forward_reference_stays_flagged() -> None:
+    # No historical or other-competition marker: treated as current and flagged,
+    # the conservative error for an ambiguous 2026 forward reference.
+    dossier = _dossier("psychological_momentum", "Spain reached the final.")
+    assert quarantine.find_violations(dossier, "GROUP")

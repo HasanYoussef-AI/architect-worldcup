@@ -378,6 +378,17 @@ forecast, which would make the comparison meaningless. By fixing both prediction
 before the matches are played and scoring them afterward, the comparison stays fair
 and the result, whichever way it falls, is verifiable.
 
+A research dossier of evidence is gathered first, from a verified allow-list of
+sources, and a round-aware, date-bounded quarantine gate removes anything that would
+leak a result. That gate carries a stated bias: it prefers false positives to false
+negatives. It will occasionally drop a legitimate forward-stakes fact, such as a
+"team X may need to beat team Y to advance" line, because a real leak can wear a
+conditional and a leakage guard must not trust modal verbs to tell a hypothetical
+from a result. When it drops such a fact it is not hidden. The dossier's coverage
+manifest records it as a raw hit that did not become an admissible finding, and the
+match rationale states it, so the blind spot is on the record rather than silently
+absorbed.
+
 Results will be added here once the phase is built.
 
 ---

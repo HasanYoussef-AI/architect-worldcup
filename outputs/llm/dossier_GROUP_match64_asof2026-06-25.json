@@ -1,0 +1,373 @@
+{
+  "dossier": {
+    "factors": {
+      "squad_availability": [
+        {
+          "claim": "Spain coach Luis de la Fuente named a 26-man World Cup squad featuring Lamine Yamal for his first World Cup, with no Real Madrid players as Dean Huijsen and Dani Carvajal missed out.",
+          "source": "https://www.espn.com/soccer/story/_/id/48870392/spain-world-cup-2026-squad-confirmed-lamine-yamal-stars-no-real-madrid-players",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain had pre-tournament fitness doubts over Lamine Yamal, Nico Williams and Mikel Merino, but de la Fuente said medical reports indicated all three would be available for the opener.",
+          "source": "https://www.espn.com/soccer/story/_/id/48870392/spain-world-cup-2026-squad-confirmed-lamine-yamal-stars-no-real-madrid-players",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Lamine Yamal returned to give Spain a spark during the group stage (Matchday 11 against Saudi Arabia).",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/matchday-11-preview",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain's squad includes goalkeepers Unai Simon, David Raya and Joan Garcia, with only three of the eight defenders from their EURO 2024 win retained (Cucurella, Grimaldo and Laporte).",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-squad-announcement-luis-de-la-fuente",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Marcelo Bielsa named a 26-man Uruguay squad including Jose Maria Gimenez, Fernando Muslera and Federico Valverde.",
+          "source": "https://www.fifa.com/en/articles/uruguay-world-cup-squad-2026-marcelo-bielsa",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        }
+      ],
+      "recent_form": [
+        {
+          "claim": "Uruguay drew 1-1 with Saudi Arabia on 15 June 2026, with Maxi Araujo equalising late after Abdulelah Al-Amri had put the Saudis ahead.",
+          "source": "https://www.espn.com/soccer/report/_/gameId/760429",
+          "source_tier": 2,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Uruguay drew 2-2 with Cabo Verde on 21 June 2026 (goals from Araujo 44' and Canobbio 45+6'), a second straight draw that left them with two points from their first two matches.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-cabo-verde-match-report-highlights",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain were held to a 0-0 draw by Cabo Verde in their opener on 15 June 2026 in Atlanta.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d159556fdf-60d8385f463f-1000--spain-at-the-world-cup-2026-squad-fixtures-group-and-history/",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain beat Saudi Arabia 4-0 on 21 June 2026, with Mikel Oyarzabal scoring twice.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d159556fdf-60d8385f463f-1000--spain-at-the-world-cup-2026-squad-fixtures-group-and-history/",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain drew 1-1 with Iraq in a pre-tournament friendly on 4 June 2026, playing without Lamine Yamal.",
+          "source": "https://www.espn.com/soccer/report/_/gameId/401871471",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        }
+      ],
+      "tactical_matchup": [
+        {
+          "claim": "Spain are the reigning European champions whose identity is built on a possession-based style rooted in their tiki-taka tradition.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d159556fdf-60d8385f463f-1000--spain-at-the-world-cup-2026-squad-fixtures-group-and-history/",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain's squad depth has been described as a powerful weapon during the tournament.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-cabo-verde-match-report-highlights",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Uruguay's group-stage performances were inconsistent under Bielsa, showing flashes of brilliance but an inability to build on them over time.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-reaction-cabo-verde-spain",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Uruguay midfielder Nicolas De la Cruz acknowledged the distinctive type of football Spain play ahead of the meeting.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-reaction-cabo-verde-spain",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "FIFA framed a key tactical question as Bielsa needing to solve a 'Valverde conundrum' over how to deploy Federico Valverde.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-reaction-cabo-verde-spain",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        }
+      ],
+      "coaching_staff": [
+        {
+          "claim": "Uruguay are coached by Marcelo Bielsa.",
+          "source": "https://www.fifa.com/en/articles/uruguay-world-cup-squad-2026-marcelo-bielsa",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain are coached by Luis de la Fuente, in charge since December 2022, who led them to the 2023 Nations League and EURO 2024 titles before a penalty shootout defeat to Portugal in the 2025 Nations League final.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d159556fdf-60d8385f463f-1000--spain-at-the-world-cup-2026-squad-fixtures-group-and-history/",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "De la Fuente is described as a calm, considered and popular figure who first coached many of his current squad in the youth system.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d159556fdf-60d8385f463f-1000--spain-at-the-world-cup-2026-squad-fixtures-group-and-history/",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        }
+      ],
+      "strategic_incentives": [
+        {
+          "claim": "Spain conclude the group stage against Uruguay in Guadalajara with qualification for the knockout rounds on the line.",
+          "source": "https://rfef.es/en/noticias/Squad-Numbers-Confirmed-for-the-FIFA-World-Cup",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "FIFA noted that taking a minimum of four points from the second and third matches would guarantee a Round of 32 place for any Group H side.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/matchday-11-preview",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Going into the final round of group matches, Spain held four points and Uruguay two points in Group H.",
+          "source": "https://www.espn.com/soccer/match/_/gameId/760479/spain-uruguay",
+          "source_tier": 2,
+          "team": null,
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        }
+      ],
+      "psychological_momentum": [
+        {
+          "claim": "After a second straight draw, Uruguay called it 'a bitter pill to swallow', with their campaign described as having reached a crossroads and remaining a work in progress.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-reaction-cabo-verde-spain",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Uruguay failed to convince in their first two matches and have struggled to find their feet at the tournament.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/uruguay-reaction-cabo-verde-spain",
+          "source_tier": 1,
+          "team": "Uruguay",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain approached the fixture with momentum, having found a spark in Yamal's return and seen their depth prove a powerful weapon.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/matchday-11-preview",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-06-25"
+        }
+      ],
+      "historical_head_to_head": [
+        {
+          "claim": "Spain and Uruguay drew 2-2 in the final pool of the 1950 World Cup in Brazil.",
+          "source": "https://www.espn.com/soccer/match/_/gameId/760479/spain-uruguay",
+          "source_tier": 2,
+          "team": null,
+          "meeting_date": "1950-07-09",
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain and Uruguay drew 0-0 in the group stage of the 1990 World Cup.",
+          "source": "https://www.espn.com/soccer/match/_/gameId/760479/spain-uruguay",
+          "source_tier": 2,
+          "team": null,
+          "meeting_date": "1990-06-13",
+          "retrieved_at": "2026-06-25"
+        },
+        {
+          "claim": "Spain beat Uruguay 2-1 in the group stage of the 2013 FIFA Confederations Cup.",
+          "source": "https://www.espn.com/soccer/match/_/gameId/760479/spain-uruguay",
+          "source_tier": 2,
+          "team": null,
+          "meeting_date": "2013-06-16",
+          "retrieved_at": "2026-06-25"
+        }
+      ]
+    },
+    "coverage": [
+      {
+        "factor": "squad_availability",
+        "n_raw_hits": 7,
+        "n_admissible_findings": 5,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "Strong Spain availability detail (squad, fitness, Yamal return); Uruguay limited to squad selection with no specific injury/suspension report found on allow-listed domains."
+      },
+      {
+        "factor": "recent_form",
+        "n_raw_hits": 10,
+        "n_admissible_findings": 5,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "Both teams' two group-stage matches plus Spain's pre-tournament friendly captured; ESPN betting lines on match pages were ignored as forbidden content."
+      },
+      {
+        "factor": "tactical_matchup",
+        "n_raw_hits": 5,
+        "n_admissible_findings": 5,
+        "researchable": true,
+        "status": "has_findings",
+        "note": null
+      },
+      {
+        "factor": "coaching_staff",
+        "n_raw_hits": 4,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": null
+      },
+      {
+        "factor": "strategic_incentives",
+        "n_raw_hits": 5,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "quarantine dropped 1 leakage-flagged finding(s), recorded as raw hits not admissible"
+      },
+      {
+        "factor": "psychological_momentum",
+        "n_raw_hits": 5,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": null
+      },
+      {
+        "factor": "historical_head_to_head",
+        "n_raw_hits": 5,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "ESPN 'Last 5 Matchups' listed two further Spain-Uruguay friendlies (3-0, 2-0) that were discarded because no admissible meeting_date could be established."
+      }
+    ],
+    "round": "GROUP",
+    "match": 64,
+    "home_team": "Uruguay",
+    "away_team": "Spain",
+    "as_of_date": "2026-06-25",
+    "committed_at": null,
+    "git_sha": "7fee8626b96cd582d83023eb19158a10dd19d23e",
+    "model_version": "0.0.0",
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "high",
+      "web_search_tool": "web_search_20260209",
+      "max_search_uses": 14,
+      "allowed_domains": [
+        "auf.org.uy",
+        "cafonline.com",
+        "concacaf.com",
+        "conmebol.com",
+        "elobservador.com.uy",
+        "espn.com",
+        "fifa.com",
+        "oceaniafootball.com",
+        "rfef.es",
+        "the-afc.com",
+        "uefa.com"
+      ],
+      "retrieved_at": "2026-06-25T00:54:14.537212+00:00",
+      "usage": {
+        "input_tokens": 623900,
+        "output_tokens": 21865,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "web_search_requests": 14
+      },
+      "cost_usd_estimate": {
+        "input_usd": 3.1195,
+        "output_usd": 0.546625,
+        "cache_write_usd": 0.0,
+        "cache_read_usd": 0.0,
+        "web_search_usd": 0.14,
+        "total_usd": 3.806125
+      },
+      "stop_reason": "end_turn",
+      "request_id": "req_011CcP478R3tPkbN1VstuMbJ"
+    }
+  },
+  "meta": {
+    "usage": {
+      "input_tokens": 623900,
+      "output_tokens": 21865,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "web_search_requests": 14
+    },
+    "cost": {
+      "input_usd": 3.1195,
+      "output_usd": 0.546625,
+      "cache_write_usd": 0.0,
+      "cache_read_usd": 0.0,
+      "web_search_usd": 0.14,
+      "total_usd": 3.806125
+    },
+    "n_web_searches": 14,
+    "allowed_domains": [
+      "auf.org.uy",
+      "cafonline.com",
+      "concacaf.com",
+      "conmebol.com",
+      "elobservador.com.uy",
+      "espn.com",
+      "fifa.com",
+      "oceaniafootball.com",
+      "rfef.es",
+      "the-afc.com",
+      "uefa.com"
+    ],
+    "quarantine_dropped": {
+      "strategic_incentives": 1
+    }
+  }
+}

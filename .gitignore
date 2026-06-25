@@ -27,3 +27,4 @@ outputs/predictions/*
 !outputs/predictions/.gitkeep
 outputs/logs/*
 !outputs/logs/.gitkeep
+.env

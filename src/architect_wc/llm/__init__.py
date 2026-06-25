@@ -16,11 +16,22 @@ bit-stable and temperature is removed on Opus 4.8. The frozen, committed researc
 dossier is the real reproducibility anchor for B and C: it freezes their inputs,
 and its commit before the round's first kickoff is the forward-only leakage proof.
 
-This module currently holds the offline skeleton: the frozen weights, the
-round-aware quarantine gate, the analytic Prediction A math, the RPS scoring
-extension, schema validation, and the offline plumbing smoke test. The live
-two-phase Anthropic calls (research with web search, then prediction with no
-tools) are wired in a later step, after the skeleton and the smoke test are green.
+Leakage-safety bias, a stated property: the quarantine gate prefers false
+positives to false negatives. It will occasionally drop a legitimate forward-stakes
+fact, for example a "team X may need to beat team Y to advance" line, because a real
+leak can wear a conditional and a leakage guard must not trust modal verbs to tell a
+hypothetical from a result. When the gate drops such a fact it is not hidden: the
+research flow filters and records it, so the coverage manifest shows it as a raw hit
+that did not become an admissible finding (raw greater than admissible), and the
+per-match rationale is expected to state the drop. The run is never aborted by a
+single flagged finding.
+
+This module currently holds the offline skeleton and the Phase 1 research layer:
+the frozen weights, the round-aware quarantine gate, the per-match research call
+with allow-listed web search, the coverage manifest and its gate, the analytic
+Prediction A math, the RPS scoring extension, schema validation, and the offline
+plumbing smoke test. The Phase 2 prediction calls (Prediction B blind to A, then C
+reconciling A and B) are wired in a later step.
 """
 
 from __future__ import annotations

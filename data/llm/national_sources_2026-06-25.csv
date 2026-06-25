@@ -1,0 +1,20 @@
+# Per-team national sources for the LLM research allow-list. A committed, dated,
+# controlled input, not a live scrape. Every domain was verified before being
+# added (federation home pages and outlet home pages confirmed by web search and
+# fetch). The research call expands its allowed_domains per round: for each team
+# in the round's field, every row here for that team is added to the static core,
+# so a non-European side is sourced as well as a European one.
+#
+# kind: federation (the national association) or outlet (a reputable national
+# sports desk). tier: 1 official federation, 2 reputable national sports press.
+# Anonymous, open-edit, forum, and betting sources are never listed.
+#
+# Extended per round as later fixtures are researched. This snapshot covers the
+# teams of the first researched fixture, Uruguay vs Spain (Group H).
+team,kind,domain,tier
+Spain,federation,rfef.es,1
+Spain,outlet,marca.com,2
+Spain,outlet,as.com,2
+Uruguay,federation,auf.org.uy,1
+Uruguay,outlet,elobservador.com.uy,2
+Uruguay,outlet,elpais.com.uy,2
