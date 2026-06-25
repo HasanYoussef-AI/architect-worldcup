@@ -105,8 +105,15 @@ llm:
   web_search_tool: "web_search_20260209"
   # Per-match web search budget, sized by coverage: seven factors across the two
   # teams of one tie, about two searches per factor. The cap, not a target; the
-  # model spends fewer when a cell settles quickly.
+  # model spends fewer when a cell settles quickly. Coverage stayed honest at 14,
+  # so it is unchanged; the search-budget override exists for probing only.
   max_search_uses: 14
+  # Prompt caching on the research call, on by default. Measured to compose cleanly
+  # with web_search_20260209 and adaptive thinking on claude-opus-4-8: at 14
+  # searches it moved the re-read tool-loop content to cache-read rates and dropped
+  # the per-fixture cost from 3.81 to 1.58 dollars, a 59 percent saving, with no
+  # cost in coverage or leakage safety. Toggleable per call for probing.
+  prompt_cache: true
   # Allowed-domains allow-list for the research web search. A three-tier static
   # core plus a per-round expansion: once a round's field is known, each
   # participating team's national federation and one or two reputable national

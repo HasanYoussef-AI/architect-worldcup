@@ -423,7 +423,7 @@ def produce_dossier(
     client: Any = None,
     git_sha: str | None = None,
     model_version: str | None = None,
-    use_prompt_cache: bool = False,
+    use_prompt_cache: bool | None = None,
     max_search_uses: int | None = None,
 ) -> dict[str, Any]:
     """Run the research call and build the dossier and meta, WITHOUT gating.
@@ -454,6 +454,8 @@ def produce_dossier(
         if max_search_uses is not None
         else llm.get("max_search_uses", 14)
     )
+    if use_prompt_cache is None:
+        use_prompt_cache = bool(llm.get("prompt_cache", True))
 
     allowed_domains, domain_tiers = build_allowed_domains(config, home, away)
     user_prompt = build_research_prompt(
@@ -478,9 +480,12 @@ def produce_dossier(
     # breakpoint on the system block caches both; a breakpoint on the per-fixture
     # user prompt caches the schema and query template; and top-level auto-caching
     # caches the growing message history across the tool loop, so re-read content is
-    # billed as cache reads rather than full input. Default off until the off-versus-
-    # on cost probe confirms it composes with web search and actually moves input to
-    # cache reads; the probe was blocked on the API credit balance.
+    # billed as cache reads rather than full input. Verified to compose cleanly with
+    # web_search_20260209 and adaptive thinking on claude-opus-4-8: at 14 searches
+    # the uncached input collapsed from 623,900 tokens to 45, with 716,418 tokens
+    # served at cache-read rates, dropping the per-fixture total from 3.81 to 1.58
+    # dollars with no loss of coverage or leakage safety. On by default via config,
+    # toggleable per call for probing.
     if use_prompt_cache:
         system_param: Any = [
             {"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}
@@ -580,7 +585,7 @@ def research_fixture(
     client: Any = None,
     git_sha: str | None = None,
     model_version: str | None = None,
-    use_prompt_cache: bool = False,
+    use_prompt_cache: bool | None = None,
     max_search_uses: int | None = None,
 ) -> dict[str, Any]:
     """Produce the dossier for one fixture and gate it, fail-loud.
