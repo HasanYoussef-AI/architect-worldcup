@@ -145,3 +145,48 @@ def test_reject_case_validates_and_is_rejected(tmp_path) -> None:
     out = tmp_path / "prediction_b_reject.json"
     out.write_text(json.dumps(document, indent=2), encoding="utf-8")
     assert out.exists()
+
+
+def test_b_rejects_a_nonzero_factor_with_no_citation() -> None:
+    # The P4 nonzero-score-must-cite guarantee, restored on the live path after the
+    # ties-based test was retired: a nonzero factor with no citation is unsupported,
+    # so citations_ok is False and the prediction is not accepted, even when the
+    # emitted distribution is the reference itself (within box, valid simplex).
+    config = pipeline.load_config()
+    dossier = _load_committed_dossier()
+
+    def uncited_nonzero_call(dossier, config):
+        scores = dict.fromkeys(FACTORS, 0)
+        scores["recent_form"] = 2  # nonzero, but cited with nothing
+        s = anchor.anchor_signal(scores, load_weights(config))
+        r_home, r_draw, r_away = anchor.reference_three_way(s)
+        return {
+            "factors": [
+                {
+                    "name": f,
+                    "expert_lens": EXPERT_LENSES[f],
+                    "score": scores[f],
+                    "citations": [],
+                    "insufficient_evidence": False,
+                }
+                for f in FACTORS
+            ],
+            "emitted_three_way": {"p_home": r_home, "p_draw": r_draw, "p_away": r_away},
+            "emitted_lean": anchor.shootout_lean_from_anchor(s),
+            "justification": None,
+        }
+
+    document = prediction_b.predict_b(
+        dossier,
+        config,
+        uncited_nonzero_call,
+        dossier_ref=_dossier_ref(),
+        code_commit="test",
+        timestamp="2026-06-25T00:00:00Z",
+    )
+    assert document["validation"]["citations_ok"] is False
+    assert document["validation"]["accepted"] is False
+    assert (
+        "nonzero factor cites no dossier finding"
+        in document["validation"]["rejection_reason"]
+    )

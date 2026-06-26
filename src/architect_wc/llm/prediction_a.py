@@ -1,18 +1,22 @@
-"""Prediction A, the math model knockout call.
+"""Prediction A, the math model per-match call (Phase 3, per-match shape).
 
-A reads the per-tie 90-minute three-way and advance probability straight from the
-existing math model: the Dixon-Coles analytic three-way at a neutral venue plus
-the Elo shootout lean. It needs no Monte Carlo, since for a single tie with both
-teams known the three-way is the exact marginal of the same goal grid the
-simulator samples, with zero sampling noise, and the shootout lean is the exact
-value the simulator uses to resolve a drawn tie (simulate.shootout_lean_from_elo).
+A reads the 90-minute three-way and advance probability straight from the existing
+math model: the Dixon-Coles analytic three-way at a neutral venue plus the Elo
+shootout lean. It needs no Monte Carlo, since for a single fixture with both teams
+known the three-way is the exact marginal of the same goal grid the simulator
+samples, with zero sampling noise, and the shootout lean is the exact value the
+simulator uses to resolve a drawn tie (simulate.shootout_lean_from_elo).
 
-A is bit-reproducible from a fixed seed and dated data, and it is frozen: B and C
-never edit it.
+A is analytic and has no prose reasoning, so a small drivers explainer travels in
+A's own output: A's three-way, A's lean, and the strength differentials that
+produced them, the squad-adjusted Elo difference, the Dixon-Coles expected-goals
+difference, and the squad-value adjustment. This lets Prediction C understand A's
+number rather than reading a bare probability. The explainer lives only in A's
+output, so B stays blind to A.
 
-The pure assembly (advance_probability, tie_record) is separated from the data
-work (build_prediction_a) so the math is unit-testable with no model fit and no
-network.
+The pure assembly (advance_probability, expected_goals_from_grid, a_core) is
+separated from the data work (build_prediction_a) so the math is unit-testable with
+no model fit and no network. A is per-match, the same shape Predictions B and C use.
 """
 
 from __future__ import annotations
@@ -22,6 +26,7 @@ from typing import Any
 from architect_wc import simulate
 
 SOURCE = "dixon_coles_three_way+elo_shootout"
+SCHEMA_VERSION = "1.0.0"
 
 
 def advance_probability(
@@ -34,52 +39,68 @@ def advance_probability(
     return p_home_win_90 + p_draw_90 * shootout_lean
 
 
-def tie_record(
-    match: int,
-    home_team: str,
-    away_team: str,
+def expected_goals_from_grid(matrix: Any) -> tuple[float, float]:
+    """Home and away expected goals from a scoreline probability grid. Pure.
+
+    The grid entry (i, j) is the probability of i home goals and j away goals, so
+    the home expectation sums i weighted by each row's mass and the away
+    expectation sums j weighted by each column's mass.
+    """
+    import numpy as np
+
+    grid = np.asarray(matrix, dtype=float)
+    rows = np.arange(grid.shape[0])
+    cols = np.arange(grid.shape[1])
+    home_xg = float((rows * grid.sum(axis=1)).sum())
+    away_xg = float((cols * grid.sum(axis=0)).sum())
+    return home_xg, away_xg
+
+
+def a_core(
     three_way: dict[str, float],
     rating_home: float,
     rating_away: float,
+    home_xg: float,
+    away_xg: float,
+    squad_adjustment_home: float,
+    squad_adjustment_away: float,
 ) -> dict[str, Any]:
-    """Build one Prediction A tie record from a three-way and the two ratings.
+    """Assemble A's three-way, shootout lean, advance, and drivers. Pure, no I/O.
 
-    three_way carries p_home_win, p_draw, p_away_win for the nominal home side at a
-    neutral venue, exactly model.match_probabilities(..., neutral=True). The
-    shootout lean and advance probability are derived from the same ratings the
-    simulator uses, so A is internally consistent with the bracket simulation.
-    Pure function with no I/O.
+    The shootout lean and the elo difference come from the squad-adjusted Elo, the
+    identical ratings the bracket simulator uses, so A stays consistent with the
+    bracket. The drivers name the strength differentials behind A's number.
     """
     lean = simulate.shootout_lean_from_elo(rating_home, rating_away)
-    p_home_win_90 = float(three_way["p_home_win"])
-    p_draw_90 = float(three_way["p_draw"])
-    p_away_win_90 = float(three_way["p_away_win"])
+    p_home = float(three_way["p_home_win"])
+    p_draw = float(three_way["p_draw"])
+    p_away = float(three_way["p_away_win"])
     return {
-        "match": int(match),
-        "home_team": home_team,
-        "away_team": away_team,
-        "p_home_win_90": p_home_win_90,
-        "p_draw_90": p_draw_90,
-        "p_away_win_90": p_away_win_90,
+        "three_way": {"p_home": p_home, "p_draw": p_draw, "p_away": p_away},
         "shootout_lean": lean,
-        "p_advance_home": advance_probability(p_home_win_90, p_draw_90, lean),
-        "source": SOURCE,
+        "advance_probability": advance_probability(p_home, p_draw, lean),
+        "drivers": {
+            "elo_diff": rating_home - rating_away,
+            "ability_diff": home_xg - away_xg,
+            "squad_value_adjustment": squad_adjustment_home - squad_adjustment_away,
+        },
     }
 
 
 def build_prediction_a(
     config: dict[str, Any],
-    round_code: str,
+    fixture: dict[str, Any],
     as_of_date: str,
-    fixtures: list[dict[str, Any]],
+    round_code: str,
 ) -> dict[str, Any]:
-    """Build the full Prediction A document for a round from the math layers.
+    """Build the full per-match Prediction A document for one fixture.
 
-    Fits the existing pipeline at the round cutoff (the same chain as the forecast:
-    leakage-guarded matches, Elo, squad adjustment, Dixon-Coles), asserts no
-    leakage at the cutoff boundary, and reads the per-tie three-way and shootout
-    lean for each real fixture. No Anthropic call: A is pure math. The heavy
-    document is written by the artifact layer; this returns the in-memory dict.
+    Fits the existing pipeline at the cutoff (the same chain as the forecast:
+    leakage-guarded matches, Elo, squad adjustment, Dixon-Coles), asserts no leakage
+    at the cutoff boundary, reads the three-way and the shootout lean, and builds the
+    drivers explainer from the squad-adjusted Elo difference, the Dixon-Coles
+    expected-goals difference, and the squad-value adjustment. No Anthropic call: A
+    is pure math. Returns the in-memory dict; the artifact layer writes it.
     """
     import pandas as pd
 
@@ -98,38 +119,44 @@ def build_prediction_a(
             f"is not before the boundary {boundary.date()}."
         )
 
-    # adjusted is the squad-adjusted Elo rating per team, the identical object the
-    # bracket simulator passes as context["ratings"]; the shootout lean is computed
-    # from it, while the three-way is the Dixon-Coles analytic marginal, exactly the
-    # two-model pairing the simulator uses, so A matches the bracket.
     team_ratings = ratings.compute_elo(matches, fit_config)
+    raw_elo = dict(team_ratings)
     squad_values = squad.load_squad_values(fit_config["squad"]["snapshot"])
     adjusted = dict(squad.adjust_ratings(team_ratings, squad_values, fit_config))
     goal_model = model.fit_model(matches, fit_config)
 
-    ties = []
-    for fixture in fixtures:
-        home = fixture["home_team"]
-        away = fixture["away_team"]
-        three_way = model.match_probabilities(goal_model, home, away, neutral=True)
-        ties.append(
-            tie_record(
-                fixture["match"],
-                home,
-                away,
-                three_way,
-                adjusted.get(home, 0.0),
-                adjusted.get(away, 0.0),
-            )
-        )
+    home = fixture["home_team"]
+    away = fixture["away_team"]
+    three_way = model.match_probabilities(goal_model, home, away, neutral=True)
+    grid = goal_model.predict(home, away, neutral_venue=True)
+    home_xg, away_xg = expected_goals_from_grid(grid.goal_matrix)
+
+    core = a_core(
+        three_way,
+        adjusted.get(home, 0.0),
+        adjusted.get(away, 0.0),
+        home_xg,
+        away_xg,
+        adjusted.get(home, 0.0) - raw_elo.get(home, 0.0),
+        adjusted.get(away, 0.0) - raw_elo.get(away, 0.0),
+    )
 
     return {
+        "schema_version": SCHEMA_VERSION,
         "prediction": "A",
         "round": round_code,
-        "as_of_date": as_of_date,
+        "match": int(fixture["match"]),
+        "home_team": home,
+        "away_team": away,
+        "nominal_home": home,
+        "cutoff": as_of_date,
         "committed_at": None,
-        "git_sha": artifact.get_git_sha(),
-        "model_version": artifact.MODEL_VERSION,
         "seed": int(config.get("random_seed", 42)),
-        "ties": ties,
+        "provenance": {
+            "source": SOURCE,
+            "model_version": artifact.MODEL_VERSION,
+            "code_commit": artifact.get_git_sha(),
+            "timestamp": None,
+        },
+        **core,
     }

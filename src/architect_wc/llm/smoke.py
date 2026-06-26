@@ -6,8 +6,8 @@ the phase requires:
 
   1. The quarantine gate catches a known planted target-round result, while a
      clean dossier of pre-cutoff group-stage facts passes untouched.
-  2. Predictions A, B, and C validate against their published schemas and form
-     valid probability distributions.
+  2. The committed dossier validates against its schema and its coverage manifest
+     is complete; the per-match predictions have their own gate tests.
   3. The scoring harness reproduces RPS against a hand-checked value, reusing the
      project's single RPS implementation.
 
@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Any
 
 from architect_wc import calibrate
-from architect_wc.llm import coverage, quarantine, schemas, score_llm, validity
+from architect_wc.llm import coverage, quarantine, schemas, score_llm
 
 TARGET_ROUND = "R32"
 
@@ -215,194 +215,6 @@ def poisoned_dossier() -> dict[str, Any]:
     return dossier
 
 
-def _provenance_b() -> dict[str, Any]:
-    return {
-        "model": "claude-opus-4-8",
-        "effort": "xhigh",
-        "temperature": "not set; removed on Opus 4.8, determinism best effort",
-        "cutoff": "2026-06-26",
-        "dossier_ref": "smoke://dossier",
-        "committed_at": None,
-    }
-
-
-def _factor(name: str, lens: str, score: int, cited: bool) -> dict[str, Any]:
-    evidence = (
-        [{"claim": f"{name} evidence", "source_tier": 1, "dossier_ref": "smoke"}]
-        if cited
-        else []
-    )
-    return {
-        "factor": name,
-        "lens": lens,
-        "score": score,
-        "insufficient_evidence": score == 0 and not cited,
-        "evidence": evidence,
-    }
-
-
-# Prediction A, the math call, two ties. Internally consistent: advance equals
-# p_home_win_90 + p_draw_90 * shootout_lean.
-FIXTURE_A: dict[str, Any] = {
-    "prediction": "A",
-    "round": TARGET_ROUND,
-    "as_of_date": "2026-06-26",
-    "committed_at": None,
-    "git_sha": "smoke",
-    "model_version": "0.0.0",
-    "seed": 42,
-    "ties": [
-        {
-            "match": 73,
-            "home_team": "Spain",
-            "away_team": "Portugal",
-            "p_home_win_90": 0.50,
-            "p_draw_90": 0.28,
-            "p_away_win_90": 0.22,
-            "shootout_lean": 0.62,
-            "p_advance_home": 0.6736,
-            "source": "dixon_coles_three_way+elo_shootout",
-        },
-        {
-            "match": 74,
-            "home_team": "Argentina",
-            "away_team": "Norway",
-            "p_home_win_90": 0.55,
-            "p_draw_90": 0.26,
-            "p_away_win_90": 0.19,
-            "shootout_lean": 0.66,
-            "p_advance_home": 0.7216,
-            "source": "dixon_coles_three_way+elo_shootout",
-        },
-    ],
-}
-
-FIXTURE_B: dict[str, Any] = {
-    "prediction": "B",
-    "round": TARGET_ROUND,
-    "as_of_date": "2026-06-26",
-    "committed_at": None,
-    "git_sha": "smoke",
-    "model_version": "0.0.0",
-    "dossier_ref": "smoke://dossier",
-    "ties": [
-        {
-            "match": 73,
-            "home_team": "Spain",
-            "away_team": "Portugal",
-            "factor_scores": [
-                _factor("squad_availability", "club scout", 1, True),
-                _factor("recent_form", "match analyst", 2, True),
-                _factor("tactical_matchup", "match analyst", 0, False),
-                _factor("coaching_staff", "tournament strategist", 1, True),
-                _factor("strategic_incentives", "tournament strategist", 0, False),
-                _factor("psychological_momentum", "sports psychologist", 1, True),
-                _factor("historical_head_to_head", "analyst", -1, True),
-            ],
-            "anchor_signal": 0.78,
-            "p_home_win_90": 0.52,
-            "p_draw_90": 0.27,
-            "p_away_win_90": 0.21,
-            "shootout_lean": 0.62,
-            "p_advance_home": 0.6874,
-            "anchor_departure": 0.0,
-            "departure_justification": None,
-            "rationale": (
-                "Spain stronger across squad and form; head-to-head a mild "
-                "pull the other way."
-            ),
-            "provenance": _provenance_b(),
-        },
-        {
-            "match": 74,
-            "home_team": "Argentina",
-            "away_team": "Norway",
-            "factor_scores": [
-                _factor("squad_availability", "club scout", 1, True),
-                _factor("recent_form", "match analyst", 1, True),
-                _factor("tactical_matchup", "match analyst", 1, True),
-                _factor("coaching_staff", "tournament strategist", 0, False),
-                _factor("strategic_incentives", "tournament strategist", 0, False),
-                _factor("psychological_momentum", "sports psychologist", 1, True),
-                _factor("historical_head_to_head", "analyst", 0, False),
-            ],
-            "anchor_signal": 0.67,
-            "p_home_win_90": 0.56,
-            "p_draw_90": 0.25,
-            "p_away_win_90": 0.19,
-            "shootout_lean": 0.66,
-            "p_advance_home": 0.725,
-            "anchor_departure": 0.0,
-            "departure_justification": None,
-            "rationale": (
-                "Argentina favoured on squad and form; Norway's momentum "
-                "keeps it from a blowout."
-            ),
-            "provenance": _provenance_b(),
-        },
-    ],
-}
-
-FIXTURE_C: dict[str, Any] = {
-    "prediction": "C",
-    "round": TARGET_ROUND,
-    "as_of_date": "2026-06-26",
-    "committed_at": None,
-    "git_sha": "smoke",
-    "model_version": "0.0.0",
-    "a_ref": "smoke://A",
-    "b_ref": "smoke://B",
-    "dossier_ref": "smoke://dossier",
-    "ties": [
-        {
-            "match": 73,
-            "home_team": "Spain",
-            "away_team": "Portugal",
-            "took_from_a": "the calibrated three-way magnitude",
-            "took_from_b": "the head-to-head caution",
-            "reconciled_p_home_win_90": 0.51,
-            "reconciled_p_draw_90": 0.275,
-            "reconciled_p_away_win_90": 0.215,
-            "reconciled_shootout_lean": 0.62,
-            "reconciled_p_advance_home": 0.6805,
-            "rationale": "Blend A's grid with B's read; net close to A.",
-            "provenance": {
-                "model": "claude-opus-4-8",
-                "effort": "xhigh",
-                "temperature": "not set; removed on Opus 4.8, determinism best effort",
-                "cutoff": "2026-06-26",
-                "a_ref": "smoke://A",
-                "b_ref": "smoke://B",
-                "dossier_ref": "smoke://dossier",
-                "committed_at": None,
-            },
-        },
-        {
-            "match": 74,
-            "home_team": "Argentina",
-            "away_team": "Norway",
-            "took_from_a": "the calibrated three-way magnitude",
-            "took_from_b": "the momentum read on Norway",
-            "reconciled_p_home_win_90": 0.555,
-            "reconciled_p_draw_90": 0.255,
-            "reconciled_p_away_win_90": 0.19,
-            "reconciled_shootout_lean": 0.66,
-            "reconciled_p_advance_home": 0.7233,
-            "rationale": "A and B agree closely; reconciled call sits between them.",
-            "provenance": {
-                "model": "claude-opus-4-8",
-                "effort": "xhigh",
-                "temperature": "not set; removed on Opus 4.8, determinism best effort",
-                "cutoff": "2026-06-26",
-                "a_ref": "smoke://A",
-                "b_ref": "smoke://B",
-                "dossier_ref": "smoke://dossier",
-                "committed_at": None,
-            },
-        },
-    ],
-}
-
 # Hand-checked RPS values. For the ordered three-way (0.5, 0.3, 0.2) on a home
 # win, cumulative predictions are (0.5, 0.8) against the observed (1, 1), so
 # RPS = ((0.5-1)^2 + (0.8-1)^2) / 2 = (0.25 + 0.04) / 2 = 0.145. For the binary
@@ -447,14 +259,8 @@ def run_smoke() -> dict[str, Any]:
             f"caught: {reason}",
         )
 
-    # 2. Schemas and probability validity for A, B, C.
-    for kind, document in (("A", FIXTURE_A), ("B", FIXTURE_B), ("C", FIXTURE_C)):
-        try:
-            schemas.validate_document(document, kind)
-            record(f"schema_{kind}_validates", True, "valid against schema")
-        except Exception as error:  # noqa: BLE001 - report any validation failure
-            record(f"schema_{kind}_validates", False, str(error))
-
+    # 2. The committed dossier validates against its schema and its coverage manifest
+    # is complete. The per-match predictions A, B, and C have their own gate tests.
     try:
         schemas.validate_document(CLEAN_DOSSIER, "dossier")
         record("schema_dossier_validates", True, "valid against schema")
@@ -470,22 +276,6 @@ def run_smoke() -> dict[str, Any]:
         )
     except coverage.CoverageError as error:
         record("coverage_manifest_complete", False, str(error))
-
-    valid_dists = True
-    for kind, document in (("A", FIXTURE_A), ("B", FIXTURE_B), ("C", FIXTURE_C)):
-        keys = score_llm.keys_for(kind)
-        for tie in document["ties"]:
-            try:
-                validity.assert_prediction_valid(tie, keys)
-            except ValueError:
-                valid_dists = False
-    record("three_way_distributions_valid", valid_dists, "all three-ways sum to one")
-
-    cited = all(
-        validity.nonzero_factors_are_cited(tie["factor_scores"])
-        for tie in FIXTURE_B["ties"]
-    )
-    record("nonzero_factors_cited", cited, "every nonzero factor cites evidence")
 
     # 3. RPS reproduces hand-checked values, reusing the project's scorer.
     three_way, outcome, expected_tw = HAND_CHECKED_THREE_WAY

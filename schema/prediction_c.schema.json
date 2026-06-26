@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/prediction_c.schema.json",
+  "title": "Architect WorldCup Prediction C, the reconciliation call",
+  "description": "Per-match Prediction C for one fixture. C reconciles A and B at the distribution level, anchored to the equal-weight A-B pool. The model supplies only C's emitted three-way, emitted lean, citations, and any justification; code computes the pool, the departures from the pool, the tolerance status, the shootout block, and the validation block. Forced-output-friendly like Prediction B. C's reference is the pool, not the anchor mapping; departures are expected, so the soft box triggers a cite and the hard cap is the gate. Every material move off the pool must cite an element of A's reasoning, an element of B's reasoning, or a dossier finding id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "prediction", "round", "match", "home_team", "away_team",
+    "nominal_home", "cutoff", "dossier_ref", "a_ref", "b_ref", "pool",
+    "emitted_three_way", "departure", "tolerance", "shootout", "citations",
+    "provenance", "validation"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "prediction": {"const": "C"},
+    "round": {"type": "string", "enum": ["GROUP", "R32", "R16", "QF", "SF", "F"]},
+    "match": {"type": "integer"},
+    "home_team": {"type": "string"},
+    "away_team": {"type": "string"},
+    "nominal_home": {"type": "string"},
+    "cutoff": {"type": "string", "format": "date"},
+    "dossier_ref": {"$ref": "#/$defs/ref"},
+    "a_ref": {"$ref": "#/$defs/ref"},
+    "b_ref": {"$ref": "#/$defs/ref"},
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["three_way", "lean", "advance_probability"],
+      "description": "The equal-weight A-B pool, code-computed. C's reference and a scoreable line in its own right.",
+      "properties": {
+        "three_way": {"$ref": "#/$defs/threeWay"},
+        "lean": {"type": "number"},
+        "advance_probability": {"type": "number"}
+      }
+    },
+    "emitted_three_way": {"$ref": "#/$defs/threeWay", "description": "Model-written."},
+    "departure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dir", "draw"],
+      "description": "Code-computed departures of C's emitted distribution from the pool.",
+      "properties": {
+        "dir": {"type": "number"},
+        "draw": {"type": "number"}
+      }
+    },
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "justification"],
+      "properties": {
+        "status": {"type": "string", "enum": ["within_box", "departed_justified", "rejected"]},
+        "justification": {"type": ["string", "null"]}
+      }
+    },
+    "shootout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pool_lean", "emitted_lean", "lean_departure", "advance_probability"],
+      "properties": {
+        "pool_lean": {"type": "number", "description": "Code-computed, the A-B pool lean."},
+        "emitted_lean": {"type": "number", "description": "Model-written."},
+        "lean_departure": {"type": "number", "description": "Code-computed emitted minus pool."},
+        "advance_probability": {"type": "number", "description": "Code-computed from C's emitted values."}
+      }
+    },
+    "citations": {
+      "type": "array",
+      "description": "Model-written. Each material move off the pool cites one of exactly three sources.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "ref"],
+        "properties": {
+          "source": {"type": "string", "enum": ["a_reasoning", "b_reasoning", "dossier_finding_id"]},
+          "ref": {"type": "string"}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "effort", "thinking", "code_commit", "timestamp"],
+      "properties": {
+        "model": {"type": "string"},
+        "effort": {"type": "string"},
+        "thinking": {"type": "string"},
+        "code_commit": {"type": "string"},
+        "timestamp": {"type": ["string", "null"]}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["simplex_ok", "citations_ok", "tolerance_ok", "accepted", "rejection_reason"],
+      "properties": {
+        "simplex_ok": {"type": "boolean"},
+        "citations_ok": {"type": "boolean"},
+        "tolerance_ok": {"type": "boolean"},
+        "accepted": {"type": "boolean"},
+        "rejection_reason": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "$defs": {
+    "threeWay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p_home", "p_draw", "p_away"],
+      "properties": {
+        "p_home": {"type": "number"},
+        "p_draw": {"type": "number"},
+        "p_away": {"type": "number"}
+      }
+    },
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "content_sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "content_sha256": {"type": "string"}
+      }
+    }
+  }
+}

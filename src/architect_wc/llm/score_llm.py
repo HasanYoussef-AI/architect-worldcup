@@ -1,39 +1,18 @@
 """Scoring for the math versus LLM comparison.
 
-Reuses the project's single RPS implementation (calibrate.rps); it does not write
-a second scorer. The headline metric is the 90-minute three-way RPS, identical to
-the target the model already scores. The secondary metric is a binary score on
-advance, routed through the same RPS with a two-element vector: RPS on two ordered
-outcomes equals the squared error (p - indicator)^2, the Brier-equivalent, so it
-is the existing scorer, not a new one. Scores aggregate per round and cumulatively
-across rounds.
+Reuses the project's single RPS implementation (calibrate.rps); it does not write a
+second scorer. The headline metric is the 90-minute three-way RPS, identical to the
+target the model already scores. The secondary metric is a binary score on advance,
+routed through the same RPS with a two-element vector: RPS on two ordered outcomes
+equals the squared error (p - indicator)^2, the Brier-equivalent, so it is the
+existing scorer, not a new one. Every prediction line, A, B, C, and the A-B pool
+baseline, scores through the same score_line, so combination and judgment can be
+separated later without a second scorer.
 """
 
 from __future__ import annotations
 
-from typing import Any
-
 from architect_wc import calibrate
-
-# Which keys hold the three-way and advance in each prediction. A and B use the
-# plain keys; C uses the reconciled_ prefix.
-PLAIN_KEYS = {
-    "p_home_win_90": "p_home_win_90",
-    "p_draw_90": "p_draw_90",
-    "p_away_win_90": "p_away_win_90",
-    "p_advance_home": "p_advance_home",
-}
-RECONCILED_KEYS = {
-    "p_home_win_90": "reconciled_p_home_win_90",
-    "p_draw_90": "reconciled_p_draw_90",
-    "p_away_win_90": "reconciled_p_away_win_90",
-    "p_advance_home": "reconciled_p_advance_home",
-}
-
-
-def keys_for(prediction_kind: str) -> dict[str, str]:
-    """Return the tie-record key map for prediction A, B, or C."""
-    return RECONCILED_KEYS if prediction_kind == "C" else PLAIN_KEYS
 
 
 def score_three_way(three_way: tuple[float, float, float], outcome_index: int) -> float:
@@ -51,21 +30,26 @@ def score_advance(p_advance_home: float, home_advanced: bool) -> float:
     return calibrate.rps((p_advance_home, 1.0 - p_advance_home), outcome)
 
 
-def score_tie(
-    tie: dict[str, Any],
-    keys: dict[str, str],
+def score_line(
+    three_way: dict[str, float],
+    advance_probability: float,
     outcome_index: int,
     home_advanced: bool,
 ) -> dict[str, float]:
-    """Score one tie record: three-way RPS and advance RPS."""
-    three_way = (
-        float(tie[keys["p_home_win_90"]]),
-        float(tie[keys["p_draw_90"]]),
-        float(tie[keys["p_away_win_90"]]),
+    """Score one prediction line: three-way RPS and advance RPS, the one path.
+
+    three_way is a {p_home, p_draw, p_away} dict; the same call scores Prediction A,
+    B, C, and the A-B pool baseline, through the same RPS scorer with no second
+    scorer.
+    """
+    ordered = (
+        float(three_way["p_home"]),
+        float(three_way["p_draw"]),
+        float(three_way["p_away"]),
     )
     return {
-        "rps_three_way": score_three_way(three_way, outcome_index),
-        "rps_advance": score_advance(float(tie[keys["p_advance_home"]]), home_advanced),
+        "rps_three_way": score_three_way(ordered, outcome_index),
+        "rps_advance": score_advance(float(advance_probability), home_advanced),
     }
 
 

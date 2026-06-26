@@ -17,12 +17,11 @@ SCHEMA_DIR = Path(__file__).resolve().parents[3] / "schema"
 
 SCHEMA_FILES = {
     "dossier": "llm_dossier.schema.json",
-    "A": "llm_prediction_a.schema.json",
-    "B": "llm_prediction_b.schema.json",
-    "C": "llm_prediction_c.schema.json",
-    # The real per-match Prediction B contract (Phase 2). The "B" entry above is the
-    # earlier per-round-with-ties placeholder, kept until A and C move to per-match.
+    # The per-match prediction contracts. The earlier per-round-with-ties placeholder
+    # schemas (llm_prediction_a/b/c) were retired when A and C moved to per-match.
+    "prediction_a": "prediction_a.schema.json",
     "prediction_b": "prediction_b.schema.json",
+    "prediction_c": "prediction_c.schema.json",
 }
 
 

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/prediction_a.schema.json",
+  "title": "Architect WorldCup Prediction A, the math model per-match call",
+  "description": "Per-match Prediction A for one fixture: the Dixon-Coles analytic three-way at a neutral venue, the Elo shootout lean, the advance probability, and a drivers explainer naming the strength differentials that produced them. A is analytic and code-built, bit-reproducible from a fixed seed and dated data, and frozen: B and C never edit it. The drivers explainer lives only here so B stays blind to A.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "prediction", "round", "match", "home_team", "away_team",
+    "nominal_home", "cutoff", "three_way", "shootout_lean", "advance_probability",
+    "drivers", "seed", "provenance"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "prediction": {"const": "A"},
+    "round": {"type": "string", "enum": ["GROUP", "R32", "R16", "QF", "SF", "F"]},
+    "match": {"type": "integer"},
+    "home_team": {"type": "string"},
+    "away_team": {"type": "string"},
+    "nominal_home": {"type": "string"},
+    "cutoff": {"type": "string", "format": "date"},
+    "committed_at": {"type": ["string", "null"]},
+    "three_way": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p_home", "p_draw", "p_away"],
+      "properties": {
+        "p_home": {"type": "number"},
+        "p_draw": {"type": "number"},
+        "p_away": {"type": "number"}
+      }
+    },
+    "shootout_lean": {"type": "number", "description": "The Elo shootout lean, shootout_lean_from_elo."},
+    "advance_probability": {"type": "number", "description": "three_way.p_home + three_way.p_draw * shootout_lean."},
+    "drivers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elo_diff", "ability_diff", "squad_value_adjustment"],
+      "properties": {
+        "elo_diff": {"type": "number", "description": "Squad-adjusted Elo, home minus away."},
+        "ability_diff": {"type": "number", "description": "Dixon-Coles expected goals, home minus away."},
+        "squad_value_adjustment": {"type": "number", "description": "Squad-value nudge, home minus away."}
+      }
+    },
+    "seed": {"type": ["integer", "null"]},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "model_version", "code_commit", "timestamp"],
+      "properties": {
+        "source": {"type": "string"},
+        "model_version": {"type": "string"},
+        "code_commit": {"type": "string"},
+        "timestamp": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
