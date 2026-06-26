@@ -170,11 +170,30 @@ llm:
       - marca.com
       - as.com
       - elpais.com.uy
-  # Any departure of the emitted lean from the anchor-implied lean beyond this
-  # tolerance must be justified in writing in the prediction log.
-  anchor_tolerance: 0.10
+  # Frozen anchor-to-probability mapping (Phase 2, the prediction machine). These
+  # are pre-registered priors from general football knowledge, set before the
+  # tournament. They are never fitted on 2026 outcomes and never derived from
+  # Prediction A. The 90-minute three-way is the symmetric ordered logit with no
+  # intercept: eta = beta * s; p_home = sigmoid(eta - delta); p_away =
+  # sigmoid(-delta - eta); p_draw = 1 - p_home - p_away, where s is the frozen
+  # weighted sum of the per-factor scores from the nominal home perspective. The
+  # Prediction B shootout lean is sigmoid(gamma * s). The tolerance box bounds how
+  # far the model's emitted distribution may sit from the anchor before a written
+  # justification is required, with a hard cap at twice each tolerance beyond which
+  # the prediction is rejected for regeneration regardless of justification. anchor.py
+  # mirrors these as module constants under a verification gate that asserts the
+  # two never drift, so the pure mapping functions stay single-argument.
+  anchor:
+    delta: 0.62
+    beta: 0.67
+    gamma: 0.21
+    departure_dir_tolerance: 0.15
+    departure_draw_tolerance: 0.10
+    lean_tolerance: 0.10
   # Frozen, pre-registered factor weights. Never fitted on outcomes. One review
   # pass allowed before the Round of 32, then an ablation surface. They sum to 1.
+  # The single source of the anchor-signal weights, loaded via weights.load_weights
+  # and reused everywhere, never redefined in code.
   weights:
     squad_availability: 0.22
     recent_form: 0.20

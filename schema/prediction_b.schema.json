@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/prediction_b.schema.json",
+  "title": "Architect WorldCup Prediction B, the LLM analyst per-match call",
+  "description": "Per-match Prediction B contract for one fixture. The model supplies only the factor scores, citations, insufficient-evidence flags, the emitted three-way, the emitted shootout lean, and any justification text. Code computes the anchor signal, the reference three-way, the departures, the tolerance status, the shootout block, and the validation block. Kept forced-output-friendly (additionalProperties false, enums, no range or length constraints) so the model-written subset can later be a structured-output json_schema; the seven-factor count and the probability simplex are enforced in code and recorded in the validation block.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "round", "match", "home_team", "away_team", "nominal_home",
+    "cutoff", "dossier_ref", "factors", "anchor_signal", "reference_three_way",
+    "emitted_three_way", "departure", "tolerance", "shootout", "provenance",
+    "validation"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "round": {"type": "string", "enum": ["GROUP", "R32", "R16", "QF", "SF", "F"]},
+    "match": {"type": "integer"},
+    "home_team": {"type": "string"},
+    "away_team": {"type": "string"},
+    "nominal_home": {"type": "string", "description": "First-listed team; positive anchor signal favours it."},
+    "cutoff": {"type": "string", "format": "date"},
+    "dossier_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "content_sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "content_sha256": {"type": "string"}
+      }
+    },
+    "factors": {
+      "type": "array",
+      "description": "The seven factors, in canonical order. Model-written.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "expert_lens", "score", "citations", "insufficient_evidence"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "squad_availability", "recent_form", "tactical_matchup",
+              "coaching_staff", "strategic_incentives", "psychological_momentum",
+              "historical_head_to_head"
+            ]
+          },
+          "expert_lens": {"type": "string"},
+          "score": {"type": "integer", "enum": [-3, -2, -1, 0, 1, 2, 3]},
+          "citations": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Dossier finding ids the score rests on. A nonzero score must cite at least one."
+          },
+          "insufficient_evidence": {"type": "boolean"}
+        }
+      }
+    },
+    "anchor_signal": {"type": "number", "description": "Code-computed weighted sum of the factor scores."},
+    "reference_three_way": {"$ref": "#/$defs/threeWay", "description": "Code-computed from the anchor signal."},
+    "emitted_three_way": {"$ref": "#/$defs/threeWay", "description": "Model-written."},
+    "departure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dir", "draw"],
+      "properties": {
+        "dir": {"type": "number"},
+        "draw": {"type": "number"}
+      },
+      "description": "Code-computed departures of the emitted distribution from the reference."
+    },
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "justification"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["within_box", "departed_justified", "rejected"],
+          "description": "Code-computed."
+        },
+        "justification": {"type": ["string", "null"], "description": "Model-written when departing the box."}
+      }
+    },
+    "shootout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference_lean", "emitted_lean", "lean_departure", "advance_probability"],
+      "properties": {
+        "reference_lean": {"type": "number", "description": "Code-computed sigmoid(gamma * s)."},
+        "emitted_lean": {"type": "number", "description": "Model-written."},
+        "lean_departure": {"type": "number", "description": "Code-computed emitted minus reference."},
+        "advance_probability": {"type": "number", "description": "Code-computed."}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "effort", "thinking", "code_commit", "timestamp"],
+      "properties": {
+        "model": {"type": "string"},
+        "effort": {"type": "string"},
+        "thinking": {"type": "string"},
+        "code_commit": {"type": "string"},
+        "timestamp": {"type": ["string", "null"]}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["simplex_ok", "citations_ok", "tolerance_ok", "accepted", "rejection_reason"],
+      "properties": {
+        "simplex_ok": {"type": "boolean"},
+        "citations_ok": {"type": "boolean"},
+        "tolerance_ok": {"type": "boolean"},
+        "accepted": {"type": "boolean"},
+        "rejection_reason": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "$defs": {
+    "threeWay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p_home", "p_draw", "p_away"],
+      "properties": {
+        "p_home": {"type": "number"},
+        "p_draw": {"type": "number"},
+        "p_away": {"type": "number"}
+      }
+    }
+  }
+}

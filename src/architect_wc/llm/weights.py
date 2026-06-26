@@ -24,6 +24,18 @@ FACTORS = [
     "historical_head_to_head",
 ]
 
+# The expert lens each factor is scored through, the persona the prediction reasons
+# from. Canonical and reused, so Prediction B and any prompt reference one source.
+EXPERT_LENSES = {
+    "squad_availability": "club scout",
+    "recent_form": "match analyst",
+    "tactical_matchup": "match analyst",
+    "coaching_staff": "tournament strategist",
+    "strategic_incentives": "tournament strategist",
+    "psychological_momentum": "sports psychologist",
+    "historical_head_to_head": "football historian",
+}
+
 WEIGHT_SUM_TOLERANCE = 1e-9
 
 

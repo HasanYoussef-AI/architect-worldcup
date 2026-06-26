@@ -5,7 +5,7 @@ existing math model: the Dixon-Coles analytic three-way at a neutral venue plus
 the Elo shootout lean. It needs no Monte Carlo, since for a single tie with both
 teams known the three-way is the exact marginal of the same goal grid the
 simulator samples, with zero sampling noise, and the shootout lean is the exact
-value the simulator uses to resolve a drawn tie (simulate.shootout_lean).
+value the simulator uses to resolve a drawn tie (simulate.shootout_lean_from_elo).
 
 A is bit-reproducible from a fixed seed and dated data, and it is frozen: B and C
 never edit it.
@@ -50,7 +50,7 @@ def tie_record(
     simulator uses, so A is internally consistent with the bracket simulation.
     Pure function with no I/O.
     """
-    lean = simulate.shootout_lean(rating_home, rating_away)
+    lean = simulate.shootout_lean_from_elo(rating_home, rating_away)
     p_home_win_90 = float(three_way["p_home_win"])
     p_draw_90 = float(three_way["p_draw"])
     p_away_win_90 = float(three_way["p_away_win"])
