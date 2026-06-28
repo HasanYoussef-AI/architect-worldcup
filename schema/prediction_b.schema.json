@@ -34,7 +34,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "expert_lens", "score", "citations", "insufficient_evidence"],
+        "required": ["name", "expert_lens", "score", "reasoning", "citations", "insufficient_evidence"],
         "properties": {
           "name": {
             "type": "string",
@@ -46,6 +46,7 @@
           },
           "expert_lens": {"type": "string"},
           "score": {"type": "integer", "enum": [-3, -2, -1, 0, 1, 2, 3]},
+          "reasoning": {"type": "string", "description": "Model-written. The analyst's reasoning passage for the score, carried into the committed artifact and shown to Prediction C."},
           "citations": {
             "type": "array",
             "items": {"type": "string"},

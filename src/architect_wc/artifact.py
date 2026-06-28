@@ -99,10 +99,57 @@ def write_artifact(
     return {"predictions": predictions_path, "log": log_path}
 
 
+def _llm_artifact_name(
+    prefix: str, round_code: str, match: Any, as_of: str, rehearsal: bool
+) -> str:
+    """The deterministic filename for an LLM-phase artifact.
+
+    The round, match, and cutoff make each artifact a separately identifiable frozen
+    file, and the REHEARSAL marker keeps a rehearsal artifact from ever being mistaken
+    for a forward-only one.
+    """
+    marker = "_REHEARSAL" if rehearsal else ""
+    return f"{prefix}_{round_code}_match{match}_asof{as_of}{marker}.json"
+
+
+def dossier_path(
+    round_code: str,
+    match: Any,
+    as_of: str,
+    *,
+    rehearsal: bool = False,
+    dossiers_dir: Path = DOSSIERS_DIR,
+) -> Path:
+    """The deterministic path a dossier for this tie and cutoff would be written to.
+
+    Used by the live orchestrator to detect whether a committed dossier already exists
+    for resume, without first producing one.
+    """
+    name = _llm_artifact_name("dossier", round_code, match, as_of, rehearsal)
+    return Path(dossiers_dir) / name
+
+
+def prediction_path(
+    kind: str,
+    round_code: str,
+    match: Any,
+    cutoff: str,
+    *,
+    rehearsal: bool = False,
+    predictions_dir: Path = DOSSIERS_DIR,
+) -> Path:
+    """The deterministic path a Prediction A, B, or C for this tie is written to."""
+    name = _llm_artifact_name(
+        f"prediction_{kind}", round_code, match, cutoff, rehearsal
+    )
+    return Path(predictions_dir) / name
+
+
 def write_dossier(
     dossier: dict[str, Any],
     *,
     meta: dict[str, Any] | None = None,
+    rehearsal: bool = False,
     dossiers_dir: Path = DOSSIERS_DIR,
 ) -> Path:
     """Write a per-match research dossier and return its path.
@@ -110,7 +157,10 @@ def write_dossier(
     The committed dossier is the leakage anchor for Predictions B and C and is
     written before the fixture's kickoff. The filename carries the round, match,
     and cutoff so each dossier is a separate, identifiable frozen artifact. meta,
-    when given, records the run's usage and cost estimate alongside the dossier.
+    when given, records the run's usage and cost estimate alongside the dossier. In
+    rehearsal mode the filename carries a REHEARSAL marker and the meta carries a
+    rehearsal flag, so a rehearsal dossier can never be mistaken for a forward-only
+    one.
     """
     dossiers_dir = Path(dossiers_dir)
     dossiers_dir.mkdir(parents=True, exist_ok=True)
@@ -118,11 +168,82 @@ def write_dossier(
     round_code = str(dossier.get("round", "round"))
     match = dossier.get("match", "match")
     as_of = str(dossier.get("as_of_date", "unknown"))
+    meta = dict(meta or {})
+    meta["rehearsal"] = bool(rehearsal)
     document = {"dossier": dossier, "meta": meta}
-    path = dossiers_dir / f"dossier_{round_code}_match{match}_asof{as_of}.json"
+    path = dossier_path(
+        round_code, match, as_of, rehearsal=rehearsal, dossiers_dir=dossiers_dir
+    )
     path.write_text(
         json.dumps(document, indent=2, default=str) + "\n", encoding="utf-8"
     )
+    return path
+
+
+def write_prediction(
+    document: dict[str, Any],
+    kind: str,
+    *,
+    meta: dict[str, Any] | None = None,
+    rehearsal: bool = False,
+    predictions_dir: Path = DOSSIERS_DIR,
+) -> Path:
+    """Write a per-match Prediction A, B, or C and return its path.
+
+    The committed prediction file is an envelope: the validated structured document
+    plus a meta block that references the gitignored raw model-call log and records
+    usage, the API message id, and the rehearsal flag. The document itself is the
+    schema-validated contract; nothing outside the schema is added to it, so the
+    rehearsal flag and the raw-log reference live in the envelope, not the document.
+    The filename carries the round, match, and cutoff, plus a REHEARSAL marker in
+    rehearsal mode.
+    """
+    predictions_dir = Path(predictions_dir)
+    predictions_dir.mkdir(parents=True, exist_ok=True)
+
+    round_code = str(document.get("round", "round"))
+    match = document.get("match", "match")
+    cutoff = str(document.get("cutoff", "unknown"))
+    meta = dict(meta or {})
+    meta["rehearsal"] = bool(rehearsal)
+    envelope = {"document": document, "meta": meta}
+    path = prediction_path(
+        kind,
+        round_code,
+        match,
+        cutoff,
+        rehearsal=rehearsal,
+        predictions_dir=predictions_dir,
+    )
+    path.write_text(
+        json.dumps(envelope, indent=2, default=str) + "\n", encoding="utf-8"
+    )
+    return path
+
+
+def write_llm_call_log(
+    record: dict[str, Any],
+    *,
+    logs_dir: Path = LOGS_DIR,
+) -> Path:
+    """Write the heavy raw model-call log for one B or C call and return its path.
+
+    This is the gitignored provenance the committed prediction envelope references:
+    the frozen dossier hash, the full structured response, the model, effort, and
+    thinking settings, the API message id, the token usage, the git commit sha, and
+    the timestamp. Heavy raw output stays here, out of the committed artifact.
+    """
+    logs_dir = Path(logs_dir)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now(UTC)
+    stamp = now.strftime("%Y%m%dT%H%M%S%fZ")
+    kind = str(record.get("kind", "call"))
+    round_code = str(record.get("round", "round"))
+    match = record.get("match", "match")
+    record = {"logged_at": now.isoformat(), **record}
+    path = logs_dir / f"llm_call_{kind}_{round_code}_match{match}_{stamp}.json"
+    path.write_text(json.dumps(record, indent=2, default=str) + "\n", encoding="utf-8")
     return path
 
 

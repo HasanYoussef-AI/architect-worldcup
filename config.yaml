@@ -114,6 +114,28 @@ llm:
   # the per-fixture cost from 3.81 to 1.58 dollars, a 59 percent saving, with no
   # cost in coverage or leakage safety. Toggleable per call for probing.
   prompt_cache: true
+  # Live two-call path controls (Phase 2 wiring), read by the orchestrator in
+  # llm/live.py. Forced structured output for B and C runs at effort_prediction
+  # (xhigh) with a non-streaming max_tokens that stays under the SDK timeout, the same
+  # shape proven on the research call.
+  max_tokens_prediction: 16000
+  # The real circuit breaker: a US dollar ceiling per session, computed from the
+  # actual token usage returned in every response. Before each paid call, if
+  # cumulative spend plus that call's maximum possible cost would cross this, the run
+  # halts and surfaces, no fallback.
+  session_dollar_ceiling: 6.00
+  # The logic-loop backstop: the maximum count of billed model calls per tie. The
+  # forward-only worst case is six, research plus one re-research, B plus one re-roll,
+  # and C plus one re-roll; rehearsal adds the single B variance probe and its re-roll.
+  max_billed_calls_per_tie: 6
+  # A conservative upper bound on the research call's cost, used only for the
+  # pre-research ceiling check; the actual cost from usage is what accumulates.
+  research_max_cost_estimate: 2.50
+  # Committed, dated knockout fixtures with kickoff times. The orchestrator selects the
+  # tie from this file, deterministically and not from the model. Commit the dated CSV
+  # (columns match, round, home_team, away_team, kickoff) before a live round, the same
+  # controlled-input pattern as the group draw and the national sources.
+  fixtures: "data/llm/knockout_fixtures_2026.csv"
   # Allowed-domains allow-list for the research web search. A three-tier static
   # core plus a per-round expansion: once a round's field is known, each
   # participating team's national federation and one or two reputable national

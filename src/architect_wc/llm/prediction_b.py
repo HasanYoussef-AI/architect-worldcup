@@ -133,6 +133,9 @@ def build_prediction_b(
                     "expert_lens", EXPERT_LENSES.get(factor["name"], "")
                 ),
                 "score": int(factor["score"]),
+                # The model's per-factor reasoning, carried into the committed
+                # artifact so it reaches Prediction C, not only the thinking trace.
+                "reasoning": str(factor.get("reasoning", "")),
                 "citations": list(factor.get("citations", [])),
                 "insufficient_evidence": bool(
                     factor.get("insufficient_evidence", False)

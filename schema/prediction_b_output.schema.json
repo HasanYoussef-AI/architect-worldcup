@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/prediction_b_output.schema.json",
+  "title": "Architect WorldCup Prediction B model output, the model-written subset",
+  "description": "The forced structured-output contract bound to the Prediction B call. The model fills only these fields: the seven factor scores with citations and insufficient-evidence flags, its emitted 90-minute three-way, its emitted shootout lean, and any justification. Code then computes the anchor signal, the reference three-way, the departures, the tolerance status, the shootout block, and the validation block, and assembles the full prediction_b document around this subset. Forced-output-friendly: additionalProperties false and enums only, no range, length, or count constraints, since structured outputs do not enforce those; the seven-factor count and the probability simplex are enforced in code.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["factors", "emitted_three_way", "emitted_lean", "justification"],
+  "properties": {
+    "factors": {
+      "type": "array",
+      "description": "The seven factors, each scored from the nominal home team's perspective.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "score", "reasoning", "citations", "insufficient_evidence"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "squad_availability", "recent_form", "tactical_matchup",
+              "coaching_staff", "strategic_incentives", "psychological_momentum",
+              "historical_head_to_head"
+            ]
+          },
+          "score": {"type": "integer", "enum": [-3, -2, -1, 0, 1, 2, 3]},
+          "reasoning": {
+            "type": "string",
+            "description": "The analyst's reasoning passage justifying the score by referring to specific dossier findings. Required for every factor so the reason reaches the committed artifact and Prediction C, not only the thinking trace."
+          },
+          "citations": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Dossier finding ids the score rests on. A nonzero score must cite at least one."
+          },
+          "insufficient_evidence": {"type": "boolean"}
+        }
+      }
+    },
+    "emitted_three_way": {"$ref": "#/$defs/threeWay"},
+    "emitted_lean": {"type": "number"},
+    "justification": {
+      "anyOf": [{"type": "string"}, {"type": "null"}],
+      "description": "Free text when the emitted distribution departs the model's own reference; null otherwise."
+    }
+  },
+  "$defs": {
+    "threeWay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p_home", "p_draw", "p_away"],
+      "properties": {
+        "p_home": {"type": "number"},
+        "p_draw": {"type": "number"},
+        "p_away": {"type": "number"}
+      }
+    }
+  }
+}

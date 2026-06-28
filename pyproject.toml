@@ -25,6 +25,7 @@ wc-walk-backtest = "architect_wc.pipeline:walk_backtest_main"
 wc-audit = "architect_wc.pipeline:audit_main"
 wc-ensemble = "architect_wc.pipeline:ensemble_main"
 wc-llm-smoke = "architect_wc.pipeline:llm_smoke_main"
+wc-llm-live = "architect_wc.pipeline:llm_live_main"
 
 [dependency-groups]
 dev = [

@@ -22,6 +22,11 @@ SCHEMA_FILES = {
     "prediction_a": "prediction_a.schema.json",
     "prediction_b": "prediction_b.schema.json",
     "prediction_c": "prediction_c.schema.json",
+    # The model-written subsets, bound to the live forced structured-output calls.
+    # Code computes the rest and validates the assembled document against the full
+    # prediction_b / prediction_c contracts above.
+    "prediction_b_output": "prediction_b_output.schema.json",
+    "prediction_c_output": "prediction_c_output.schema.json",
 }
 
 

@@ -377,5 +377,70 @@ def llm_smoke_main() -> None:
         sys.exit(1)
 
 
+def llm_live_main() -> None:
+    """Run the live two-call path for one committed tie, the forward-only command.
+
+    Selects the tie from the committed fixtures, then runs research, Prediction B,
+    Prediction A, and Prediction C with the full protocol: the pre-kickoff guard, key
+    and gitignore discipline, the session dollar ceiling and per-tie billed-call cap,
+    the halt-and-surface failure policy, and the runtime three-commit cadence. The key
+    is read only from ANTHROPIC_API_KEY; run inside a subshell that sources it for this
+    one command. Use --rehearsal for the dry run on a decided match, which skips only
+    the pre-kickoff guard and writes REHEARSAL-marked artifacts.
+    """
+    import argparse
+    import sys
+    from datetime import UTC, datetime
+
+    from architect_wc.llm import live, model_call
+
+    parser = argparse.ArgumentParser(prog="wc-llm-live")
+    parser.add_argument("--round", required=True, help="Round code, e.g. R32.")
+    parser.add_argument("--match", required=True, type=int, help="Match number.")
+    parser.add_argument(
+        "--as-of",
+        dest="as_of",
+        default=None,
+        help="Leakage cutoff, the day before kickoff. Defaults to config.as_of_date.",
+    )
+    parser.add_argument(
+        "--rehearsal", action="store_true", help="Dry run a decided tie."
+    )
+    parser.add_argument(
+        "--force-research",
+        action="store_true",
+        help="Refused when a committed dossier already exists for the tie.",
+    )
+    args = parser.parse_args()
+
+    config = load_config()
+    as_of = args.as_of or str(config.get("as_of_date"))
+    tie = live.select_tie(config, args.round, args.match)
+    try:
+        result = live.run_tie(
+            config,
+            tie,
+            as_of,
+            now=datetime.now(UTC),
+            rehearsal=args.rehearsal,
+            force_research=args.force_research,
+        )
+    except (live.LiveHalt, model_call.PolicyHalt) as error:
+        print(f"Live run halted: {error}")
+        sys.exit(1)
+
+    print(f"Live run {result.status} for {live._label(tie, args.rehearsal)}.")
+    if result.status == "completed":
+        print(
+            f"Spent {result.spent:.4f} of ceiling over {result.billed_calls} billed "
+            f"calls. B accepted={result.accepted.get('b')}, "
+            f"C accepted={result.accepted.get('c')}."
+        )
+        for kind, path in result.paths.items():
+            print(f"  {kind}: {path}")
+        if result.variance is not None:
+            print(f"  rehearsal B variance max {result.variance['max_component']:.4f}")
+
+
 if __name__ == "__main__":
     main()

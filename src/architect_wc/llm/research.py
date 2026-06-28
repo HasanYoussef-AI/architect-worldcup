@@ -425,6 +425,8 @@ def produce_dossier(
     model_version: str | None = None,
     use_prompt_cache: bool | None = None,
     max_search_uses: int | None = None,
+    rehearsal: bool = False,
+    dossiers_dir: Any = None,
 ) -> dict[str, Any]:
     """Run the research call and build the dossier and meta, WITHOUT gating.
 
@@ -571,8 +573,12 @@ def produce_dossier(
         "quarantine_dropped": dropped,
     }
     # Persist the raw produced dossier and its cost before any gate runs, so billed
-    # work is never discarded if a gate then rejects the dossier.
-    meta["dossier_path"] = str(artifact.write_dossier(dossier, meta=meta))
+    # work is never discarded if a gate then rejects the dossier. The orchestrator can
+    # mark a rehearsal dossier and redirect the output dir for a hermetic test.
+    write_kwargs: dict[str, Any] = {"meta": meta, "rehearsal": rehearsal}
+    if dossiers_dir is not None:
+        write_kwargs["dossiers_dir"] = dossiers_dir
+    meta["dossier_path"] = str(artifact.write_dossier(dossier, **write_kwargs))
     return {"dossier": dossier, "meta": meta, "domain_tiers": domain_tiers}
 
 
@@ -587,6 +593,8 @@ def research_fixture(
     model_version: str | None = None,
     use_prompt_cache: bool | None = None,
     max_search_uses: int | None = None,
+    rehearsal: bool = False,
+    dossiers_dir: Any = None,
 ) -> dict[str, Any]:
     """Produce the dossier for one fixture and gate it, fail-loud.
 
@@ -605,6 +613,8 @@ def research_fixture(
         model_version=model_version,
         use_prompt_cache=use_prompt_cache,
         max_search_uses=max_search_uses,
+        rehearsal=rehearsal,
+        dossiers_dir=dossiers_dir,
     )
     gate_dossier(
         produced["dossier"], fixture, round_code, as_of_date, produced["domain_tiers"]

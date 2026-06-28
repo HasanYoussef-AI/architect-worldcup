@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hasanyoussef/architect-worldcup/schema/prediction_c_output.schema.json",
+  "title": "Architect WorldCup Prediction C model output, the model-written subset",
+  "description": "The forced structured-output contract bound to the Prediction C reconciliation call. The model fills only C's emitted 90-minute three-way, its emitted shootout lean, the citations for any material move off the A-B pool, and any justification. Code then computes the pool, the departures from the pool, the tolerance status, the shootout block, and the validation block, and assembles the full prediction_c document around this subset. Forced-output-friendly: additionalProperties false and enums only, no range or count constraints; the simplex and the cite-every-material-move rule are enforced in code. The tolerance box and the hard cap are never shown to the model, by construction.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["emitted_three_way", "emitted_lean", "citations", "justification"],
+  "properties": {
+    "emitted_three_way": {"$ref": "#/$defs/threeWay"},
+    "emitted_lean": {"type": "number"},
+    "citations": {
+      "type": "array",
+      "description": "Each material move off the pool cites one of exactly three sources.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "ref"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": ["a_reasoning", "b_reasoning", "dossier_finding_id"]
+          },
+          "ref": {"type": "string"}
+        }
+      }
+    },
+    "justification": {
+      "anyOf": [{"type": "string"}, {"type": "null"}],
+      "description": "Free text when C moves off the pool; null otherwise."
+    }
+  },
+  "$defs": {
+    "threeWay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p_home", "p_draw", "p_away"],
+      "properties": {
+        "p_home": {"type": "number"},
+        "p_draw": {"type": "number"},
+        "p_away": {"type": "number"}
+      }
+    }
+  }
+}
