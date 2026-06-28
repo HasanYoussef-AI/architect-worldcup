@@ -360,36 +360,189 @@ change with the effect of real data and would be misleading.
 
 ## 8. Math versus LLM comparison
 
-> **Status: planned, not yet built.** This section describes a phase that has not
-> been implemented. Results will be added once it exists.
+> **Status: method built and committed, results forthcoming.** The full prediction
+> machine described here is implemented, tested, and committed. No tie has been
+> predicted yet. Predictions are committed before each knockout round is played and
+> scored after, round by round, so the results fill in over the tournament. The first
+> predictions, for the round of 32, are imminent.
 
-The intended capstone experiment is a head-to-head between this mathematical system
-and a large language model, scored honestly with the same metric.
+The capstone of the project is a head-to-head between the mathematical model and a
+large language model, scored with the same Ranked Probability Score, forward-only,
+one knockout tie at a time. Each tie produces three predictions, and all three are
+scored honestly against what actually happens.
 
-The design is deliberately simple. The mathematical pipeline produces a frozen,
-timestamped prediction. The language model is then given the same situation and
-asked to produce its own independent prediction, forward-only, meaning it forecasts
-upcoming matches it cannot have seen the results of. Both predictions are scored
-with the Ranked Probability Score against what actually happens.
+**The three predictions.** Prediction A is the mathematical model from the previous
+sections applied to a single tie: the exact 90-minute three-way from the Dixon-Coles
+grid at a neutral venue, with the shootout resolved by the same strength-weighted
+coin flip the simulator already uses. It is analytic and reproduces to the digit.
+Prediction B is an independent language-model forecast for the same tie, blind to A.
+Prediction C is a reconciliation pass that reads both A and B and their reasoning and
+issues a final call. A is the established model, B is a different kind of intelligence
+asked the same question, and C is the synthesis.
 
-The forward-only constraint is the entire point. It prevents the language model
-from quietly retrieving results that have already occurred and reporting them as a
-forecast, which would make the comparison meaningless. By fixing both predictions
-before the matches are played and scoring them afterward, the comparison stays fair
-and the result, whichever way it falls, is verifiable.
+**Two phases, with a frozen dossier between them.** The language-model path is split
+into a research phase and a prediction phase that never run together. Research runs
+first with web search on and builds a seven-factor dossier on both teams. That
+dossier is committed on its own, before any prediction is made from it, and its commit
+timestamp is the leakage proof: a search run before kickoff cannot return a result
+from after kickoff. The prediction phase then reads only the frozen dossier, with no
+tools and no web access. Each tie is selected by code from the committed fixtures, not
+chosen by the model, and no round is predicted before its field is fixed.
 
-A research dossier of evidence is gathered first, from a verified allow-list of
-sources, and a round-aware, date-bounded quarantine gate removes anything that would
-leak a result. That gate carries a stated bias: it prefers false positives to false
-negatives. It will occasionally drop a legitimate forward-stakes fact, such as a
-"team X may need to beat team Y to advance" line, because a real leak can wear a
-conditional and a leakage guard must not trust modal verbs to tell a hypothetical
-from a result. When it drops such a fact it is not hidden. The dossier's coverage
-manifest records it as a raw hit that did not become an admissible finding, and the
-match rationale states it, so the blind spot is on the record rather than silently
-absorbed.
+```mermaid
+flowchart TD
+    FIX["code selects one tie<br/>from committed fixtures"]:::accent
+    GUARD["pre-kickoff guard<br/>halt if now is at or past kickoff"]:::layer
+    RES["research call<br/>web search on, seven-factor dossier"]:::layer
+    QGATE["quarantine gate<br/>drop target-round results and market prices"]:::layer
+    FREEZE["commit 1: frozen dossier alone<br/>timestamp is the leakage proof"]:::out
+    B["Prediction B<br/>reads frozen dossier only, no tools"]:::layer
+    A["Prediction A<br/>math model, analytic"]:::accent
+    C["Prediction C<br/>reads dossier, A, and B"]:::layer
+    C2["commit 2: A, B, C together, before kickoff"]:::out
+    LOG["commit 3: session log"]:::out
 
-Results will be added here once the phase is built.
+    FIX --> GUARD --> RES --> QGATE --> FREEZE
+    FREEZE -->|frozen evidence| B
+    B --> C
+    A --> C
+    C --> C2 --> LOG
+
+    classDef layer fill:#0A1A1F,stroke:#C9A84C,stroke-width:2px,color:#E8EAEC
+    classDef accent fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
+    classDef out fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
+```
+
+**From factors to a probability.** Prediction B does not emit a probability out of
+thin air. Seven analyst lenses score seven factors from the dossier, each on a scale
+from minus three to plus three, from the nominal home team's perspective. Frozen
+weights, pre-registered and never fitted on outcomes, combine those scores into a
+single anchor signal.
+
+| Factor | Weight |
+| --- | --- |
+| Squad availability and starting lineup | 0.22 |
+| Recent form and underlying performance | 0.20 |
+| Tactical and stylistic matchup | 0.18 |
+| Coaching and staff | 0.15 |
+| Strategic incentives | 0.12 |
+| Psychological and momentum | 0.07 |
+| Historical head-to-head | 0.06 |
+
+A symmetric ordered-logit mapping turns that signal into the 90-minute three-way,
+with the draw highest when the teams are even and falling as the gap widens, and a
+compressed sigmoid turns it into the shootout lean. The mapping is fixed by three
+constants, also priors: a draw band that puts even teams near a thirty percent draw,
+a slope that caps the strongest favorite near eighty percent in ninety minutes, and a
+shootout compression that pulls even the strongest favorite back toward an even split
+once a match is level. The model then emits its own three-way, and code measures how
+far that sits from the mapping's reference on two axes, direction and draw. Small
+departures are allowed and must be justified in writing; departures past a hard cap
+are rejected and regenerated. The mapping parameters are set from general football
+priors, never from Prediction A, so the two forecasts stay genuinely separate.
+
+```mermaid
+flowchart LR
+    F["seven factor scores<br/>each minus 3 to plus 3"]:::layer
+    W["frozen weights<br/>never fitted"]:::layer
+    S["anchor signal"]:::accent
+    MAP["ordered logit<br/>symmetric, neutral venue"]:::layer
+    TW["reference three-way"]:::out
+    LEAN["shootout lean"]:::out
+    Q["model's emitted<br/>three-way and lean"]:::layer
+    DEP["departure check<br/>direction and draw"]:::layer
+    TOL["tolerance box<br/>cite if outside,<br/>reject past hard cap"]:::accent
+
+    F --> S
+    W --> S
+    S --> MAP --> TW
+    S --> LEAN
+    TW -->|reference| DEP
+    Q --> DEP
+    DEP --> TOL
+
+    classDef layer fill:#0A1A1F,stroke:#C9A84C,stroke-width:2px,color:#E8EAEC
+    classDef accent fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
+    classDef out fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
+```
+
+**Independence, and what each layer sees.** The comparison is only meaningful if B
+cannot see A, so B has no read path and no import path to A, enforced by a test. C is
+different by design: it sees the dossier, A's forecast and the strength differentials
+that produced it, and B's forecast and its per-factor reasoning. C is anchored to the
+equal-weight average of A and B, the pool, and may move off it only with a cited
+reason. The pool is also scored in its own right, as a baseline, because a
+reconciliation that merely averages its inputs should not be mistaken for one that
+adds judgment. C against the pool is the comparison that isolates whether the language
+model's reasoning earned its place.
+
+```mermaid
+flowchart TD
+    DOSS["frozen dossier"]:::accent
+    B["Prediction B<br/>LLM panel, blind to A"]:::layer
+    A["Prediction A<br/>math model, analytic"]:::layer
+    GATE["independence gate<br/>B has no path to A"]:::accent
+    POOL["pool<br/>equal-weight average of A and B<br/>scored as a baseline"]:::out
+    C["Prediction C<br/>anchored to the pool<br/>moves only with a cited reason"]:::layer
+    RPS["RPS scoring, per tie<br/>A, B, C, and the pool"]:::out
+
+    DOSS --> B
+    GATE -.-> B
+    A --> POOL
+    B --> POOL
+    A --> C
+    B --> C
+    POOL -->|reference| C
+    A --> RPS
+    B --> RPS
+    C --> RPS
+    POOL --> RPS
+
+    classDef layer fill:#0A1A1F,stroke:#C9A84C,stroke-width:2px,color:#E8EAEC
+    classDef accent fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
+    classDef out fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
+```
+
+**Leakage control specific to the language model.** Forward-only timing is the hard
+guarantee, but it is not the only control. A quarantine gate, the analog of the
+build-failing leakage guard in section 4, runs over every researched finding: it drops
+any result or advancement at the target round or later, preserves legitimate pre-cutoff
+form, and strips every market price so the forecast stays independent of the betting
+market exactly as the math model does. The gate prefers false positives, so it will
+occasionally drop a legitimate forward-stakes fact rather than risk leaking one, and
+when it does, the coverage manifest records it rather than hiding it.
+
+**Nothing is asserted without a citation.** Every nonzero factor score must cite a
+specific dossier finding, and a factor with no admissible evidence is scored zero and
+flagged rather than guessed. Every material move C makes off the pool must cite one of
+exactly three sources: an element of A's reasoning, an element of B's reasoning, or a
+dossier finding. Neither model may introduce a fact that is not in the frozen evidence.
+This is the same discipline as the rest of the project, that a number is only as good
+as the test or the source behind it, applied to a language model.
+
+**Determinism, stated honestly.** Prediction A is analytic and bit-reproducible.
+Prediction B and Prediction C are not: each model is called once, with no averaging to
+manufacture stability, and identical inputs can yield slightly different outputs.
+Reproducibility here means provenance, not regeneration. Every call records the frozen
+dossier hash it read, its full structured output, the model and settings, the token
+usage, the git commit, and the timestamp. You cannot rerun B to the digit, but you can
+prove exactly what it produced, from what evidence, and when.
+
+**A caveat against overclaiming.** With roughly thirty-two knockout ties, the gap
+between A, B, and C will most likely sit inside the project's own noise floor. This
+section is not built to crown a winner, and a small knockout sample rewards
+overconfident one-scenario bets in a way that would make any victory claim fragile.
+The defensible contribution is the protocol and the transparency: a forward-only,
+commit-before-kickoff comparison of three honest forecasts, scored with the same metric
+as everything else, with calibration and leakage discipline treated as the result
+rather than the win-loss record.
+
+> **Live results, committed round by round.** As each knockout round's field is fixed,
+> its ties are predicted and committed before the round is played, and scored after the
+> matches happen. The commit history is the proof of timing: the dossier for each tie
+> is committed before that tie's kickoff, the predictions before kickoff, and the
+> scores afterward. The round of 32 is first, then the round of 16 once it is set, and
+> so on to the final. Results and scores will appear here as they become real.
 
 ---
 
