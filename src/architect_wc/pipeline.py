@@ -422,6 +422,10 @@ def llm_live_main() -> None:
             tie,
             as_of,
             now=datetime.now(UTC),
+            # A rehearsal writes its REHEARSAL-marked artifacts but commits nothing, so
+            # it never lands on the branch; the forward-only path keeps the default
+            # git committer and its three-commit cadence unchanged.
+            committer=live.noop_committer if args.rehearsal else None,
             rehearsal=args.rehearsal,
             force_research=args.force_research,
         )

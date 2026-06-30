@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -591,3 +593,135 @@ def test_missing_key_halts_cleanly(tmp_path, monkeypatch) -> None:
         )
     assert committer.commits == []  # halted before any commit.
     assert research_calls == []
+
+
+# --- rehearsal commit-suppression (the defect fix) ------------------------------
+
+
+def _head_commit_count() -> str:
+    return subprocess.run(
+        ["git", "-C", str(ROOT), "rev-list", "--count", "HEAD"],
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def test_rehearsal_writes_artifacts_but_no_commits(tmp_path, monkeypatch) -> None:
+    # A rehearsal must write its REHEARSAL-marked artifacts for inspection but produce
+    # zero git commits, so it never lands on the branch. The CLI injects
+    # live.noop_committer for this; here we drive run_tie with it directly.
+    _no_real_client(monkeypatch)
+    monkeypatch.setenv(live.API_KEY_ENV, DUMMY_KEY)
+    dossier = _committed_dossier()
+    tie = _tie(dossier)
+    config = copy.deepcopy(pipeline.load_config())
+    invoke = _make_invoke([], _accepted_b_output(), _accepted_c_output())
+    research_fn = _make_research(dossier, tmp_path, cost=0.5, calls=[])
+
+    before = _head_commit_count()
+    result = live.run_tie(
+        config,
+        tie,
+        "2026-06-25",
+        now=NOW,
+        invoke=invoke,
+        research_fn=research_fn,
+        build_a=_build_a,
+        client_factory=_NoClient,
+        committer=live.noop_committer,  # the rehearsal committer
+        committed=lambda path: False,
+        output_dir=tmp_path,
+        logs_dir=tmp_path / "logs",
+        session_log_path=tmp_path / "session-log.md",
+        repo_root=ROOT,
+        rehearsal=True,
+    )
+    after = _head_commit_count()
+
+    assert result.status == "completed"
+    assert before == after  # zero new git commits from the rehearsal
+    # The REHEARSAL-marked artifacts are on disk for inspection (dossier, A, B, C,
+    # variance probe), every one carrying the _REHEARSAL suffix.
+    rehearsal_files = sorted(p.name for p in tmp_path.glob("*_REHEARSAL.json"))
+    assert rehearsal_files == [
+        "b_variance_probe_GROUP_match64_asof2026-06-25_REHEARSAL.json",
+        "dossier_GROUP_match64_asof2026-06-25_REHEARSAL.json",
+        "prediction_a_GROUP_match64_asof2026-06-25_REHEARSAL.json",
+        "prediction_b_GROUP_match64_asof2026-06-25_REHEARSAL.json",
+        "prediction_c_GROUP_match64_asof2026-06-25_REHEARSAL.json",
+    ]
+
+
+def test_cli_injects_noop_committer_for_rehearsal_only(monkeypatch) -> None:
+    # The fix lives at the CLI call site: --rehearsal injects live.noop_committer;
+    # without it the committer is left as None so run_tie keeps its real git_commit
+    # default, the non-rehearsal path unchanged.
+    captured: dict = {}
+
+    def fake_run_tie(config, tie, as_of, **kwargs):
+        captured["committer"] = kwargs.get("committer")
+        captured["rehearsal"] = kwargs.get("rehearsal")
+        return live.LiveResult(status="skipped_done", tie=tie)
+
+    fake_tie = {
+        "round": "R32",
+        "match": 74,
+        "home_team": "Germany",
+        "away_team": "Paraguay",
+        "kickoff": KICKOFF,
+    }
+    monkeypatch.setattr(live, "run_tie", fake_run_tie)
+    monkeypatch.setattr(live, "select_tie", lambda config, rnd, match: fake_tie)
+
+    monkeypatch.setattr(
+        sys, "argv", ["wc-llm-live", "--round", "R32", "--match", "74", "--rehearsal"]
+    )
+    pipeline.llm_live_main()
+    assert captured["rehearsal"] is True
+    assert captured["committer"] is live.noop_committer
+
+    captured.clear()
+    monkeypatch.setattr(sys, "argv", ["wc-llm-live", "--round", "R32", "--match", "74"])
+    pipeline.llm_live_main()
+    assert captured["rehearsal"] is False
+    assert captured["committer"] is None  # unchanged: run_tie defaults to git_commit
+
+
+def test_non_rehearsal_run_uses_real_git_commit(tmp_path, monkeypatch) -> None:
+    # The inverse guarantee: a non-rehearsal run (committer left as None) routes through
+    # the real git_commit and fires the full three-commit cadence. We spy on git_commit
+    # so no real commit is made, only to prove it is the committer that runs.
+    _no_real_client(monkeypatch)
+    monkeypatch.setenv(live.API_KEY_ENV, DUMMY_KEY)
+    calls: list = []
+
+    def spy_git_commit(paths, message, repo_root="."):
+        calls.append(message)
+
+    monkeypatch.setattr(live, "git_commit", spy_git_commit)
+    dossier = _committed_dossier()
+    tie = _tie(dossier)
+    config = copy.deepcopy(pipeline.load_config())
+    invoke = _make_invoke([], _accepted_b_output(), _accepted_c_output())
+    research_fn = _make_research(dossier, tmp_path, cost=0.5, calls=[])
+
+    result = live.run_tie(
+        config,
+        tie,
+        "2026-06-25",
+        now=NOW,
+        invoke=invoke,
+        research_fn=research_fn,
+        build_a=_build_a,
+        client_factory=_NoClient,
+        committer=None,  # non-rehearsal: run_tie defaults to the real git_commit
+        committed=lambda path: False,
+        output_dir=tmp_path,
+        logs_dir=tmp_path / "logs",
+        session_log_path=tmp_path / "session-log.md",
+        repo_root=ROOT,
+        rehearsal=False,
+    )
+
+    assert result.status == "completed"
+    assert len(calls) == 3  # dossier, then A/B/C, then session log

@@ -270,6 +270,17 @@ def git_committed(path: str | Path, repo_root: str | Path = ".") -> bool:
     return result.returncode == 0 and bool(result.stdout.strip())
 
 
+def noop_committer(paths: list[Path], message: str) -> None:
+    """A committer that performs no git operation, injected for rehearsal runs.
+
+    A rehearsal writes its REHEARSAL-marked artifacts to disk for inspection but must
+    produce zero git commits, so the runtime three-commit cadence never lands a
+    rehearsal on the branch. The real forward-only path keeps the default git_commit
+    and its full cadence unchanged.
+    """
+    return None
+
+
 def file_ref(path: str | Path) -> dict[str, str]:
     """A {path, content_sha256} reference over a written artifact's exact bytes."""
     path = Path(path)
