@@ -166,7 +166,7 @@ llm:
     # Per-team national federations and outlets, added per round once the field
     # is known. A committed, dated snapshot, verified domain by domain, extended
     # as later rounds are researched.
-    national_snapshot: "data/llm/national_sources_2026-06-25.csv"
+    national_snapshot: "data/llm/national_sources_2026-06-28.csv"
     # Never allow-listed, recorded so each exclusion is explicit and auditable.
     # Betting, odds, and tipster sites are excluded as a class by the allow-list
     # itself, since only listed domains are ever searched.
