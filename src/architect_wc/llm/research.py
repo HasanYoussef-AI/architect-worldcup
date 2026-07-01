@@ -172,7 +172,12 @@ def _factor_guide() -> str:
         f"  - {factor}: {hint}"
         for factor, hint in {
             "squad_availability": "injuries, suspensions, returns, fitness",
-            "recent_form": "results and performances in the matches before the cutoff",
+            "recent_form": (
+                "underlying-performance quality scorelines hide, chance quality "
+                "created and conceded, finishing and shot-quality trend, set-piece "
+                "threat, and form trend, not raw results, goal difference, or "
+                "standings, which are Prediction A's domain"
+            ),
             "tactical_matchup": "styles, formations, and how the two sides match up",
             "coaching_staff": "head coach and backroom stability",
             "strategic_incentives": "what each side needs, rotation, motivation",
