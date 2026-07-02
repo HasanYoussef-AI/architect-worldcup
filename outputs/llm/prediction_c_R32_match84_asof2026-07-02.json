@@ -1,0 +1,93 @@
+{
+  "document": {
+    "schema_version": "1.0.0",
+    "prediction": "C",
+    "round": "R32",
+    "match": 84,
+    "home_team": "Spain",
+    "away_team": "Austria",
+    "nominal_home": "Spain",
+    "cutoff": "2026-07-02",
+    "dossier_ref": {
+      "path": "outputs/llm/dossier_R32_match84_asof2026-07-02.json",
+      "content_sha256": "cce2fea1a3227997d7613f3d26e5ee3033d5824a099f9dc418598020b07d2369"
+    },
+    "a_ref": {
+      "path": "outputs/llm/prediction_a_R32_match84_asof2026-07-02.json",
+      "content_sha256": "9cc133c6f9d91faa5c9405998e252a9c8fabcea15356362259483a83ffc82389"
+    },
+    "b_ref": {
+      "path": "outputs/llm/prediction_b_R32_match84_asof2026-07-02.json",
+      "content_sha256": "2a76fd82d968a5a0c67438d51f23836cd7674f9d5d8ef3b2d5f60931cdab80ff"
+    },
+    "pool": {
+      "three_way": {
+        "p_home": 0.563795249186142,
+        "p_draw": 0.24904947594705623,
+        "p_away": 0.1871552748668018
+      },
+      "lean": 0.6582220875519789,
+      "advance_probability": 0.7277251151477397
+    },
+    "emitted_three_way": {
+      "p_home": 0.58,
+      "p_draw": 0.245,
+      "p_away": 0.175
+    },
+    "departure": {
+      "dir": 0.028360025680659817,
+      "draw": -0.004049475947056236
+    },
+    "tolerance": {
+      "status": "within_box",
+      "justification": "A and B agree closely on the draw (~0.248-0.25) so p_draw is held near pool. They diverge on the size of Spain's favoritism: A gives p_home 0.598 / p_away 0.154 on strong strength differentials (elo_diff 271, ability_diff 0.976), while B's conservative factor netting yields 0.53/0.22. The evidence supports A here: Rangnick himself frames Austria as massive underdogs who would lose seven to nine of ten meetings with Spain (strategic_incentives#2), corroborating the analytic gap. I therefore raise p_home to 0.58 and lower p_away to 0.175, a moderate move toward A tempered by B's legitimate, documented concern over Spain's blunt finishing. On the shootout the forecasts diverge sharply (A 0.826 vs B 0.49); a level match compresses toward a coin flip and Spain's most recent decisive shootout was a loss to Portugal in the 2025 Nations League final (coaching_staff#0), so I trim the lean off the pool toward B to 0.60 while keeping Spain the favorite."
+    },
+    "shootout": {
+      "pool_lean": 0.6582220875519789,
+      "emitted_lean": 0.6,
+      "lean_departure": -0.058222087551978885,
+      "advance_probability": 0.727
+    },
+    "citations": [
+      {
+        "source": "a_reasoning",
+        "ref": "drivers.elo_diff=271.1 and ability_diff=0.976; A's strength differentials point to a larger Spain edge than B's panel netting"
+      },
+      {
+        "source": "dossier_finding_id",
+        "ref": "strategic_incentives#2"
+      },
+      {
+        "source": "dossier_finding_id",
+        "ref": "coaching_staff#0"
+      }
+    ],
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "xhigh",
+      "thinking": "adaptive",
+      "code_commit": "ac5b50d383988f644d8ba5c4badc46c9419a924f",
+      "timestamp": "2026-07-02T12:53:10.778250+00:00"
+    },
+    "validation": {
+      "simplex_ok": true,
+      "citations_ok": true,
+      "tolerance_ok": true,
+      "accepted": true,
+      "rejection_reason": null
+    }
+  },
+  "meta": {
+    "raw_log": "outputs/logs/llm_call_c_R32_match84_20260702T131112783261Z.json",
+    "message_id": "msg_01TF2n4HHvzEKq9iYGbQod1Y",
+    "request_id": "req_011CcdHWztM5yvVYzjZ15gyY",
+    "usage": {
+      "input_tokens": 2,
+      "output_tokens": 5751,
+      "cache_creation_input_tokens": 10918,
+      "cache_read_input_tokens": 0
+    },
+    "n_billed_calls": 1,
+    "rehearsal": false
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "document": {
+    "schema_version": "1.0.0",
+    "prediction": "A",
+    "round": "R32",
+    "match": 84,
+    "home_team": "Spain",
+    "away_team": "Austria",
+    "nominal_home": "Spain",
+    "cutoff": "2026-07-02",
+    "committed_at": null,
+    "seed": 42,
+    "provenance": {
+      "source": "dixon_coles_three_way+elo_shootout",
+      "model_version": "0.0.0",
+      "code_commit": "b4382ebb2d8b513a02b2cd28b49a64a986f1c6dc",
+      "timestamp": null
+    },
+    "three_way": {
+      "p_home": 0.5975904983722838,
+      "p_draw": 0.24809895189411243,
+      "p_away": 0.1543105497336036
+    },
+    "shootout_lean": 0.8264441751039576,
+    "advance_probability": 0.8026304320145701,
+    "drivers": {
+      "elo_diff": 271.10973158550655,
+      "ability_diff": 0.9761201949182627,
+      "squad_value_adjustment": 59.47260005256885
+    }
+  },
+  "meta": {
+    "source": "analytic, no model call",
+    "rehearsal": false
+  }
+}

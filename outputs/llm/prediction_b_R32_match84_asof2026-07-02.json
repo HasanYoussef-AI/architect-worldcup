@@ -1,0 +1,162 @@
+{
+  "document": {
+    "schema_version": "1.0.0",
+    "round": "R32",
+    "match": 84,
+    "home_team": "Spain",
+    "away_team": "Austria",
+    "nominal_home": "Spain",
+    "cutoff": "2026-07-02",
+    "dossier_ref": {
+      "path": "outputs/llm/dossier_R32_match84_asof2026-07-02.json",
+      "content_sha256": "cce2fea1a3227997d7613f3d26e5ee3033d5824a099f9dc418598020b07d2369"
+    },
+    "factors": [
+      {
+        "name": "squad_availability",
+        "expert_lens": "club scout",
+        "score": 1,
+        "reasoning": "Spain lost wingers Nico Williams and Yeremy Pino to injuries against Uruguay (squad_availability#0), but de la Fuente gave an upbeat update, calling Yeremy's recovery 'miraculous', and Lamine Yamal is back and racing to sharpness after his hamstring scare (squad_availability#1, squad_availability#2). Spain still fields a deep 26-man group with Rodri, Yamal, Pedri, Oyarzabal and Cucurella (squad_availability#3). Austria, by contrast, has its captain and defensive anchor David Alaba plus main striker Marko Arnautovic both in a race against time after knocks against Algeria (squad_availability#4, squad_availability#5) \u2014 losses that strike closer to Austria's spine. On balance a modest edge to Spain.",
+        "citations": [
+          "squad_availability#0",
+          "squad_availability#1",
+          "squad_availability#2",
+          "squad_availability#3",
+          "squad_availability#4",
+          "squad_availability#5"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "recent_form",
+        "expert_lens": "match analyst",
+        "score": 1,
+        "reasoning": "On underlying quality alone, Spain's defensive process is elite: no goals conceded across three group games while allowing only 0.54 xG (recent_form#0). Their attacking output is a genuine concern \u2014 dominating possession but creating little, Rodri below par at the base, and a lack of front-of-goal sharpness against Uruguay with just one attempt on target each (recent_form#1, recent_form#2). Austria create chances and score freely (recent_form#4, recent_form#6) and carry a real set-piece and aerial threat (63.6% aerial duels won, headed goals, 38 high turnovers, recent_form#5), but they concede on transitions (recent_form#4). Spain's suppression numbers outweigh their blunt finishing, giving a slight underlying edge.",
+        "citations": [
+          "recent_form#0",
+          "recent_form#1",
+          "recent_form#2",
+          "recent_form#4",
+          "recent_form#5",
+          "recent_form#6"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "tactical_matchup",
+        "expert_lens": "match analyst",
+        "score": 0,
+        "reasoning": "This is a genuinely balanced clash. Austria's aggressive high press, man-to-man elements and gegenpress generate short fields, clean looks and aerial dominance (tactical_matchup#0, tactical_matchup#1), and Rangnick has a clear plan to deny space to and starve Yamal, who is the hub of Spain's approach (tactical_matchup#2, tactical_matchup#3). That system directly targets Spain's noted lack of penetration. However, de la Fuente expects a game of many one-on-one battles (tactical_matchup#0), a setting Spain's superior individual technicians can exploit against man-marking. The disruptive threat and Spain's quality broadly cancel, leaving no clear stylistic edge.",
+        "citations": [
+          "tactical_matchup#0",
+          "tactical_matchup#1",
+          "tactical_matchup#2",
+          "tactical_matchup#3"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "coaching_staff",
+        "expert_lens": "tournament strategist",
+        "score": 1,
+        "reasoning": "Both benches are strong, but de la Fuente carries the heavier trophy pedigree: in charge since 2022 with the 2023 Nations League and a EURO 2024 title, plus a 2025 Nations League final, and deep familiarity with players he coached in the youth system (coaching_staff#0). Rangnick is a renowned pressing pioneer who reached the EURO 2024 round of 16, ended Austria's World Cup exile and runs a settled backroom camp (coaching_staff#1, coaching_staff#2). The gap in silverware and tournament ceiling gives Spain a modest edge.",
+        "citations": [
+          "coaching_staff#0",
+          "coaching_staff#1",
+          "coaching_staff#2"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "strategic_incentives",
+        "expert_lens": "tournament strategist",
+        "score": 0,
+        "reasoning": "Both teams are fully incentivised to win a single-elimination tie. De la Fuente stresses there is no margin for error and welcomes the expectation on Spain (strategic_incentives#0), while Alaba frames Austria as having 'nothing to lose and a great deal to gain' and Rangnick embraces the massive-underdog role, conceding they would lose most meetings with Spain (strategic_incentives#1, strategic_incentives#2). Spain's burden of expectation is offset by Austria's freedom, but the underdog-liberation angle is essentially a psychological read rather than a differential in stakes. Incentives are effectively level.",
+        "citations": [
+          "strategic_incentives#0",
+          "strategic_incentives#1",
+          "strategic_incentives#2"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "psychological_momentum",
+        "expert_lens": "sports psychologist",
+        "score": 0,
+        "reasoning": "Both camps arrive on an emotional high. Spain are 'soaring with confidence', having grown into the tournament after the Cabo Verde draw, with Yamal projecting optimism that they are close to being 'unstoppable' (psychological_momentum#0, psychological_momentum#1). Austria carry momentum from a dramatic last-gasp 3-3 with Algeria, Kalajdzic's stoppage-time equaliser sealing their first knockout appearance since 1982, and leaders like Alaba and Rangnick voicing belief that special things happen in knockout games (psychological_momentum#2, psychological_momentum#3, psychological_momentum#4). The confidence signals are strong on both sides and net to no clear edge.",
+        "citations": [
+          "psychological_momentum#0",
+          "psychological_momentum#1",
+          "psychological_momentum#2",
+          "psychological_momentum#3",
+          "psychological_momentum#4"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "historical_head_to_head",
+        "expert_lens": "football historian",
+        "score": 0,
+        "reasoning": "The recorded history is mixed and dated. Their only World Cup meeting, at Argentina 1978, went to Austria 2-1 (historical_head_to_head#0), yet Spain crushed Austria 9-0 in EURO 2000 qualifying with Raul scoring four (historical_head_to_head#1), and there is an archived 1988 competitive meeting (historical_head_to_head#2). One decisive Spain result and one Austria World Cup win, both decades old, leave no meaningful directional signal for this tie.",
+        "citations": [
+          "historical_head_to_head#0",
+          "historical_head_to_head#1",
+          "historical_head_to_head#2"
+        ],
+        "insufficient_evidence": false
+      }
+    ],
+    "anchor_signal": 0.5700000000000001,
+    "reference_three_way": {
+      "p_home": 0.44075462885303796,
+      "p_draw": 0.2906773484115752,
+      "p_away": 0.2685680227353868
+    },
+    "emitted_three_way": {
+      "p_home": 0.53,
+      "p_draw": 0.25,
+      "p_away": 0.22
+    },
+    "departure": {
+      "dir": 0.13781339388234892,
+      "draw": -0.04067734841157522
+    },
+    "tolerance": {
+      "status": "within_box",
+      "justification": null
+    },
+    "shootout": {
+      "reference_lean": 0.5298893204466758,
+      "emitted_lean": 0.49,
+      "lean_departure": -0.03988932044667581,
+      "advance_probability": 0.6525000000000001
+    },
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "xhigh",
+      "thinking": "adaptive",
+      "code_commit": "ac5b50d383988f644d8ba5c4badc46c9419a924f",
+      "timestamp": "2026-07-02T12:53:10.778250+00:00"
+    },
+    "validation": {
+      "simplex_ok": true,
+      "citations_ok": true,
+      "tolerance_ok": true,
+      "accepted": true,
+      "rejection_reason": null
+    }
+  },
+  "meta": {
+    "raw_log": "outputs/logs/llm_call_b_R32_match84_20260702T130950247922Z.json",
+    "message_id": "msg_01Hux7HNEUQ4SddVexEkKKTG",
+    "request_id": "req_011CcdHLeRWqDnjt7sswo8mu",
+    "usage": {
+      "input_tokens": 2,
+      "output_tokens": 10106,
+      "cache_creation_input_tokens": 8875,
+      "cache_read_input_tokens": 0
+    },
+    "n_billed_calls": 1,
+    "rehearsal": false
+  }
+}
