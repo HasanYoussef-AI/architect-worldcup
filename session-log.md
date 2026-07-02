@@ -244,3 +244,9 @@ last "Next" line and resumes from there. See CLAUDE.md for the protocol.
 - Cost: spent 1.7062 of ceiling 6.00 over 3 billed calls.
 - Verdict: B accepted=True, C accepted=True.
 - Commits: dossier, predictions, this entry.
+
+## 2026-07-02  Live run  R32 match 84 Spain vs Austria
+- Did: research, dossier committed, then B, A, C built and committed; three runtime commits before kickoff.
+- Cost: spent 2.0465 of ceiling 6.00 over 3 billed calls.
+- Verdict: B accepted=True, C accepted=True.
+- Commits: dossier, predictions, this entry.
