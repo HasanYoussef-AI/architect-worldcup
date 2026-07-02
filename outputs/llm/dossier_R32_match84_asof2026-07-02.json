@@ -1,0 +1,410 @@
+{
+  "dossier": {
+    "factors": {
+      "squad_availability": [
+        {
+          "claim": "Spain will be without wingers Nico Williams and Yeremy Pino, who both picked up injuries against Uruguay in the group stage and face doubts over the rest of the tournament.",
+          "source": "https://www.espn.com/soccer/story/_/id/49213161/fifa-world-cup-2026-spain-vs-austria-tv-channel-how-watch-kickoff-live-stream-referee-predicted-lineups",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "De la Fuente gave an upbeat injury update on wingers Nico Williams and Yeremy Pino and on Victor Munoz, describing Yeremy's recovery as 'miraculous' ahead of the Austria tie.",
+          "source": "https://www.espn.com/soccer/story/_/id/49242225/spain-coach-loves-lamine-yamal-optimism-confidence",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Lamine Yamal injured his left hamstring converting a penalty for Barcelona on 22 April 2026, feared missing the World Cup, and has been racing to regain match sharpness since recovering.",
+          "source": "https://www.espn.com/soccer/story/_/id/48930567/lamine-yamal-spain-fifa-world-cup-barcelona",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Spain's 26-man squad is led by captain Rodri and includes Lamine Yamal, Pedri, Mikel Oyarzabal and Marc Cucurella, with no Real Madrid players selected.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-squad-announcement-luis-de-la-fuente",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Both captain David Alaba and Marko Arnautovic are facing a race against time to be fit for the Spain match after picking up knocks against Algeria.",
+          "source": "https://www.espn.com/soccer/story/_/id/49213161/fifa-world-cup-2026-spain-vs-austria-tv-channel-how-watch-kickoff-live-stream-referee-predicted-lineups",
+          "source_tier": 2,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "David Alaba is the defensive anchor in Austria's 26-man World Cup squad, which also features Marcel Sabitzer, Marko Arnautovic, Michael Gregoritsch and Sasa Kalajdzic.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/austria-ralf-rangnick-world-cup-squad",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "recent_form": [
+        {
+          "claim": "Spain had not conceded a goal across their three group games, allowing an expected-goals (xG) total of only 0.54.",
+          "source": "https://www.espn.com/soccer/story/_/id/49213161/fifa-world-cup-2026-spain-vs-austria-tv-channel-how-watch-kickoff-live-stream-referee-predicted-lineups",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "In their 1-0 group win over Uruguay neither side produced their best, each managing just one attempt on target, with Spain recording six shots to Uruguay's five and 57% possession, highlighting a lack of sharpness in front of goal.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-grit-augurs-well-but-uruguay-go-home-disappointed",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Spain have been dominating possession (over 60%) but creating little, with Rodri below par at the base of midfield and knock-on effects across the pitch.",
+          "source": "https://www.espn.com/soccer/story/_/id/49196824/fifa-world-cup-power-rankings-spain-brazil-germany-usa-mexico-england-argentina-france",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "After a 0-0 draw with Cabo Verde, Spain outscored their next two opponents 5-0, beating Saudi Arabia 4-0 and Uruguay 1-0 to top Group H.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-austria-live-stream-team-news-tickets",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Austria's group matches averaged four goals per game, and they have shown the ability to win the ball high and score while also conceding on transitions.",
+          "source": "https://www.espn.com/soccer/story/_/id/49213161/fifa-world-cup-2026-spain-vs-austria-tv-channel-how-watch-kickoff-live-stream-referee-predicted-lineups",
+          "source_tier": 2,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Austria carry a strong set-piece and aerial threat: with tall players front and back they won 63.6% of aerial duels (fourth) and scored two headed goals (tied first), created 38 high turnovers and started possessions an average of 40.3 metres up the pitch.",
+          "source": "https://www.espn.com/soccer/story/_/id/49118437/fifa-world-cup-predictions-analysis-projections-usa-mexico-spain-brazil-england-argentina-germany-france",
+          "source_tier": 2,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "In their final group game (3-3 with Algeria) Austria registered 10 attempts with 3 on target, with goals from Marko Arnautovic (28'), Marcel Sabitzer (55') and Sasa Kalajdzic (90+5').",
+          "source": "https://www.fifa.com/en/match-centre/match/17/285023/289273/400021497",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "tactical_matchup": [
+        {
+          "claim": "De la Fuente described Austria as a very aggressive, very determined side that presses high with elements of man-to-man defence, anticipating a game of many one-on-one battles.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-austria-live-stream-team-news-tickets",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Under Ralf Rangnick, 'the original gegen-presser', Austria generate short fields and clean looks, producing opportunistic moments through high turnovers and aerial dominance.",
+          "source": "https://www.espn.com/soccer/story/_/id/49118437/fifa-world-cup-predictions-analysis-projections-usa-mexico-spain-brazil-england-argentina-germany-france",
+          "source_tier": 2,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Rangnick said his team's task is to defend rather than watch Yamal, aiming to deny him space when he dribbles and to keep the ball away from him as much as possible.",
+          "source": "https://www.espn.com/soccer/story/_/id/49242225/spain-coach-loves-lamine-yamal-optimism-confidence",
+          "source_tier": 2,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Spain's approach is built around getting the ball to Lamine Yamal, with right-back Marcos Llorente working on his on-field understanding with the winger.",
+          "source": "https://www.espn.com/soccer/story/_/id/49218747/spain-plan-austria-simple-get-ball-lamine-yamal",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "coaching_staff": [
+        {
+          "claim": "Luis de la Fuente has coached Spain since December 2022, winning the 2023 UEFA Nations League and UEFA EURO 2024 and reaching the 2025 Nations League final (lost on penalties to Portugal); he is a popular figure who coached many of his squad in the youth system.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d159556fdf-60d8385f463f-1000--spain-at-the-world-cup-2026-squad-fixtures-group-and-history/",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Ralf Rangnick, a renowned pioneer of pressing, took the Austria job in 2022, led the team to the UEFA EURO 2024 round of 16 and ended the country's World Cup exile after rebuffing an approach from Bayern Munich.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/austria-team-profile-history",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Rangnick turned 68 two days after the Algeria game and was gifted a cake by his squad alongside coaching-staff member Martin Hammerle, indicating a settled backroom camp.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/ralf-rangnick-austria-spain",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "strategic_incentives": [
+        {
+          "claim": "De la Fuente stressed there is no margin for error in the knockouts, saying Spain 'have to win the next match' and that he welcomes the high expectations placed on the team.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-austria-luis-de-la-fuente",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Austria captain David Alaba framed the tie as one where his side has 'nothing to lose and a great deal to gain', vowing to throw everything at winning.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-austria-live-stream-team-news-tickets",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Rangnick cast Austria as 'massive underdogs' who would probably lose seven, eight or even nine of ten meetings with Spain, and said his job is to ensure this is not the tenth.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/ralf-rangnick-austria-spain",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "psychological_momentum": [
+        {
+          "claim": "Spain are described as soaring with confidence entering the knockout round, having grown into the tournament step by step after the opening Cabo Verde draw.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-austria-live-stream-team-news-tickets",
+          "source_tier": 1,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Lamine Yamal projected optimism, saying that once Spain 'hit our stride ... we'll be almost unstoppable', and de la Fuente praised the confidence and security the player transmits.",
+          "source": "https://www.espn.com/soccer/story/_/id/49242225/spain-coach-loves-lamine-yamal-optimism-confidence",
+          "source_tier": 2,
+          "team": "Spain",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Austria carry momentum from an intense last-gasp 3-3 with Algeria, and Rangnick is confident his underdogs will 'show some bite once again'.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/ralf-rangnick-austria-spain",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Alaba emphasised belief, saying anything is possible in football and that 'special things happen in World Cup knockout games'.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/ralf-rangnick-austria-spain",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Sasa Kalajdzic's stoppage-time equaliser against Algeria sealed Austria's first World Cup knockout-stage appearance since 1982, a dramatic confidence boost.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/algeria-austria-match-report-highlights",
+          "source_tier": 1,
+          "team": "Austria",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "historical_head_to_head": [
+        {
+          "claim": "The two sides last met at a World Cup finals at Argentina 1978, where Austria won their group-stage opener in Buenos Aires 2-1, Hans Krankl scoring the 75th-minute winner after Walter Schachner and Dani had traded first-half goals.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-austria-live-stream-team-news-tickets",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": "1978-06-03",
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "In EURO 2000 qualifying, Spain beat Austria 9-0 on 27 March 1999, with Raul Gonzalez scoring four goals.",
+          "source": "https://www.uefa.com/uefaeuro/history/news/025a-0ebed8faf1b4-a5df5bcea199-1000--euro-2000-all-you-need-to-know/",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": "1999-03-27",
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Spain and Austria have a recorded competitive meeting in the European Qualifiers of 1988, archived by UEFA.",
+          "source": "https://www.uefa.com/european-qualifiers/match/1271--spain-vs-austria/events/",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": "1988-01-01",
+          "retrieved_at": "2026-07-02"
+        }
+      ]
+    },
+    "coverage": [
+      {
+        "factor": "squad_availability",
+        "n_raw_hits": 12,
+        "n_admissible_findings": 6,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "Spain and Austria both sourced; discarded duplicate ESPN/FIFA restatements and any post-kickoff line-up content."
+      },
+      {
+        "factor": "recent_form",
+        "n_raw_hits": 14,
+        "n_admissible_findings": 7,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "Focused on underlying performance (xG, shots on target, aerial/turnover/set-piece metrics); group-stage scorelines used only as form evidence, not as standings."
+      },
+      {
+        "factor": "tactical_matchup",
+        "n_raw_hits": 9,
+        "n_admissible_findings": 4,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "quarantine dropped 1 leakage-flagged finding(s), recorded as raw hits not admissible. Coach and analyst styles/formations comparisons; both teams represented."
+      },
+      {
+        "factor": "coaching_staff",
+        "n_raw_hits": 6,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "Head-coach records and backroom stability for both sides."
+      },
+      {
+        "factor": "strategic_incentives",
+        "n_raw_hits": 8,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "quarantine dropped 1 leakage-flagged finding(s), recorded as raw hits not admissible. Excluded content speculating on a possible round-of-16 opponent to respect forward-only rules."
+      },
+      {
+        "factor": "psychological_momentum",
+        "n_raw_hits": 10,
+        "n_admissible_findings": 5,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "Confidence/pressure narratives for both teams from pre-match interviews and group-stage momentum."
+      },
+      {
+        "factor": "historical_head_to_head",
+        "n_raw_hits": 8,
+        "n_admissible_findings": 3,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "All meetings dated and strictly before 2026-07-02; a muddled ESPN 'draw in 2000' aggregate was discarded for lacking a clear admissible date; 1988 qualifier date approximated to year (UEFA archive gives no exact day)."
+      }
+    ],
+    "round": "R32",
+    "match": 84,
+    "home_team": "Spain",
+    "away_team": "Austria",
+    "as_of_date": "2026-07-02",
+    "committed_at": null,
+    "git_sha": "3e75a0a1d8835ec677a82f593a90c1a186ce3e80",
+    "model_version": "0.0.0",
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "high",
+      "web_search_tool": "web_search_20260209",
+      "max_search_uses": 14,
+      "prompt_cache": true,
+      "allowed_domains": [
+        "cafonline.com",
+        "concacaf.com",
+        "conmebol.com",
+        "derstandard.at",
+        "espn.com",
+        "fifa.com",
+        "laola1.at",
+        "oceaniafootball.com",
+        "oefb.at",
+        "rfef.es",
+        "the-afc.com",
+        "uefa.com"
+      ],
+      "retrieved_at": "2026-07-02T13:07:40.189411+00:00",
+      "usage": {
+        "input_tokens": 15,
+        "output_tokens": 21183,
+        "cache_creation_input_tokens": 101023,
+        "cache_read_input_tokens": 450631,
+        "web_search_requests": 14
+      },
+      "cost_usd_estimate": {
+        "input_usd": 7.5e-05,
+        "output_usd": 0.529575,
+        "cache_write_usd": 0.631394,
+        "cache_read_usd": 0.225316,
+        "web_search_usd": 0.14,
+        "total_usd": 1.526359
+      },
+      "stop_reason": "end_turn",
+      "request_id": "req_011CcdGzszXcn1y4GJhHiPMF"
+    }
+  },
+  "meta": {
+    "usage": {
+      "input_tokens": 15,
+      "output_tokens": 21183,
+      "cache_creation_input_tokens": 101023,
+      "cache_read_input_tokens": 450631,
+      "web_search_requests": 14
+    },
+    "cost": {
+      "input_usd": 7.5e-05,
+      "output_usd": 0.529575,
+      "cache_write_usd": 0.631394,
+      "cache_read_usd": 0.225316,
+      "web_search_usd": 0.14,
+      "total_usd": 1.526359
+    },
+    "n_web_searches": 14,
+    "allowed_domains": [
+      "cafonline.com",
+      "concacaf.com",
+      "conmebol.com",
+      "derstandard.at",
+      "espn.com",
+      "fifa.com",
+      "laola1.at",
+      "oceaniafootball.com",
+      "oefb.at",
+      "rfef.es",
+      "the-afc.com",
+      "uefa.com"
+    ],
+    "quarantine_dropped": {
+      "tactical_matchup": 1,
+      "strategic_incentives": 1
+    },
+    "rehearsal": false
+  }
+}
