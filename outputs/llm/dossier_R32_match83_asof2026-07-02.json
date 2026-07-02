@@ -1,0 +1,476 @@
+{
+  "dossier": {
+    "factors": {
+      "squad_availability": [
+        {
+          "claim": "Cristiano Ronaldo has played every minute of all three of Portugal's group games, and his coach Roberto Martinez has said the lack of rest is 'not an issue'.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "ESPN flagged workload concerns over an 'overworked' Ronaldo, suggesting the price of his heavy minutes could be paid against Croatia.",
+          "source": "https://www.espn.com/soccer/story/_/id/49203383/could-overworked-ronaldo-hurt-portugal-world-cup-chances",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Portugal's expected line-up features Diogo Costa; Cancelo, Ruben Dias, Renato Veiga, Nuno Mendes; Joao Neves, Vitinha; Pedro Neto, Bruno Fernandes, Joao Felix and Ronaldo, indicating those players are available.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia's expected line-up features Livakovic; Stanisic, Sutalo, Pongracic, Perisic; Kovacic, Modric; Sucic, Vlasic, Baturina and Budimir, indicating those players are available.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Luka Modric remains central and fully involved for Croatia, marking his 201st cap with a vital assist against Ghana in the group stage.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Nuno Mendes, Joao Neves, Vitinha and Goncalo Ramos arrived at the finals straight from winning the UEFA Champions League with Paris Saint-Germain, a heavy pre-tournament workload.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d15939ace8-5cc9254d0851-1000--portugal-at-the-world-cup-2026-squad-fixtures-group-and-hi/",
+          "source_tier": 1,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "recent_form": [
+        {
+          "claim": "Against Colombia, Portugal were out-created: Colombia had 24 shots to Portugal's 13 and an xG of 1.63 to Portugal's 0.69, underlining weak attacking output despite the goalless scoreline.",
+          "source": "https://www.espn.com/espn/story/_/id/49202106",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "In their 5-0 win over Uzbekistan Portugal generated 17 attempts to 7 (9 on target to 2) with 56% possession and two assists, a strong chance-creation display.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-uzbekistan-match-report-highlights",
+          "source_tier": 1,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Portugal enter the tie in inconsistent form (one win, two draws), with two goalless attacking displays against Congo DR and Colombia sandwiching the Uzbekistan win.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia's form trended upward through the group: they recovered from an opening defeat to England to record wins over Panama and Ghana.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Against Ghana, Croatia scored through Sucic (31') and Vlasic (83') and pushed for a win from the first whistle rather than settling for a qualifying draw.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/croatia-ghana-match-report-highlights",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "ESPN characterises Croatia as having mastered snuffing out opponents' creativity and controlling knockout games, often dragging ties to penalties.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Ronaldo's finishing has been streaky: two goals against Uzbekistan but blanks against Congo DR and Colombia, and he still has zero goals and zero assists in World Cup knockout football.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Modric's creative influence remains a Croatia strength, providing the assist for a decisive goal against Ghana on his 201st appearance.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "tactical_matchup": [
+        {
+          "claim": "Croatia coach Zlatko Dalic identified the midfield as the area where 'the match will probably be decided' and warned his side to avoid mistakes in possession against Portugal's technical football.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia are described as controlling outcomes in knockout ties and dragging opponents into penalty shootouts, a low-risk, game-management style.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Portugal's midfield depth (Vitinha, Bruno Fernandes, Joao Neves, Bernardo Silva, Ruben Neves) is set against Croatia's blend of veterans Modric and Kovacic and rising youngster Petar Sucic.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": null,
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Under Roberto Martinez, Portugal are built on positional play marrying ball retention with quick transitions, a style he developed earlier as Belgium coach.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-team-profile-history",
+          "source_tier": 1,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "coaching_staff": [
+        {
+          "claim": "Portugal are coached by Roberto Martinez, a Spaniard who previously managed Wigan, Swansea and Everton and led Belgium to bronze at the 2018 World Cup.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d15939ace8-5cc9254d0851-1000--portugal-at-the-world-cup-2026-squad-fixtures-group-and-hi/",
+          "source_tier": 1,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Martinez was hired by Portugal in 2023 and led them to the 2024/25 UEFA Nations League title.",
+          "source": "https://www.uefa.com/european-qualifiers/news/02a6-20d15939ace8-5cc9254d0851-1000--portugal-at-the-world-cup-2026-squad-fixtures-group-and-hi/",
+          "source_tier": 1,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Martinez is under considerable pressure over his reliance on an ageing Ronaldo and his management of Portugal's midfield resources.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Martinez said Portugal got the preparation they needed for the 'second World Cup' \u2014 the knockout stages.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia are coached by Zlatko Dalic, whose side finished runners-up in Group L.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/croatia-ghana-match-report-highlights",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "strategic_incentives": [
+        {
+          "claim": "Croatia chose to chase a win against Ghana to secure second in Group L rather than settle for a draw that could have qualified them as a best third-placed team, signalling their ambition.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/croatia-ghana-match-report-highlights",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Portugal were pre-tournament favourites to win Group K but finished second, giving them motivation to respond in the knockouts.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Both captains, Ronaldo and Modric, are very likely playing in their final World Cups, so one veteran's tournament journey will end in this tie.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": null,
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Ronaldo is chasing the World Cup, the one major trophy missing from his cabinet, and is seeking to break his duck in World Cup knockout football.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Martinez has not rotated Ronaldo, who has started and played the full 90 in every group game, keeping a rest-versus-workload debate live going into the knockouts.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "psychological_momentum": [
+        {
+          "claim": "Joao Felix urged Portugal fans to stay calm and said the squad remains 'very confident' of beating Croatia despite two group-stage draws.",
+          "source": "https://www.espn.com/soccer/story/_/id/49216792/portugal-croatia-joao-felix-world-cup-2026",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Bernardo Silva accepted that criticism 'is part of the process' but insisted Portugal can still lift the trophy despite failing to top their group.",
+          "source": "https://www.espn.com/soccer/story/_/id/49227650/silva-portugal-criticism-ahead-croatia-world-cup-match-part-process",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Portugal are wary of becoming the latest heavyweight to exit the tournament in the knockout round.",
+          "source": "https://www.espn.com/soccer/story/_/id/49227650/silva-portugal-criticism-ahead-croatia-world-cup-match-part-process",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia coach Dalic projected calm, saying 'the guys here are calm' and prepared for the match.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia goalkeeper Dominik Livakovic said the team will do everything possible to help Modric continue his journey, reflecting a unified squad mood.",
+          "source": "https://www.espn.com/soccer/story/_/id/49241567/croatia-portugal-luka-modric-cristiano-ronaldo-2026-world-cup",
+          "source_tier": 2,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Ronaldo declared 'I'm back' after his brace against Uzbekistan, but scrutiny on him rose again after goalless displays versus Congo DR and Colombia.",
+          "source": "https://www.espn.com/soccer/story/_/id/49221788/portugal-vs-croatia-fifa-world-cup-2026-tv-channel-how-watch-kick-live-stream-injury-predicted-line-ups",
+          "source_tier": 2,
+          "team": "Portugal",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Croatia carry momentum from a battling comeback win over Ghana that lifted them above the Black Stars into second place.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/croatia-ghana-match-report-highlights",
+          "source_tier": 1,
+          "team": "Croatia",
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        }
+      ],
+      "historical_head_to_head": [
+        {
+          "claim": "Portugal and Croatia will meet for the first time ever at a FIFA World Cup in this Round of 32 tie in Toronto.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": null,
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "At UEFA EURO 1996, Portugal beat Croatia 3-0 in the group stage, with Luis Figo among the scorers.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": "1996-06-19",
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "At UEFA EURO 2016, Portugal edged Croatia in the Round of 16 via Ricardo Quaresma's extra-time winner, with both Ronaldo and Modric featuring.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": "2016-06-25",
+          "retrieved_at": "2026-07-02"
+        },
+        {
+          "claim": "Their most recent meeting came in the UEFA Nations League in November 2024, when Josko Gvardiol cancelled out Joao Felix's opener in a 1-1 draw.",
+          "source": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-croatia-live-stream-team-news-tickets-and-more",
+          "source_tier": 1,
+          "team": null,
+          "meeting_date": "2024-11-18",
+          "retrieved_at": "2026-07-02"
+        }
+      ]
+    },
+    "coverage": [
+      {
+        "factor": "squad_availability",
+        "n_raw_hits": 8,
+        "n_admissible_findings": 6,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "No explicit confirmed injury or suspension was found on allow-listed sources; findings cover fitness, workload and expected availability via predicted line-ups."
+      },
+      {
+        "factor": "recent_form",
+        "n_raw_hits": 10,
+        "n_admissible_findings": 8,
+        "researchable": true,
+        "status": "has_findings",
+        "note": null
+      },
+      {
+        "factor": "tactical_matchup",
+        "n_raw_hits": 6,
+        "n_admissible_findings": 4,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "quarantine dropped 1 leakage-flagged finding(s), recorded as raw hits not admissible"
+      },
+      {
+        "factor": "coaching_staff",
+        "n_raw_hits": 6,
+        "n_admissible_findings": 5,
+        "researchable": true,
+        "status": "has_findings",
+        "note": null
+      },
+      {
+        "factor": "strategic_incentives",
+        "n_raw_hits": 7,
+        "n_admissible_findings": 5,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "quarantine dropped 1 leakage-flagged finding(s), recorded as raw hits not admissible. Round of 16 opponent framed only as an upcoming fixture (Spain or Austria); no later-round result stated."
+      },
+      {
+        "factor": "psychological_momentum",
+        "n_raw_hits": 8,
+        "n_admissible_findings": 7,
+        "researchable": true,
+        "status": "has_findings",
+        "note": null
+      },
+      {
+        "factor": "historical_head_to_head",
+        "n_raw_hits": 4,
+        "n_admissible_findings": 4,
+        "researchable": true,
+        "status": "has_findings",
+        "note": "All meetings dated strictly before 2026-07-02 (EURO 1996, EURO 2016, Nations League Nov 2024)."
+      }
+    ],
+    "round": "R32",
+    "match": 83,
+    "home_team": "Portugal",
+    "away_team": "Croatia",
+    "as_of_date": "2026-07-02",
+    "committed_at": null,
+    "git_sha": "bd6206568eb939bdefdf011fd8bff48ddc87fc35",
+    "model_version": "0.0.0",
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "high",
+      "web_search_tool": "web_search_20260209",
+      "max_search_uses": 14,
+      "prompt_cache": true,
+      "allowed_domains": [
+        "abola.pt",
+        "cafonline.com",
+        "concacaf.com",
+        "conmebol.com",
+        "espn.com",
+        "fifa.com",
+        "fpf.pt",
+        "hns.family",
+        "oceaniafootball.com",
+        "record.pt",
+        "sportske.hr",
+        "the-afc.com",
+        "uefa.com"
+      ],
+      "retrieved_at": "2026-07-02T06:29:10.904992+00:00",
+      "usage": {
+        "input_tokens": 15,
+        "output_tokens": 24068,
+        "cache_creation_input_tokens": 57860,
+        "cache_read_input_tokens": 273254,
+        "web_search_requests": 14
+      },
+      "cost_usd_estimate": {
+        "input_usd": 7.5e-05,
+        "output_usd": 0.6017,
+        "cache_write_usd": 0.361625,
+        "cache_read_usd": 0.136627,
+        "web_search_usd": 0.14,
+        "total_usd": 1.240027
+      },
+      "stop_reason": "end_turn",
+      "request_id": "req_011CcckXnbbArkozefikgmQD"
+    }
+  },
+  "meta": {
+    "usage": {
+      "input_tokens": 15,
+      "output_tokens": 24068,
+      "cache_creation_input_tokens": 57860,
+      "cache_read_input_tokens": 273254,
+      "web_search_requests": 14
+    },
+    "cost": {
+      "input_usd": 7.5e-05,
+      "output_usd": 0.6017,
+      "cache_write_usd": 0.361625,
+      "cache_read_usd": 0.136627,
+      "web_search_usd": 0.14,
+      "total_usd": 1.240027
+    },
+    "n_web_searches": 14,
+    "allowed_domains": [
+      "abola.pt",
+      "cafonline.com",
+      "concacaf.com",
+      "conmebol.com",
+      "espn.com",
+      "fifa.com",
+      "fpf.pt",
+      "hns.family",
+      "oceaniafootball.com",
+      "record.pt",
+      "sportske.hr",
+      "the-afc.com",
+      "uefa.com"
+    ],
+    "quarantine_dropped": {
+      "tactical_matchup": 1,
+      "strategic_incentives": 1
+    },
+    "rehearsal": false
+  }
+}
