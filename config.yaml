@@ -192,6 +192,7 @@ llm:
       - marca.com
       - as.com
       - elpais.com.uy
+      - vecernji.hr  # verified uncrawlable by Anthropic web-search user agent on 2026-07-02, rejected the match 83 research call
   # Frozen anchor-to-probability mapping (Phase 2, the prediction machine). These
   # are pre-registered priors from general football knowledge, set before the
   # tournament. They are never fitted on 2026 outcomes and never derived from
