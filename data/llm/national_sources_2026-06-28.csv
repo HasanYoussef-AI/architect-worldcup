@@ -11,7 +11,7 @@
 #
 # Extended per round as later fixtures are researched. This snapshot covers the
 # first researched fixture, Uruguay vs Spain (Group H), and the Round of 32 teams
-# Germany, Paraguay, Portugal, and Croatia.
+# Germany, Paraguay, Portugal, Croatia, and Austria.
 team,kind,domain,tier
 Spain,federation,rfef.es,1
 Spain,outlet,marca.com,2
@@ -31,3 +31,6 @@ Portugal,outlet,record.pt,2
 Croatia,federation,hns.family,1
 Croatia,outlet,vecernji.hr,2
 Croatia,outlet,sportske.hr,2
+Austria,federation,oefb.at,1
+Austria,outlet,laola1.at,2
+Austria,outlet,derstandard.at,2
