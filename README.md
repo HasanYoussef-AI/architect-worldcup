@@ -324,20 +324,17 @@ experiment.
 
 ## 7. Live forecast
 
-> **Status: pending.** The definitive live forecast will be the post-group-stage
-> run, once all 72 group matches are complete. The mid-tournament numbers below
-> exist and are reproducible, but they are not the final word and are not presented
-> as such. This section is structured to receive the definitive run.
-
-The live pipeline is built and works. It takes a clean cutoff, anchors on the real
-results played so far by fixing those group fixtures and simulating only the
-remainder, and writes a separate dated artifact so each forecast is a frozen
-record. A leakage proof is enforced at the live cutoff exactly as in the backtest:
-the latest training match must fall strictly before the cutoff boundary.
-
-A mid-group-stage run at a cutoff of 2026-06-22, with 44 real group results
-anchored, is on disk and can be referenced. It is provisional. The post-group-stage
-forecast will replace this paragraph with the definitive numbers.
+> **Status: group stage complete, knockouts underway.** The live pipeline is built
+> and works. It takes a clean cutoff, anchors on the real results played so far by
+> fixing those fixtures and simulating only the remainder, and writes a separate
+> dated artifact so each forecast is a frozen record. A leakage proof is enforced at
+> the live cutoff exactly as in the backtest: the latest training match must fall
+> strictly before the cutoff boundary.
+>
+> The group stage is now complete and the tournament has advanced to the knockout
+> rounds. The mid-group-stage run at a cutoff of 2026-06-22, anchored on 44 real
+> group results, remains on disk as a superseded provisional snapshot. The
+> forward-only knockout predictions in section 9 are the live record from here.
 
 There are three frozen forecast artifacts worth distinguishing precisely, since the
 structure of the simulator changed during development:
@@ -360,11 +357,12 @@ change with the effect of real data and would be misleading.
 
 ## 8. Math versus LLM comparison
 
-> **Status: method built and committed, results forthcoming.** The full prediction
-> machine described here is implemented, tested, and committed. No tie has been
-> predicted yet. Predictions are committed before each knockout round is played and
-> scored after, round by round, so the results fill in over the tournament. The first
-> predictions, for the round of 32, are imminent.
+> **Status: live, predicting round by round.** The full prediction machine described
+> here is implemented, tested, and committed. The first round-of-32 tie is predicted
+> and committed forward-only: match 83, Portugal versus Croatia, with the frozen
+> dossier committed 16.5 hours before kickoff. Predictions are committed before each
+> tie is played and scored after, so the record fills in over the tournament. See
+> section 9 for the live card.
 
 The capstone of the project is a head-to-head between the mathematical model and a
 large language model, scored with the same Ranked Probability Score, forward-only,
@@ -438,7 +436,9 @@ shootout compression that pulls even the strongest favorite back toward an even 
 once a match is level. The model then emits its own three-way, and code measures how
 far that sits from the mapping's reference on two axes, direction and draw. Small
 departures are allowed and must be justified in writing; departures past a hard cap
-are rejected and regenerated. The mapping parameters are set from general football
+are rejected, and the run halts for human review rather than being
+auto-regenerated. Only a mechanically malformed or refused call gets a single
+re-roll. The mapping parameters are set from general football
 priors, never from Prediction A, so the two forecasts stay genuinely separate.
 
 ```mermaid
@@ -465,6 +465,21 @@ flowchart LR
     classDef accent fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
     classDef out fill:#0A1A1F,stroke:#00D4FF,stroke-width:2px,color:#E8EAEC
 ```
+
+The emitted three-way is bound to the factor scores, not free-chosen. The mapping's
+weighted sum of the seven factors sets the reference center, and the model must emit
+from that center, departing only within the tolerance box and only for an intangible
+its own factors express. This binding is what keeps Prediction B coherent: it cannot
+post a scoreline its stated reasoning does not support, and a regression test pins
+the binding clauses in the prompt.
+
+Results-quality is deliberately kept out of Prediction B. Group finish, points, goal
+difference, and standings are Prediction A's domain, already counted in the goal
+model, so Prediction B is instructed to exclude them and the recent-form factor is
+scoped to underlying-performance signals only: chance quality created and conceded,
+finishing and shot-quality trend, set-piece threat, and form trend independent of
+scorelines. This prevents the same results signal from being counted twice across
+the two layers.
 
 **Independence, and what each layer sees.** The comparison is only meaningful if B
 cannot see A, so B has no read path and no import path to A, enforced by a test. C is
@@ -512,6 +527,13 @@ market exactly as the math model does. The gate prefers false positives, so it w
 occasionally drop a legitimate forward-stakes fact rather than risk leaking one, and
 when it does, the coverage manifest records it rather than hiding it.
 
+Research is confined to a built allow-list: a static core of governing bodies,
+confederations, and wire services, plus per-team national federations and outlets
+drawn from a committed dated snapshot. Only listed domains are ever searched, which
+makes the allow-list both a sourcing control and an independence control. Domains
+verified uncrawlable by the search user agent are held in a blocklist and dropped
+before the call, so one unreachable outlet cannot fail an entire research pass.
+
 **Nothing is asserted without a citation.** Every nonzero factor score must cite a
 specific dossier finding, and a factor with no admissible evidence is scored zero and
 flagged rather than guessed. Every material move C makes off the pool must cite one of
@@ -537,6 +559,12 @@ commit-before-kickoff comparison of three honest forecasts, scored with the same
 as everything else, with calibration and leakage discipline treated as the result
 rather than the win-loss record.
 
+**Cost is governed, not assumed.** The live path is paid, so it runs under hard
+limits: a per-run dollar ceiling, a per-tie cap on billed calls, and a per-call
+maximum-cost pre-check, any of which halts the run rather than overspending. Real
+spend is recorded against balance after every run. The API key is loaded only inside
+the run's subshell and never committed.
+
 > **Live results, committed round by round.** As each knockout round's field is fixed,
 > its ties are predicted and committed before the round is played, and scored after the
 > matches happen. The commit history is the proof of timing: the dossier for each tie
@@ -546,7 +574,28 @@ rather than the win-loss record.
 
 ---
 
-## 9. Limitations
+## 9. Live predictions
+
+Forward-only knockout predictions, each committed before its tie kicks off. The dossier commit timestamp is the leakage proof: it precedes kickoff, and the prediction cannot be revised after. Each card is generated from the committed prediction artifacts, not written by hand. Results are scored after each match is played.
+
+### R32, Portugal vs Croatia
+
+Dossier committed 2026-07-02T06:29:10Z, 16.5 hours before the 2026-07-02T23:00:00Z kickoff.
+
+| Layer | Portugal | Draw | Croatia |
+| --- | --- | --- | --- |
+| A (math model) | 55.6% | 25.3% | 19.1% |
+| B (intangibles) | 33.0% | 31.0% | 36.0% |
+| C (reconciler) | 48.0% | 28.0% | 24.0% |
+| pool (A+B average) | 44.3% | 28.1% | 27.5% |
+
+Advance to round of 16: A 72.4%, B 46.0%, C 62.0%, pool 59.6%. Shootout lean toward Portugal: A 66.3%, B 42.0%, C 50.0%, pool 54.2%.
+
+The three layers agree Portugal is favored to advance but disagree on the margin. The math model sees a clear structural gap. The intangibles panel sees a tight, low-scoring tie that Croatia's knockout game-management can drag toward penalties, tilting its own read marginally to Croatia and lifting the draw. The reconciler moves the win axis toward the math model's structural evidence while holding the shootout near even. Result: pending, to be scored after the match.
+
+---
+
+## 10. Limitations
 
 Stated plainly, because a verification-first project should be the first to name its
 own weaknesses.
@@ -577,7 +626,7 @@ own weaknesses.
 
 ---
 
-## 10. Reproducibility
+## 11. Reproducibility
 
 The system is reproducible to the digit. The same seed and the same immutable data
 snapshot produce the same output, and every run writes a provenance log recording
@@ -594,6 +643,7 @@ uv run wc-ablate           # the with-and-without ablation harness
 uv run wc-ensemble         # the rejected gradient-boosting experiment
 uv run wc-audit            # data-integrity and overconfidence checks
 uv run wc-forecast-live    # the live dated forecast, anchored on real results
+uv run wc-llm-live         # forward-only A/B/C prediction for one knockout tie
 ```
 
 **The gates.** The verification claims are not prose, they are tests. The suite
