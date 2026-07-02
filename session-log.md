@@ -238,3 +238,9 @@ last "Next" line and resumes from there. See CLAUDE.md for the protocol.
 - Commit: e157fef0bce536e21aaee5182f6836e1b387a1a1 Add the real section 8, the math versus LLM comparison, to the README. This session-log entry is committed in the immediately following commit, which keeps the file tracked.
 - Verified: README only, sections 1 through 10 present with unchanged numbering, no em or en dashes, prose wrapped to about 80 columns matching the file, and the three new Mermaid blocks balanced with three flowchart directives and nine classDef lines in the existing colors, every edge endpoint defined. No code or tests touched, so the suite is unaffected.
 - Next: still no real API call made. I run the rehearsal dry run myself in a subshell that sources the key for the one command, after committing a dated knockout fixtures CSV with kickoff times at config.llm.fixtures; then the first forward-only live tie, the round of 32.
+
+## 2026-07-02  Live run  R32 match 83 Portugal vs Croatia
+- Did: research, dossier committed, then B, A, C built and committed; three runtime commits before kickoff.
+- Cost: spent 1.7062 of ceiling 6.00 over 3 billed calls.
+- Verdict: B accepted=True, C accepted=True.
+- Commits: dossier, predictions, this entry.
