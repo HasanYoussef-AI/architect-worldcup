@@ -593,6 +593,21 @@ Advance to round of 16: A 72.4%, B 46.0%, C 62.0%, pool 59.6%. Shootout lean tow
 
 The three layers agree Portugal is favored to advance but disagree on the margin. The math model sees a clear structural gap. The intangibles panel sees a tight, low-scoring tie that Croatia's knockout game-management can drag toward penalties, tilting its own read marginally to Croatia and lifting the draw. The reconciler moves the win axis toward the math model's structural evidence while holding the shootout near even. Result: pending, to be scored after the match.
 
+### R32, Spain vs Austria
+
+Dossier committed 2026-07-02T13:07:40Z, 5.9 hours before the 2026-07-02T19:00:00Z kickoff.
+
+| Layer | Spain | Draw | Austria |
+| --- | --- | --- | --- |
+| A (math model) | 59.8% | 24.8% | 15.4% |
+| B (intangibles) | 53.0% | 25.0% | 22.0% |
+| C (reconciler) | 58.0% | 24.5% | 17.5% |
+| pool (A+B average) | 56.4% | 24.9% | 18.7% |
+
+Advance to round of 16: A 80.3%, B 65.3%, C 72.7%, pool 72.8%. Shootout lean toward Spain: A 82.6%, B 49.0%, C 60.0%, pool 65.8%.
+
+Spain is a heavy structural favorite (Elo gap more than double the Portugal tie), and all three layers agree, unlike the divided Portugal vs Croatia read. Prediction B leaned Spain on favorite factor scores and stayed within the coherence box, the decisive stress test of the emission binding under a strong favorite: the failure mode from the earlier German tie did not recur. Result: pending, to be scored after the match.
+
 ---
 
 ## 10. Limitations
