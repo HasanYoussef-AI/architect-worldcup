@@ -1,0 +1,93 @@
+{
+  "document": {
+    "schema_version": "1.0.0",
+    "prediction": "C",
+    "round": "R32",
+    "match": 83,
+    "home_team": "Portugal",
+    "away_team": "Croatia",
+    "nominal_home": "Portugal",
+    "cutoff": "2026-07-02",
+    "dossier_ref": {
+      "path": "outputs/llm/dossier_R32_match83_asof2026-07-02.json",
+      "content_sha256": "429b1ea05f30c51ed9de5f8b4efb1e1b8edaad3817bd4f8c24711f5cce2c0d91"
+    },
+    "a_ref": {
+      "path": "outputs/llm/prediction_a_R32_match83_asof2026-07-02.json",
+      "content_sha256": "c301091c2b3e94ecb74c2f3aea828205dba7a50d882d4edeb9aede3d5543bb99"
+    },
+    "b_ref": {
+      "path": "outputs/llm/prediction_b_R32_match83_asof2026-07-02.json",
+      "content_sha256": "6a05b97fea3ac80a8d9f58fd494d9865534b65217ba961746ab4bd8cb686e53b"
+    },
+    "pool": {
+      "three_way": {
+        "p_home": 0.443218686387131,
+        "p_draw": 0.28145054662658586,
+        "p_away": 0.27533076698628317
+      },
+      "lean": 0.5415759719088763,
+      "advance_probability": 0.5956455397207088
+    },
+    "emitted_three_way": {
+      "p_home": 0.48,
+      "p_draw": 0.28,
+      "p_away": 0.24
+    },
+    "departure": {
+      "dir": 0.07211208059915214,
+      "draw": -0.0014505466265858358
+    },
+    "tolerance": {
+      "status": "within_box",
+      "justification": "A and B agree that this is a close tie but diverge sharply on the win/loss axis: A puts p_home at 0.556 on large, objective structural differentials (elo_diff 117.67, squad_value_adjustment 52.68, ability_diff 0.81, all from Portugal's perspective), whereas B tilts marginally to Croatia purely on soft, short-term factors (availability, momentum, form). On the point where they diverge, the evidence supports A: the structural gap is substantial and durable, and B itself concedes Portugal the tactical (+1) and historical (+1) edges while its Croatia tilt rests on intangibles. So I move p_home above the pool's near-even 0.443 toward A, and pull p_away down accordingly. I do not go all the way to A because B's documented concern about Portugal's inconsistent chance-creation is real, so p_draw stays near the pool. On the shootout lean, however, I move the opposite direction, toward B: the dossier documents Croatia's low-risk knockout game-management style of controlling ties and deliberately dragging them to penalties (tactical_matchup#1), with no offsetting Portugal penalty evidence, so I pull the lean below the pool's 0.542 to a near coin-flip 0.50, reflecting that Croatia's structural strength deficit matters far less in a shootout than their proven penalty-stage pedigree."
+    },
+    "shootout": {
+      "pool_lean": 0.5415759719088763,
+      "emitted_lean": 0.5,
+      "lean_departure": -0.0415759719088763,
+      "advance_probability": 0.62
+    },
+    "citations": [
+      {
+        "source": "a_reasoning",
+        "ref": "drivers.elo_diff=117.67 and drivers.squad_value_adjustment=52.68 (ability_diff 0.81)"
+      },
+      {
+        "source": "dossier_finding_id",
+        "ref": "tactical_matchup#1"
+      },
+      {
+        "source": "b_reasoning",
+        "ref": "emitted_lean 0.42 justified by Croatia's shootout-dragging reputation with no offsetting Portugal penalty evidence"
+      }
+    ],
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "xhigh",
+      "thinking": "adaptive",
+      "code_commit": "bd6206568eb939bdefdf011fd8bff48ddc87fc35",
+      "timestamp": "2026-07-02T06:03:35.765751+00:00"
+    },
+    "validation": {
+      "simplex_ok": true,
+      "citations_ok": true,
+      "tolerance_ok": true,
+      "accepted": true,
+      "rejection_reason": null
+    }
+  },
+  "meta": {
+    "raw_log": "outputs/logs/llm_call_c_R32_match83_20260702T063203064115Z.json",
+    "message_id": "msg_01NkTTwZsA35depkG6287N21",
+    "request_id": "req_011Cccm6XmnEuYCAnLjCpLvQ",
+    "usage": {
+      "input_tokens": 2,
+      "output_tokens": 4402,
+      "cache_creation_input_tokens": 13064,
+      "cache_read_input_tokens": 0
+    },
+    "n_billed_calls": 1,
+    "rehearsal": false
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "document": {
+    "schema_version": "1.0.0",
+    "prediction": "A",
+    "round": "R32",
+    "match": 83,
+    "home_team": "Portugal",
+    "away_team": "Croatia",
+    "nominal_home": "Portugal",
+    "cutoff": "2026-07-02",
+    "committed_at": null,
+    "seed": 42,
+    "provenance": {
+      "source": "dixon_coles_three_way+elo_shootout",
+      "model_version": "0.0.0",
+      "code_commit": "f82d9a1778c31a72b64509e5eff2831668eaeac5",
+      "timestamp": null
+    },
+    "three_way": {
+      "p_home": 0.556437372774262,
+      "p_draw": 0.2529010932531718,
+      "p_away": 0.19066153397256635
+    },
+    "shootout_lean": 0.6631519438177526,
+    "advance_probability": 0.7241492243587375,
+    "drivers": {
+      "elo_diff": 117.67160056223861,
+      "ability_diff": 0.8136379236558355,
+      "squad_value_adjustment": 52.67573147513235
+    }
+  },
+  "meta": {
+    "source": "analytic, no model call",
+    "rehearsal": false
+  }
+}

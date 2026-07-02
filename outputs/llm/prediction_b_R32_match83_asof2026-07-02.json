@@ -1,0 +1,169 @@
+{
+  "document": {
+    "schema_version": "1.0.0",
+    "round": "R32",
+    "match": 83,
+    "home_team": "Portugal",
+    "away_team": "Croatia",
+    "nominal_home": "Portugal",
+    "cutoff": "2026-07-02",
+    "dossier_ref": {
+      "path": "outputs/llm/dossier_R32_match83_asof2026-07-02.json",
+      "content_sha256": "429b1ea05f30c51ed9de5f8b4efb1e1b8edaad3817bd4f8c24711f5cce2c0d91"
+    },
+    "factors": [
+      {
+        "name": "squad_availability",
+        "expert_lens": "club scout",
+        "score": -1,
+        "reasoning": "Both sides field their expected first-choice XIs with no injuries flagged: Portugal's Diogo Costa, Cancelo, Dias, Veiga, Mendes, Neves, Vitinha, Neto, Fernandes, Felix and Ronaldo are all available (squad_availability#2), as are Croatia's Livakovic, Stanisic, Sutalo, Pongracic, Perisic, Kovacic, Modric, Sucic, Vlasic, Baturina and Budimir (squad_availability#3), with Modric fully involved (squad_availability#4). The asymmetry is workload: Ronaldo has played every minute of all three group games (squad_availability#0) with ESPN explicitly flagging an 'overworked' Ronaldo (squad_availability#1), and Nuno Mendes, Joao Neves and Vitinha arrived straight from a Champions League win with PSG carrying heavy pre-tournament minutes (squad_availability#5). Croatia has no comparable flagged fatigue concern in the dossier, giving a slight availability/freshness edge to Croatia.",
+        "citations": [
+          "squad_availability#0",
+          "squad_availability#1",
+          "squad_availability#2",
+          "squad_availability#3",
+          "squad_availability#4",
+          "squad_availability#5"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "recent_form",
+        "expert_lens": "match analyst",
+        "score": -1,
+        "reasoning": "On underlying quality rather than results, Portugal's attacking output is inconsistent: against Colombia they were out-created 24 shots to 13 with xG 1.63 to 0.69 (recent_form#0), and they produced two goalless attacking displays versus Congo DR and Colombia sandwiching a strong 17-attempt, 9-on-target creation game against Uzbekistan (recent_form#1, recent_form#2), while Ronaldo's finishing is streaky and he remains without a goal or assist in World Cup knockout football (recent_form#6). Croatia are trending upward through the group (recent_form#3), pushed proactively for the win against Ghana scoring through Sucic and Vlasic (recent_form#4), retain Modric's creative influence (recent_form#7), and are characterised as mastering the snuffing out of opponents' creativity and controlling knockout games (recent_form#5). The chance-quality and trend picture favours Croatia slightly.",
+        "citations": [
+          "recent_form#0",
+          "recent_form#1",
+          "recent_form#2",
+          "recent_form#3",
+          "recent_form#4",
+          "recent_form#5",
+          "recent_form#6",
+          "recent_form#7"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "tactical_matchup",
+        "expert_lens": "match analyst",
+        "score": 1,
+        "reasoning": "Portugal carry a numerical and technical midfield edge, with depth across Vitinha, Bruno Fernandes, Joao Neves, Bernardo Silva and Ruben Neves set against Croatia's veteran core of Modric and Kovacic plus the rising Sucic (tactical_matchup#2), and their Martinez positional-play identity marrying ball retention with quick transitions (tactical_matchup#3) is respected enough that Dalic named the midfield as the area where the match will likely be decided and warned against possession mistakes versus Portugal's technical football (tactical_matchup#0). That is partly offset by Croatia's proven low-risk game-management style that controls outcomes and drags opponents toward penalties (tactical_matchup#1), but on balance Portugal's midfield depth and control gives a modest stylistic edge.",
+        "citations": [
+          "tactical_matchup#0",
+          "tactical_matchup#1",
+          "tactical_matchup#2",
+          "tactical_matchup#3"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "coaching_staff",
+        "expert_lens": "tournament strategist",
+        "score": 0,
+        "reasoning": "Martinez brings decorated credentials, having led Belgium to 2018 World Cup bronze (coaching_staff#0) and won the 2024/25 UEFA Nations League after his 2023 appointment (coaching_staff#1), but he is under considerable pressure over his reliance on an ageing Ronaldo and his midfield management (coaching_staff#2). Dalic guided Croatia to a Group L runners-up finish (coaching_staff#4) and, per adjacent findings, oversees a side adept at controlling knockout ties. The dossier gives Martinez the stronger silverware record but pairs it with live criticism, while Dalic's knockout pedigree offsets, leaving no clear edge either way.",
+        "citations": [
+          "coaching_staff#0",
+          "coaching_staff#1",
+          "coaching_staff#2",
+          "coaching_staff#4"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "strategic_incentives",
+        "expert_lens": "tournament strategist",
+        "score": 0,
+        "reasoning": "Incentives are strong on both sides and roughly symmetric. Croatia signalled ambition by chasing a win over Ghana to secure second rather than settling for a qualifying draw (strategic_incentives#0), while Portugal, pre-tournament favourites for Group K who finished second, are motivated to respond in the knockouts (strategic_incentives#1). Both captains, Ronaldo and Modric, are very likely in their final World Cups so one journey ends here (strategic_incentives#2), and Ronaldo is chasing the missing major trophy and his first knockout goal (strategic_incentives#3). With comparable high stakes for each team, no side gains a net motivational edge.",
+        "citations": [
+          "strategic_incentives#0",
+          "strategic_incentives#1",
+          "strategic_incentives#2",
+          "strategic_incentives#3"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "psychological_momentum",
+        "expert_lens": "sports psychologist",
+        "score": -1,
+        "reasoning": "Portugal's messaging is defensive and pressure-laden: Joao Felix urged fans to stay calm and insisted the squad is still confident despite two group-stage draws (psychological_momentum#0), Bernardo Silva framed criticism as 'part of the process' (psychological_momentum#1), the camp is wary of becoming the next heavyweight to fall in the knockouts (psychological_momentum#2), and scrutiny on Ronaldo rose again after goalless displays (psychological_momentum#5). Croatia by contrast project calm from Dalic (psychological_momentum#3), a unified mood rallying behind Modric's journey (psychological_momentum#4), and momentum from a battling comeback win over Ghana that lifted them to second (psychological_momentum#6). The momentum and mood edge sits with Croatia.",
+        "citations": [
+          "psychological_momentum#0",
+          "psychological_momentum#1",
+          "psychological_momentum#2",
+          "psychological_momentum#3",
+          "psychological_momentum#4",
+          "psychological_momentum#5",
+          "psychological_momentum#6"
+        ],
+        "insufficient_evidence": false
+      },
+      {
+        "name": "historical_head_to_head",
+        "expert_lens": "football historian",
+        "score": 1,
+        "reasoning": "Though this is their first ever World Cup meeting (historical_head_to_head#0), the prior tournament record favours Portugal: they beat Croatia 3-0 at EURO 1996 with Figo scoring (historical_head_to_head#1) and edged them in the EURO 2016 Round of 16 through Quaresma's extra-time winner (historical_head_to_head#2), a knockout precedent. Their most recent meeting was a 1-1 Nations League draw in November 2024 (historical_head_to_head#3). No dossier meeting shows a Croatia win, giving Portugal a modest historical edge.",
+        "citations": [
+          "historical_head_to_head#0",
+          "historical_head_to_head#1",
+          "historical_head_to_head#2",
+          "historical_head_to_head#3"
+        ],
+        "insufficient_evidence": false
+      }
+    ],
+    "anchor_signal": -0.25,
+    "reference_three_way": {
+      "p_home": 0.31270571980279593,
+      "p_draw": 0.29852774687307354,
+      "p_away": 0.3887665333241305
+    },
+    "emitted_three_way": {
+      "p_home": 0.33,
+      "p_draw": 0.31,
+      "p_away": 0.36
+    },
+    "departure": {
+      "dir": 0.04606081352133462,
+      "draw": 0.011472253126926457
+    },
+    "tolerance": {
+      "status": "within_box",
+      "justification": "The seven scores net marginally to Croatia (squad availability -1, recent form -1, psychology -1, versus tactical +1 and history +1, coaching and incentives even), so the center is near-even with a slight Croatia tilt, reflected in p_away just above p_home. The one modest intangible I lift beyond a flat read is the draw share: Croatia's documented low-risk game-management identity that controls knockout ties and deliberately drags them toward penalties (tactical_matchup#1, recent_form#5) raises the probability of a level 90 minutes, so p_draw is elevated. The same shootout-dragging reputation, with no offsetting Portugal penalty evidence in the dossier, sets the lean below 0.5 at 0.42."
+    },
+    "shootout": {
+      "reference_lean": 0.4868780138177567,
+      "emitted_lean": 0.42,
+      "lean_departure": -0.06687801381775671,
+      "advance_probability": 0.4602
+    },
+    "provenance": {
+      "model": "claude-opus-4-8",
+      "effort": "xhigh",
+      "thinking": "adaptive",
+      "code_commit": "bd6206568eb939bdefdf011fd8bff48ddc87fc35",
+      "timestamp": "2026-07-02T06:03:35.765751+00:00"
+    },
+    "validation": {
+      "simplex_ok": true,
+      "citations_ok": true,
+      "tolerance_ok": true,
+      "accepted": true,
+      "rejection_reason": null
+    }
+  },
+  "meta": {
+    "raw_log": "outputs/logs/llm_call_b_R32_match83_20260702T063053874162Z.json",
+    "message_id": "msg_01EV2sju3EpnpkKGQpKrNDNB",
+    "request_id": "req_011CcckxAFFpJ1WgdTSYNxq9",
+    "usage": {
+      "input_tokens": 2,
+      "output_tokens": 8377,
+      "cache_creation_input_tokens": 10399,
+      "cache_read_input_tokens": 0
+    },
+    "n_billed_calls": 1,
+    "rehearsal": false
+  }
+}
