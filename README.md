@@ -591,7 +591,7 @@ Dossier committed 2026-07-02T06:29:10Z, 16.5 hours before the 2026-07-02T23:00:0
 
 Advance to round of 16: A 72.4%, B 46.0%, C 62.0%, pool 59.6%. Shootout lean toward Portugal: A 66.3%, B 42.0%, C 50.0%, pool 54.2%.
 
-The three layers agree Portugal is favored to advance but disagree on the margin. The math model sees a clear structural gap. The intangibles panel sees a tight, low-scoring tie that Croatia's knockout game-management can drag toward penalties, tilting its own read marginally to Croatia and lifting the draw. The reconciler moves the win axis toward the math model's structural evidence while holding the shootout near even. Result: pending, to be scored after the match.
+The three layers agree Portugal is favored to advance but disagree on the margin. The math model sees a clear structural gap. The intangibles panel sees a tight, low-scoring tie that Croatia's knockout game-management can drag toward penalties, tilting its own read marginally to Croatia and lifting the draw. The reconciler moves the win axis toward the math model's structural evidence while holding the shootout near even. Result: Portugal won 2-1 in regulation and advanced. Ranked Probability Score, lower is better, three-way / advance: A 0.1165 / 0.0761, B 0.2892 / 0.2914, C 0.1640 / 0.1444, pool 0.1929 / 0.1635.
 
 ### R32, Spain vs Austria
 
@@ -606,7 +606,7 @@ Dossier committed 2026-07-02T13:07:40Z, 5.9 hours before the 2026-07-02T19:00:00
 
 Advance to round of 16: A 80.3%, B 65.3%, C 72.7%, pool 72.8%. Shootout lean toward Spain: A 82.6%, B 49.0%, C 60.0%, pool 65.8%.
 
-Spain is a heavy structural favorite (Elo gap more than double the Portugal tie), and all three layers agree, unlike the divided Portugal vs Croatia read. Prediction B leaned Spain on favorite factor scores and stayed within the coherence box, the decisive stress test of the emission binding under a strong favorite: the failure mode from the earlier German tie did not recur. Result: pending, to be scored after the match.
+Spain is a heavy structural favorite (Elo gap more than double the Portugal tie), and all three layers agree, unlike the divided Portugal vs Croatia read. Prediction B leaned Spain on favorite factor scores and stayed within the coherence box, the decisive stress test of the emission binding under a strong favorite: the failure mode from the earlier German tie did not recur. Result: Spain won 3-0 in regulation and advanced. Ranked Probability Score, lower is better, three-way / advance: A 0.0929 / 0.0390, B 0.1346 / 0.1208, C 0.1035 / 0.0745, pool 0.1127 / 0.0741.
 
 ---
 
