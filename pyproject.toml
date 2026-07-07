@@ -1,6 +1,6 @@
 [project]
 name = "architect-worldcup"
-version = "0.0.0"
+version = "0.1.0"
 description = "Live World Cup 2026 bracket re-simulator with a verification-first architecture."
 readme = "README.md"
 requires-python = ">=3.12"
