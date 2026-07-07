@@ -34,7 +34,7 @@ STATUS_QUARANTINED_OR_FILTERED = "quarantined_or_filtered"
 STATUS_UNRESEARCHABLE = "unresearchable"
 
 # The only two cell statuses under which a prediction may mark insufficient
-# evidence. The link the strategy chat asked to keep.
+# evidence. This link is intentional and load-bearing.
 INSUFFICIENT_EVIDENCE_STATUSES = frozenset(
     {STATUS_QUERIED_NO_FINDINGS, STATUS_UNRESEARCHABLE}
 )
