@@ -647,25 +647,61 @@ The system is reproducible to the digit. The same seed and the same immutable da
 snapshot produce the same output, and every run writes a provenance log recording
 the configuration, the cutoff date, the seed, the git commit, and the UTC time.
 
-**Run it.**
+**The data.** The first run fetches the public martj42 international results dataset
+once over HTTPS into a dated, immutable snapshot under `data/raw/`, then never
+re-downloads or overwrites it. Every later run reads that local snapshot, so after
+the first run the pipeline is fully offline and deterministic.
+
+**Reproduce offline. No API key, no cost.** Everything below runs from the public
+data alone, and it is the entire model of record and every verification claim in
+this document.
 
 ```
 uv sync
 uv run wc-predict          # pre-tournament forecast at the config cutoff
+uv run wc-forecast-live    # the live dated forecast, anchored on real results
 uv run wc-calibrate        # single-window RPS backtest, the 0.1611 anchor
 uv run wc-walk-backtest    # the 8-window walk-forward, the headline 0.1575
 uv run wc-ablate           # the with-and-without ablation harness
 uv run wc-ensemble         # the rejected gradient-boosting experiment
 uv run wc-audit            # data-integrity and overconfidence checks
-uv run wc-forecast-live    # the live dated forecast, anchored on real results
-uv run wc-llm-live         # forward-only A/B/C prediction for one knockout tie
+uv run wc-llm-smoke        # offline LLM plumbing and RPS scorer, no key, no cost
 ```
+
+`wc-llm-smoke` exercises the LLM layer with no network. It proves the quarantine
+gate catches a planted result, that Predictions A, B, and C validate against their
+schemas, and that the RPS scorer reproduces a hand-checked value. It is how the
+scoring and leakage machinery is verified without an API key.
+
+**The forward-only LLM path. Needs an API key, and cannot reproduce the past.** The
+live analyst predictions, Predictions B and C in section 8, call a model over the
+network and cost money, so they sit behind their own command. The path is
+forward-only by design: it refuses to run on a tie whose kickoff has already
+passed, and each committed prediction was produced exactly once, before its
+kickoff, with the research dossier frozen and timestamped first. That discipline is
+what makes the comparison honest, and it is also why the round-of-32 predictions in
+this repository cannot be re-run. Their results are already scored and recorded in
+section 9.
+
+To run the path forward on a future tie, place an Anthropic API key in a local
+`.env`, which is gitignored and never committed, and load it only for the single
+command:
+
+```
+( set -a; . ./.env; set +a; uv run wc-llm-live --round R32 --match <n> --as-of YYYY-MM-DD )
+```
+
+A `--rehearsal` flag runs the same path, writes its artifacts, and makes no commits,
+for a dry run before a real forward prediction. Prediction A carries no model call:
+it is the analytic Dixon-Coles and Elo pairing, bit-reproducible at a fixed as-of
+date like the rest of the math.
 
 **The gates.** The verification claims are not prose, they are tests. The suite
 spans schema validation, the no-leakage guard, ratings sanity, goal-model
 correctness, the squad adjustment, the simulator tiebreaker and bracket logic, the
 calibration scorer, the ablation reproduction, the walk-forward invariants, the
-data audit, and the ensemble leakage safety.
+data audit, the ensemble leakage safety, and the LLM quarantine, citation, and
+independence gates.
 
 ```
 uv run ruff check .
