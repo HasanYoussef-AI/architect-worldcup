@@ -16,7 +16,7 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Next: Layer 1 data integrity, as above.
 
 ## 2026-06-22  Switch to an evaluation-only license, begin tracking the session log
-- Did: replaced the permissive license with proprietary, all-rights-reserved, view-only terms, since the repository is public for evaluation only and must not be reusable. Pointed the pyproject license declaration at the LICENSE file with no OSI classifier, and added a license line to the README. Began tracking session-log.md so a fresh clone keeps the build history and session continuity; from here it is committed after each change.
+- Did: replaced the permissive license with proprietary, all-rights-reserved, view-only terms. The reasoning at the time was that the repository should be readable for evaluation and not reusable. (Superseded 2026-07-10: the repository is now licensed Apache 2.0.) Pointed the pyproject license declaration at the LICENSE file with no OSI classifier, and added a license line to the README. Began tracking session-log.md so a fresh clone keeps the build history and session continuity; from here it is committed after each change.
 - Commit: f3cce08 Replace the permissive license with evaluation-only terms.
 - Verified: ruff clean; pytest 1 of 1; the package still builds under the new license declaration.
 - Next: Layer 1 data integrity.
@@ -232,3 +232,10 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commits: 578baa3 clean a source comment; b331032 ignore rehearsal artifacts; 669c4ba remove superseded sources; a6891a0 version 0.1.0; 3bf2e59 professionalize the session-log; a74df3f amend CLAUDE.md; b6215bd reproduce section; d0040e4 Prediction A determinism gate.
 - Verified: ruff and format clean, the full suite passes locally, and a tracked-tree search confirms none of the internal working-notes phrasing remains.
 - Next: push the batch to the private origin, then decide on public release.
+
+## 2026-07-10  License and scope for the public release
+- Did: relicensed the repository from the prior evaluation-only license to the Apache License 2.0, so the code and the written record may be reused, modified, and redistributed with attribution and a statement of changes. This supersedes the 2026-06-22 license decision, which is left on the record with a superseded marker rather than rewritten. Added a NOTICE file, aligned the README license paragraph and the package metadata to an SPDX license expression with explicit license files, and stated the pipeline's scope in Limitations: it is fit to international football and the 2026 format, and retargeting it to a club competition is a sibling build, not a configuration change.
+- Deciding clauses: the trademark reservation and the change-notice requirement. The repository carries a brand name and the value of the work is an unmodified forward-only record, so a license that leaves the names reserved and requires downstream users to state their changes fits both concerns while still permitting reuse.
+- Commits: ecf1af3 adopt Apache 2.0 and align the README and package metadata; 0a20f1f state the pipeline scope in Limitations.
+- Verified: ruff and format clean, the full suite passes locally, the package builds under the new license declaration, and a tracked-tree search returns no standing all-rights-reserved or evaluation-only language, only the dated 2026-06-22 entry carrying its superseded marker.
+- Next: push the batch to the private origin, then make the visibility decision.
