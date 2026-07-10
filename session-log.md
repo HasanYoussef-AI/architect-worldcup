@@ -280,3 +280,9 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commit: 3c1b7e9 add national allow-list rows for the four quarter-final teams.
 - Verified: ruff and format clean, the full suite passes locally at 172, and the sources file parses with each new team returning exactly three rows, one federation and two outlets. No prediction was run and no key was used.
 - Next: run a chosen quarter-final forward-only before its kickoff.
+
+## 2026-07-11  Swap England's outlets past the crawler filter
+- Did: England's two national outlets, the BBC and the Guardian, are on the research crawler-blocked list and were dropped at research time, which had left England with only its federation as a source specific to the tie, against Norway's three. Replaced them with two verified-live, unblocked English sources so both sides of match 99 carry comparable live coverage, taking England from one live tie-specific source to three. The federation row was left unchanged and no other team's rows were touched. The swap was made before the match 99 run, so the England analysis will rest on a full source set rather than a thin one.
+- Commit: 076cdeb swap England outlets to two that survive the crawler filter.
+- Verified: ruff and format clean, the full suite passes locally at 172, the sources file parses with England returning three rows, one federation and two outlets, and build_allowed_domains for match 99 now includes all three England sources.
+- Next: run match 99 forward-only before its kickoff.
