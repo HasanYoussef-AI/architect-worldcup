@@ -49,8 +49,58 @@ The model layer produces structured JSON and nothing else. Every downstream cons
 - simulate.py  Layer 5  Monte Carlo bracket
 - calibrate.py Layer 6  RPS, backtest
 - ablation.py  Layer 7  with and without harness
+- ensemble.py  the hybrid gradient-boosting experiment, measured and rejected, kept as evidence
+- audit.py     data-integrity and overconfidence checks
 - artifact.py  versioned JSON plus run log (provenance: config, as_of_date, seed, git sha, UTC time)
 - pipeline.py  the single entry point
+
+The llm/ package is a consumer of the spine, never the reverse. It owns the analyst comparison: Prediction A read analytically from the math model, Prediction B from an LLM blind to A, and Prediction C reconciling both.
+
+- llm/weights.py       frozen factor taxonomy and weight vector, loaded from config
+- llm/anchor.py        frozen anchor-to-probability mapping and the tolerance box
+- llm/rounds.py        round codes and their order, the one definition of "later"
+- llm/fixtures.py      committed knockout fixtures, the source of truth for a tie
+- llm/quarantine.py    the dossier leakage guard, round aware and date bounded
+- llm/coverage.py      the research coverage manifest and its completeness gate
+- llm/research.py      the allow-listed web-search call that builds the dossier
+- llm/model_call.py    the single network boundary for B and C
+- llm/prediction_a.py  A, analytic, the Dixon-Coles three-way and the Elo lean
+- llm/prediction_b.py  B, the analyst prediction, blind to A
+- llm/reconcile_c.py   C, the reconciler, and the A-B pool as a scoreable line
+- llm/validity.py      the shared simplex check
+- llm/schemas.py       JSON Schema validation for the dossier and A, B, C
+- llm/score_llm.py     scoring, reusing calibrate.rps
+- llm/live.py          the per-tie forward-only orchestrator: guards, caps, cadence
+- llm/smoke.py         the offline plumbing check, no key, runs in the normal suite
+
+## LLM layer invariants (do not break)
+
+These are structural guarantees, not preferences. Each one names how it is enforced, so a future session can tell a gate from a discipline without guessing.
+
+- B is blind to A by construction. B's loader imports no A or C module, and build and
+  predict for B take a dossier, never an A document. Never pass A into B's path.
+  Gated by tests/test_independence_gate.py.
+- The model call is the single network boundary, and it is injected. No real client is
+  ever constructed in the test suite.
+  Gated by tests/test_llm_live_gate.py.
+- There is one RPS, calibrate.rps. Never write a second scorer.
+  Gated by tests/test_llm_score_gate.py.
+- The anchor parameters, the tolerance box, and the factor weights are pre-registered
+  priors. Never fit them on outcomes and never derive them from Prediction A. A drift
+  gate asserts the module constants and their config record never diverge, and the
+  weights are checked complete and summing to one. That they were never fitted is a
+  design commitment rather than a gate: no test can assert a negative about how a
+  constant was chosen.
+  Partly gated by tests/test_anchor_gate.py and tests/test_llm_prediction_a_gate.py.
+- The quarantine gate fails loud and never repairs a dossier. A false positive is safe,
+  a false negative is a leak.
+  Gated by tests/test_llm_quarantine_gate.py.
+- The forward-only rule. A prediction runs once, before kickoff, with the dossier
+  committed and timestamped first. The orchestrator refuses a tie whose kickoff has
+  passed, and skips a tie whose predictions are already committed. This is the
+  repository's integrity claim: if either refusal breaks, every committed prediction is
+  worthless, because a prediction that can be made after the result is not a prediction.
+  Gated by tests/test_llm_forward_only_gate.py.
 
 ## Build principles
 
@@ -59,8 +109,13 @@ The model layer produces structured JSON and nothing else. Every downstream cons
 - Verification gates are real tests, not prose. A no-leakage check, schema validation, reproducibility, and calibration are pytest tests that must pass. If a gate cannot be expressed as a test, it is not a gate.
 - Do not chase model accuracy and do not add a UI. The architecture and the honesty are the product.
 
-## Style rules (all output, including code comments and commit messages)
+## Style rules (prose: docstrings, comments, commit messages, session-log entries, README)
 
-- No em dashes anywhere. Use commas, periods, or restructure the sentence.
-- No emojis anywhere.
+- No em dashes in prose. Use commas, periods, or restructure the sentence.
+- No emojis in prose.
+- This rule is about prose, not about characters in code. A dash inside a regex, a
+  string literal, or test data is data, not style. The scoreline pattern in
+  quarantine.py deliberately matches a hyphen, an en dash, an em dash, and a colon, so
+  a leaked scoreline written with any of those separators is caught. Never strip a
+  character that a matcher depends on.
 - Commit messages are concise and present tense. One logical change per commit.
