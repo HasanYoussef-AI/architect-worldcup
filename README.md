@@ -638,6 +638,10 @@ own weaknesses.
   are separated and twelve teams cluster on points and goals. It rarely changes the
   title picture, since it resolves by relative strength, but it is engaged
   frequently and is reported honestly rather than hidden.
+- **The pipeline is fit to international football and the 2026 format.** Retargeting
+  it to a club competition means refitting the ratings layers on a different match
+  distribution and rewriting the simulator around a different tournament structure.
+  That is a sibling build, not a configuration change.
 
 ---
 
