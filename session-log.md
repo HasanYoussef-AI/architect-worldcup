@@ -239,3 +239,9 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commits: ecf1af3 adopt Apache 2.0 and align the README and package metadata; 0a20f1f state the pipeline scope in Limitations.
 - Verified: ruff and format clean, the full suite passes locally, the package builds under the new license declaration, and a tracked-tree search returns no standing all-rights-reserved or evaluation-only language, only the dated 2026-06-22 entry carrying its superseded marker.
 - Next: push the batch to the private origin, then make the visibility decision.
+
+## 2026-07-10  Section 11 accuracy fix before going public
+- Did: corrected section 11 of the README where it described a repository that does not exist. The artifacts paragraph claimed the run outputs are not committed, but outputs/llm/ carries the forward-only prediction record, the frozen research dossiers and the committed Predictions A, B, and C for the predicted ties. The sentence now names that as a deliberate exception and states the reason: the commit timestamp on a frozen dossier is what proves the prediction was made before its kickoff, so removing the artifacts would remove the evidence. The two prerequisites of the forward-only path, a fixture row in the knockout fixtures CSV and source rows for both teams, are now documented, so a reader with a key understands why the shipped round-of-32 ties refuse to run: every one of their kickoff windows has closed, and only six of the thirty-two fixture teams carry source rows, since sourcing was done tie by tie before each run. Also recorded that the upstream martj42 data is public domain under CC0.
+- Commit: 7fccc26 correct section 11 on the forward path and the committed artifacts.
+- Verified: ruff and format clean, the full suite passes locally at 170, and a full-history secret scan is clean at the published HEAD. The README carries no em dashes.
+- Next: make the visibility decision.
