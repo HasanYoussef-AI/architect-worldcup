@@ -266,3 +266,10 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commits: 1093b3e pin the forward-only kickoff guard and the already-predicted skip; 501cd1b complete the architecture map and state the llm invariants and their gates.
 - Verified: ruff and format clean, the full suite passes locally at 172, and the two new tests drive the real refusal branches in run_tie, not a mock, each asserting the refusal before any model call.
 - Next: make the visibility decision.
+
+## 2026-07-10  Add the two live quarter-final fixtures
+- Did: entered the quarter-final round mid-round, after the repository went public. Two of the four quarter-finals were already past kickoff, match 97 played on July 9 and match 98 kicked off today, so under the forward-only rule they are correctly absent from a file whose purpose is ties the pipeline can still act on. Added the two live quarter-finals, match 99 Norway vs England and match 100 Argentina vs Switzerland, to the fixtures file, with both kickoffs verified against multiple independent sources. Updated README section 11 in the same commit so the documented scope names the round of 32 and the two live quarter-finals rather than the round of 32 alone, keeping the documentation true to the committed fixtures.
+- Note: the nominal home team for match 99 follows the unanimous public listing and carries no analytical weight, since the model runs at a neutral venue with no home advantage.
+- Commit: 99f662f add the two live quarter-finals and update section 11 scope.
+- Verified: ruff and format clean, the full suite passes locally at 172, and load_fixtures on round QF returns exactly matches 99 and 100 in order. No sources and no prediction were added; those are separate steps.
+- Next: source a chosen quarter-final's two teams, then run it forward-only before its kickoff.
