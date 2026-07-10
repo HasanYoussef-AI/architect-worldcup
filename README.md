@@ -651,10 +651,11 @@ The system is reproducible to the digit. The same seed and the same immutable da
 snapshot produce the same output, and every run writes a provenance log recording
 the configuration, the cutoff date, the seed, the git commit, and the UTC time.
 
-**The data.** The first run fetches the public martj42 international results dataset
-once over HTTPS into a dated, immutable snapshot under `data/raw/`, then never
-re-downloads or overwrites it. Every later run reads that local snapshot, so after
-the first run the pipeline is fully offline and deterministic.
+**The data.** The first run fetches the public martj42 international results dataset,
+released into the public domain under CC0, once over HTTPS into a dated, immutable
+snapshot under `data/raw/`, then never re-downloads or overwrites it. Every later run
+reads that local snapshot, so after the first run the pipeline is fully offline and
+deterministic.
 
 **Reproduce offline. No API key, no cost.** Everything below runs from the public
 data alone, and it is the entire model of record and every verification claim in
@@ -695,6 +696,15 @@ command:
 ( set -a; . ./.env; set +a; uv run wc-llm-live --round R32 --match <n> --as-of YYYY-MM-DD )
 ```
 
+**Two prerequisites, both by design.** The committed fixtures cover the round of 32,
+matches 73 to 88, and every one of those kickoff windows has closed, so the command
+above refuses on all of them. Predicting a later tie means adding its fixture row to
+`data/llm/knockout_fixtures_2026.csv` first, and adding both of its teams to the
+national sources file. The source allow-list is assembled per team, and a run halts
+before it spends anything if either side has no sourced outlet. Six of the thirty-two
+teams in the committed fixtures carry source rows: sourcing was done tie by tie,
+immediately before each run, not up front for teams that were never predicted.
+
 A `--rehearsal` flag runs the same path, writes its artifacts, and makes no commits,
 for a dry run before a real forward prediction. Prediction A carries no model call:
 it is the analytic Dixon-Coles and Elo pairing, bit-reproducible at a fixed as-of
@@ -714,8 +724,12 @@ uv run pytest -q
 
 **The artifacts.** Every model and evaluation run writes a versioned JSON artifact
 with provenance to `outputs/`. Presentation reads those artifacts and never
-recomputes. Raw data snapshots and run outputs are immutable and are not committed
-to version control; the directories are kept, the contents are local.
+recomputes. Raw data snapshots and the outputs of the math and evaluation runs are
+immutable and stay local: those directories are kept, their contents are not
+committed. The LLM layer is the deliberate exception. Its research dossiers and its
+committed Predictions A, B, and C are tracked in `outputs/llm/`, because the commit
+timestamp on a frozen dossier is what proves the prediction was made before the
+kickoff. Removing them would remove the evidence.
 
 **License.** Apache License 2.0. Use it, modify it, redistribute it, commercially or
 not, provided you retain the copyright and license notices and state your changes.
