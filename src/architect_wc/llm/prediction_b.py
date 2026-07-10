@@ -1,4 +1,4 @@
-"""Prediction B, the LLM analyst per-match prediction machine (Phase 2).
+"""Prediction B, the LLM analyst per-match prediction machine.
 
 Offline path. The model supplies only the factor scores, the citations, the
 insufficient-evidence flags, the emitted three-way, the emitted shootout lean, and
@@ -183,8 +183,8 @@ def predict_b(
     """Run the prediction: call the injected model boundary, then build the document.
 
     model_call(dossier, config) returns the model's emitted response. Offline it is a
-    local stub; in production it is the Anthropic structured-output call (wired in a
-    later step, not here). This keeps the only network boundary in one place.
+    local stub; in production it is the Anthropic structured-output call (wired in
+    live.py, not here). This keeps the only network boundary in one place.
     """
     model_response = model_call(dossier, config)
     return build_prediction_b(

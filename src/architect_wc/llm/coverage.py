@@ -1,4 +1,4 @@
-"""The research coverage manifest and its completeness gate (Refinement A).
+"""The research coverage manifest and its completeness gate.
 
 A per-match dossier records, for each of the seven factor cells, how many raw
 search hits came back (n_raw_hits) and how many survived the quarantine gate and

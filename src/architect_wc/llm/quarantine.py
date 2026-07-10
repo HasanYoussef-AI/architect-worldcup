@@ -1,4 +1,4 @@
-"""R3 quarantine gate, the leakage guard for the LLM phase.
+"""The quarantine gate, the leakage guard for the LLM phase.
 
 This is the assert_no_leakage analog for the research dossier. It is round aware,
 keyed to the target round, not a blanket scoreline stripper. Pre-cutoff group
@@ -293,7 +293,7 @@ def assert_no_dossier_leakage(
     fixtures: list[dict[str, Any]] | None = None,
     cutoff: Any = None,
 ) -> None:
-    """Raise LeakageError if the dossier carries forbidden content. The R3 gate.
+    """Raise LeakageError if the dossier carries forbidden content.
 
     Mirrors calibrate.assert_no_leakage: any hit is a failure, not a warning, so it
     raises rather than logs. A clean dossier returns None.

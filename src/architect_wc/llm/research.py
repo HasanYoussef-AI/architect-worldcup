@@ -1,11 +1,10 @@
-"""Phase 1 of the LLM analyst layer: the research call that builds a per-match
-dossier from allow-listed web search, then gates it.
+"""The research call that builds a per-match dossier from allow-listed web search,
+then gates it.
 
-This is the only module that calls the Anthropic API in the LLM layer so far, and
-it calls it for research only: a single claude-opus-4-8 message with the
-web_search_20260209 server tool, its allowed_domains pinned to the per-fixture
-allow-list and its max_uses to the per-match budget. The model researches the
-fixed seven-factor taxonomy and returns a JSON dossier; this module does not use
+This module calls the Anthropic API for research only: a single claude-opus-4-8
+message with the web_search_20260209 server tool, its allowed_domains pinned to the
+per-fixture allow-list and its max_uses to the per-match budget. The model researches
+the fixed seven-factor taxonomy and returns a JSON dossier; this module does not use
 forced structured output, it instructs the schema in the prompt and validates the
 result with jsonschema, the same prompt-instructed discipline the skeleton uses.
 
@@ -274,7 +273,7 @@ def quarantine_filter(
 ) -> dict[str, int]:
     """Drop quarantine-flagged findings from the admissible set, filter and record.
 
-    Refinement A's behaviour: a flagged finding is not kept and does not abort the
+    The filter-and-record rule: a flagged finding is not kept and does not abort the
     run. It is removed from its factor array and, through reconcile_coverage, shows
     up as a raw hit that did not become an admissible finding, so the manifest
     records the drop rather than passing it off as a clean neutral. The leakage
@@ -564,7 +563,7 @@ def produce_dossier(
         "request_id": getattr(response, "_request_id", None),
     }
 
-    # Filter quarantine-flagged findings (Refinement A: drop and record, never
+    # Filter quarantine-flagged findings (filter-and-record: drop and record, never
     # abort), then rebuild the coverage manifest from the surviving findings so a
     # dropped fact is recorded as a raw hit that did not survive.
     dropped = quarantine_filter(dossier, fixture, round_code, as_of_date)

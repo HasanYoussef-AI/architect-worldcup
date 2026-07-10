@@ -1,4 +1,4 @@
-"""Prediction C, the reconciliation layer, and the A-B pool (Phase 3).
+"""Prediction C, the reconciliation layer, and the A-B pool.
 
 Offline path. C reconciles A and B at the distribution level. It does not select A
 or B and it does not re-score the seven factors: it emits its own 90-minute

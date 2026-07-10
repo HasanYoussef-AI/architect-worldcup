@@ -1,4 +1,4 @@
-"""Phase 8, the math versus LLM analyst comparison.
+"""The math versus LLM analyst comparison.
 
 The math model produces Prediction A for a knockout round and freezes it. An LLM
 produces Prediction B for the same round, blind to A. A third pass, Prediction C,
@@ -26,12 +26,11 @@ that did not become an admissible finding (raw greater than admissible), and the
 per-match rationale is expected to state the drop. The run is never aborted by a
 single flagged finding.
 
-This module currently holds the offline skeleton and the Phase 1 research layer:
-the frozen weights, the round-aware quarantine gate, the per-match research call
-with allow-listed web search, the coverage manifest and its gate, the analytic
-Prediction A math, the RPS scoring extension, schema validation, and the offline
-plumbing smoke test. The Phase 2 prediction calls (Prediction B blind to A, then C
-reconciling A and B) are wired in a later step.
+The package holds the frozen weights and anchor mapping, the round-aware
+quarantine gate, the per-match research call with allow-listed web search, the
+coverage manifest and its gate, the analytic Prediction A math, Prediction B and
+the reconciler C, the single model-call boundary, the per-tie live orchestrator,
+the RPS scoring extension, schema validation, and the offline plumbing smoke test.
 """
 
 from __future__ import annotations

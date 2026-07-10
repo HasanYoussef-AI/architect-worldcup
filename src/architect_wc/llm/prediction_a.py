@@ -1,4 +1,4 @@
-"""Prediction A, the math model per-match call (Phase 3, per-match shape).
+"""Prediction A, the math model per-match call (per-match shape).
 
 A reads the 90-minute three-way and advance probability straight from the existing
 math model: the Dixon-Coles analytic three-way at a neutral venue plus the Elo
