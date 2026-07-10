@@ -702,9 +702,10 @@ command:
 ( set -a; . ./.env; set +a; uv run wc-llm-live --round R32 --match <n> --as-of YYYY-MM-DD )
 ```
 
-**Two prerequisites, both by design.** The committed fixtures cover the round of 32,
-matches 73 to 88, and every one of those kickoff windows has closed, so the command
-above refuses on all of them. Predicting a later tie means adding its fixture row to
+**Two prerequisites, both by design.** The committed fixtures now cover the round of
+32 and the two live quarter-finals, matches 99 and 100, and a later tie is added to
+the fixtures file with both teams' source rows once FIFA confirms the pairing.
+Predicting a later tie means adding its fixture row to
 `data/llm/knockout_fixtures_2026.csv` first, and adding both of its teams to the
 national sources file. The source allow-list is assembled per team, and a run halts
 before it spends anything if either side has no sourced outlet. Six of the thirty-two
