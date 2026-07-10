@@ -13,6 +13,12 @@ is better. That spread, not any single lucky window, is the headline. A single
 frozen calibration window, used throughout as the reproduction anchor, sits at
 **0.1611** against a **0.2135** baseline.
 
+The code was written by Claude Code, an AI coding agent, working under a written
+protocol. That protocol is committed as `CLAUDE.md`, the agent's session log is
+committed beside it, and every commit carries a co-author trailer. What the agent
+proposed was reviewed, and more than once a proposed fix was killed by reading the
+code it claimed to repair. Directing the agent and reviewing its output was the work.
+
 ---
 
 ## 1. Summary
