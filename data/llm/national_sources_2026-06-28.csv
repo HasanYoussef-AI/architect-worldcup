@@ -10,8 +10,9 @@
 # Anonymous, open-edit, forum, and betting sources are never listed.
 #
 # Extended per round as later fixtures are researched. This snapshot covers the
-# first researched fixture, Uruguay vs Spain (Group H), and the Round of 32 teams
-# Germany, Paraguay, Portugal, Croatia, and Austria.
+# first researched fixture, Uruguay vs Spain (Group H), the Round of 32 teams
+# Germany, Paraguay, Portugal, Croatia, and Austria, and the quarter-final teams
+# England, Norway, Argentina, and Switzerland.
 team,kind,domain,tier
 Spain,federation,rfef.es,1
 Spain,outlet,marca.com,2
@@ -34,3 +35,15 @@ Croatia,outlet,sportske.hr,2
 Austria,federation,oefb.at,1
 Austria,outlet,laola1.at,2
 Austria,outlet,derstandard.at,2
+England,federation,thefa.com,1
+England,outlet,bbc.com,2
+England,outlet,theguardian.com,2
+Norway,federation,fotball.no,1
+Norway,outlet,vg.no,2
+Norway,outlet,dagbladet.no,2
+Argentina,federation,afa.com.ar,1
+Argentina,outlet,ole.com.ar,2
+Argentina,outlet,clarin.com,2
+Switzerland,federation,football.ch,1
+Switzerland,outlet,blick.ch,2
+Switzerland,outlet,nzz.ch,2
