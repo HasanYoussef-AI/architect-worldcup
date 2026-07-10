@@ -252,3 +252,9 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commit: 351814f state how the repository was built.
 - Verified: ruff and format clean, the full suite passes locally at 170, and a full-history secret scan is clean at the published HEAD. The README carries no em dashes.
 - Next: make the visibility decision.
+
+## 2026-07-10  Correct and clear the llm package docstrings
+- Did: brought the llm package docstrings to the public standard and fixed two that were factually false. The package docstring claimed Predictions B and C were wired in a later step, but they were wired in cd9af27; it now describes the full package, the research call, Prediction A, Prediction B, the reconciler C, the model-call boundary, and the live orchestrator. research.py claimed to be the only module in the LLM layer that calls the Anthropic API, but model_call.py also does; its opening now says only that it calls the API for research. Cleared the internal phase and refinement tokens from the package docstrings and one code comment, and the coverage rule that had been labeled by an internal name is now named by its public name, the filter-and-record rule.
+- Commit: 14e2fc2 correct two stale llm docstrings and clear the internal tokens from the llm package.
+- Verified: ruff and format clean, the full suite passes locally at 170, and a token grep scoped to the llm package returns zero internal phase or refinement tokens.
+- Next: make the visibility decision.
