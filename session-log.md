@@ -273,3 +273,10 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commit: 99f662f add the two live quarter-finals and update section 11 scope.
 - Verified: ruff and format clean, the full suite passes locally at 172, and load_fixtures on round QF returns exactly matches 99 and 100 in order. No sources and no prediction were added; those are separate steps.
 - Next: source a chosen quarter-final's two teams, then run it forward-only before its kickoff.
+
+## 2026-07-11  Source the four quarter-final teams
+- Did: added national research sources for the four quarter-final teams, England, Norway, Argentina, and Switzerland, each row a federation plus two national outlets in the same one-plus-two shape every existing team uses. Every domain was verified live against the web before being committed: each federation against the association's own current official site, each outlet a current national masthead. This sources the two live quarter-finals, so a research run on either will not halt on an unsourced side. The file's coverage comment was updated in the same commit to name the four teams.
+- Note: the Argentina federation domain was taken from the association's own live site rather than a third-party directory that listed a different one.
+- Commit: 3c1b7e9 add national allow-list rows for the four quarter-final teams.
+- Verified: ruff and format clean, the full suite passes locally at 172, and the sources file parses with each new team returning exactly three rows, one federation and two outlets. No prediction was run and no key was used.
+- Next: run a chosen quarter-final forward-only before its kickoff.
