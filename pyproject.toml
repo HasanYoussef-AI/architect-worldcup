@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Live World Cup 2026 bracket re-simulator with a verification-first architecture."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { file = "LICENSE" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "Hasan Youssef" }]
 dependencies = [
     "penaltyblog",
@@ -34,7 +35,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]

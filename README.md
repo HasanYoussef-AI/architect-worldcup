@@ -713,8 +713,12 @@ with provenance to `outputs/`. Presentation reads those artifacts and never
 recomputes. Raw data snapshots and run outputs are immutable and are not committed
 to version control; the directories are kept, the contents are local.
 
-**License.** Proprietary, all rights reserved. This repository is public for
-evaluation and reference only and is not licensed for reuse. See `LICENSE`.
+**License.** Apache License 2.0. Use it, modify it, redistribute it, commercially or
+not, provided you retain the copyright and license notices and state your changes.
+See `LICENSE` and `NOTICE`. The license covers the code and the written record in
+this repository. It does not cover the third-party data the pipeline downloads at
+runtime, which retains its own terms, and it grants no rights to the names The
+Architect AI or The Architect. If you build on this, a link back is appreciated.
 
 ---
 
