@@ -245,3 +245,10 @@ Continuation notes for the Architect WorldCup build. Each session reads the last
 - Commit: 7fccc26 correct section 11 on the forward path and the committed artifacts.
 - Verified: ruff and format clean, the full suite passes locally at 170, and a full-history secret scan is clean at the published HEAD. The README carries no em dashes.
 - Next: make the visibility decision.
+
+## 2026-07-10  State the repository's provenance in the README
+- Did: added a provenance paragraph to the README header block, so a reader arrives at the frame rather than supplying their own. It states that the code was written by an AI coding agent working under a written protocol; that the protocol is committed as CLAUDE.md, the session log is committed beside it, and every commit carries a co-author trailer; and that the review discipline was real, with proposed fixes reversed more than once by reading the code they claimed to repair. Stated once, in the header block, with no heading and no disclaimer elsewhere.
+- Decision, not to rewrite history: the co-author trailers stay. Stripping them would mean regenerating every commit, which would break every hash cited in the README, the session log, and the project tracker, and a regenerated history on a repository whose central claim is a set of pre-kickoff commit timestamps would be worth nothing. The provenance is stated openly instead.
+- Commit: 351814f state how the repository was built.
+- Verified: ruff and format clean, the full suite passes locally at 170, and a full-history secret scan is clean at the published HEAD. The README carries no em dashes.
+- Next: make the visibility decision.
